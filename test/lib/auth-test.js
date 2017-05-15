@@ -27,6 +27,7 @@ describe('Auth', () => {
     it('rejects 401 if no password provided');
     it('returns 401 if username and password are not valid');
     it('returns a token for a valid logged-in user');
+    it('accepts a User object to log in from internal retrieval');
     it('sets the token\'s expiration for 7 days out');
   });
 

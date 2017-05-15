@@ -47,4 +47,19 @@ module.exports = class User {
   static login(username, password) {
 
   }
+
+  /**
+   * @todo
+   * @async
+   * @static
+   * @method create
+   *
+   * Create new user by username/password
+   *
+   * @param {String} username - plaintext username
+   * @param {String} password - plaintext password, to be encrypted
+   */
+  static create(username, password) {
+
+  }
 }
