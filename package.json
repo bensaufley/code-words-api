@@ -1,0 +1,26 @@
+{
+  "name": "code-words-api",
+  "version": "0.1.0",
+  "description": "API for code-words game",
+  "main": "server.js",
+  "repository": "https://github.com/bensaufley/code-words-api",
+  "author": "Ben Saufley <contact@bensaufley.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "foreman": "^2.0.0",
+    "jsonwebtoken": "^7.4.0",
+    "morgan": "^1.8.1"
+  },
+  "scripts": {
+    "start": "nf start",
+    "test": "nf run mocha test"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.4.1",
+    "sinon": "^2.2.0",
+    "sinon-chai": "^2.10.0"
+  }
+}
