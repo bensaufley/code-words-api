@@ -8,7 +8,9 @@ const express = require('express'),
 
 const app = express();
 
-app.use(logger('dev'));
+if (process.env.NODE_ENV !== 'test' || process.env.DEBUG === 'true') {
+  app.use(logger('dev'));
+}
 app.use(bodyParser.json());
 
 app.all('/*', function(req, res, next) {
@@ -39,6 +41,10 @@ app.use(function(req, res, next) {
 
 app.set('port', process.env.PORT || 3000);
 
-var server = app.listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + server.address().port);
-});
+if (process.env.NODE_ENV !== 'test') {
+  var server = app.listen(app.get('port'), function() {
+    console.log('Express server listening on port ' + server.address().port);
+  });
+}
+
+module.exports = app;
