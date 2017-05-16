@@ -1,0 +1,5 @@
+{
+  "development": "postgres://root:@localhost:5432/code_words_api_development",
+  "test": "postgres://root:@localhost:5432/code_words_api_test",
+  "production": { "ENV": "DATABASE_URL" }
+}

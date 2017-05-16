@@ -7,10 +7,17 @@ const chai = require('chai'),
       sinonChai = require('sinon-chai'),
       config = require('../config');
 
+const UUIDV4_REGEXP = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+      JWT_REGEXP = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
+
 chai.use(sinonChai);
 
 module.exports = {
   config: config,
   expect: chai.expect,
-  sinon: sinon
+  sinon: sinon,
+  matchers: {
+    uuid: sinon.match((val) => { return UUIDV4_REGEXP.test(val) }, 'UUID'),
+    jwt: sinon.match((val) => { return JWT_REGEXP.test(val) }, 'JsonWebToken')
+  }
 };

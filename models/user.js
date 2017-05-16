@@ -1,65 +1,77 @@
 'use strict';
 
-module.exports = class User {
-  /**
-   * @todo
-   * @async
-   * @static
-   * @method find
-   *
-   * Find a user by ID
-   *
-   * @param {Integer} id - user ID
-   * @returns {User}
-   */
-  static find(id) {
+const Sequelize = require('sequelize'),
+      bcrypt = require('bcrypt'),
+      config = require('../config'),
+      sequelizeInstance = config.sequelize;
 
+const setSecurePassword = (user, options, callback) => {
+  user.username = user.username.toLowerCase().trim();
+  if (!user.password) return callback(null, options);
+  bcrypt.hash(user.get('password'), 10)
+    .then((hash) => {
+      user.set('passwordDigest', hash);
+      callback(null, options);
+    })
+    .catch((err) => { callback(err); });
+};
 
-  }
+const User = sequelizeInstance.define('user', {
+  id: {
+    type: Sequelize.UUID,
+    defaultValue: Sequelize.UUIDV4,
+    primaryKey: true
+  },
+  username: {
+    type: Sequelize.STRING(50),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: [1, 50]
+    }
+  },
+  passwordDigest: {
+    field: 'password_digest',
+		type: Sequelize.STRING,
+		validate: {
+			notEmpty: true
+		}
+	},
+	password: {
+		type: Sequelize.VIRTUAL,
+		allowNull: false,
+		validate: {
+			notEmpty: true
+		}
+	},
+}, {
+  hooks: {
+    beforeCreate: setSecurePassword,
+    beforeUpdate: setSecurePassword
+  },
+  indexes: [
+    { unique: true, fields: ['username'] }
+  ],
+  classMethods: {
+    login: function(username, password) {
+      if (!username) return Promise.resolve(null);
+      return User.findOne({ where: { username: username } })
+        .then((user) => user ? user.authenticate(password) : null);
+    }
+  },
+  instanceMethods: {
+    authenticate: function (password) {
+      return bcrypt.compare(password, this.passwordDigest)
+        .then((result) => result ? this : null);
+    },
+    serialize: function() {
+      return {
+        id: this.id,
+        username: this.username
+      };
+    }
+  },
+  underscored: true
+});
 
-  /**
-   * @todo
-   * @async
-   * @static
-   * @method findBy
-   *
-   * Find a user by an Object of params
-   *
-   * @param {Object} params - params by which to search
-   * @returns {User}
-   */
-  static findBy(params) {
-
-  }
-
-  /**
-   * @todo
-   * @async
-   * @static
-   * @method login
-   *
-   * Retrieve a user by username/password
-   *
-   * @param {String} username
-   * @param {String} password - hashed password to compare with database
-   * @returns {User}
-   */
-  static login(username, password) {
-
-  }
-
-  /**
-   * @todo
-   * @async
-   * @static
-   * @method create
-   *
-   * Create new user by username/password
-   *
-   * @param {String} username - plaintext username
-   * @param {String} password - plaintext password, to be encrypted
-   */
-  static create(username, password) {
-
-  }
-}
+module.exports = User;

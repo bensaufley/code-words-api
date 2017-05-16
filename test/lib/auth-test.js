@@ -1,11 +1,30 @@
 'use strict';
 
-const helper = require('../test-helper'),
+const jwt = require('jsonwebtoken'),
+      helper = require('../test-helper'),
       Auth = require('../../lib/auth'),
+      User = require('../../models/user'),
       expect = helper.expect,
       sinon = helper.sinon;
 
 describe('Auth', () => {
+  let res, sandbox;
+
+  beforeEach((done) => {
+    sandbox = sinon.sandbox.create();
+    res = {};
+    res.status = () => res;
+    res.json = () => res;
+    sandbox.spy(res, 'json');
+    sandbox.spy(res, 'status');
+    User.truncate().then(() => { done(); });
+  });
+
+  afterEach((done) => {
+    sandbox.restore();
+    User.truncate().then(() => { done(); });
+  });
+
   describe('constructor', () => {
     it('returns an instance of Auth', () => {
       let auth = new Auth();
@@ -14,37 +33,95 @@ describe('Auth', () => {
     })
   });
 
-  describe('getUser', () => {
-    it('throws an Error for missing username');
-    it('throws an Error for missing password');
-    it('returns a Promise');
-    it('resolves with User');
-    it('rejects with Error');
-  });
-
   describe('login', () => {
-    it('rejects 401 if no username provided');
-    it('rejects 401 if no password provided');
-    it('returns 401 if username and password are not valid');
-    it('returns a token for a valid logged-in user');
-    it('accepts a User object to log in from internal retrieval');
-    it('sets the token\'s expiration for 7 days out');
+    it('rejects 401 if no username provided', () => {
+      sandbox.stub(User, 'findOne');
+      let auth = new Auth({ body: { username: '', password: 'password' } }, res);
+
+      return auth.login().then(() => {
+        expect(User.findOne).to.have.beenCalled;
+        expect(res.status).to.have.been.calledWith(401);
+      });
+    });
+
+    it('rejects 401 if no password provided', () => {
+      sandbox.spy(User.Instance.prototype, 'authenticate');
+      let auth = new Auth({ body: { username: 'my-user', password: '' } }, res);
+
+      return User.create({ username: 'my-user', password: 'my-password' })
+        .then((user) => {
+          return auth.login().then(() => {
+            expect(User.Instance.prototype.authenticate).to.have.been.calledWith('');
+            expect(res.status).to.have.been.calledWith(401);
+          });
+        });
+    });
+
+    it('returns 401 if username and password are not valid', () => {
+      sandbox.spy(User.Instance.prototype, 'authenticate');
+      let auth = new Auth({ body: { username: 'my-user', password: 'not-my-password' } }, res);
+
+      return User.create({ username: 'my-user', password: 'my-password' })
+        .then((user) => {
+          return auth.login().then(() => {
+            expect(User.Instance.prototype.authenticate).to.have.been.calledWith('not-my-password');
+            expect(res.status).to.have.been.calledWith(401);
+          });
+        });
+    });
+
+    it('returns a token for a valid logged-in user', () => {
+      let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
+
+      return User.create({ username: 'my-user', password: 'my-password' })
+        .then((user) => {
+          return auth.login().then(() => {
+            const json = res.json.getCall(0).args[0],
+                  decoded = jwt.verify(json.token, helper.config.secret);
+
+            expect(res.status).to.have.been.calledWith(200);
+            expect(decoded.userId).to.eq(user.id);
+          });
+        });
+    });
+
+    it('accepts a User object to log in from internal retrieval', () => {
+      let auth = new Auth({}, res);
+
+      return User.create({ username: 'my-user', password: 'my-password' })
+        .then((user) => {
+          return auth.login(user).then(() => {
+            const json = res.json.getCall(0).args[0],
+                  decoded = jwt.verify(json.token, helper.config.secret);
+
+            expect(res.status).to.have.been.calledWith(200);
+            expect(decoded.userId).to.eq(user.id);
+          });
+        });
+    });
+
+    it('sets the token\'s expiration for 7 days out', () => {
+      let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
+
+      return User.create({ username: 'my-user', password: 'my-password' })
+        .then((user) => {
+          return auth.login().then(() => {
+            const json = res.json.getCall(0).args[0],
+                  decoded = jwt.verify(json.token, helper.config.secret),
+                  nextWeek = Math.floor((new Date().getTime() + 7 * 60 * 60 * 24 * 1000) / 1000);
+
+            expect(res.status).to.have.been.calledWith(200);
+            expect(decoded.exp).to.be.within(nextWeek - 1, nextWeek + 1);
+          });
+        });
+    });
   });
 
   describe('reject', () => {
-    let auth, res, sandbox;
+    let auth;
 
     beforeEach((done) => {
-      sandbox = sinon.sandbox.create();
-      res = { status: () => {}, json: () => {} };
       auth = new Auth({}, res);
-      sinon.stub(res, 'status').returns(res);
-      sinon.stub(res, 'json');
-      done();
-    });
-
-    afterEach((done) => {
-      sandbox.restore();
       done();
     });
 
@@ -81,6 +158,34 @@ describe('Auth', () => {
 
       expect(res.status).to.have.been.calledWith(500);
       expect(res.json).to.have.been.calledWith({ status: 500, message: 'Server Error' });
+    });
+  });
+
+  describe('signup', () => {
+    it('rejects 400 Invalid User Information if User creation fails', () => {
+      let auth = new Auth({ body: { username: 'my-user', password: '' } }, res);
+
+      return auth.signup().then(() => {
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.json).to.have.been.calledWith({ status: 400, message: 'Invalid User Information' });
+      });
+    });
+
+    it('creates a new User if valid', () => {
+      let auth = new Auth({ body: { username: 'my-user', password: 'valid-password' } }, res);
+
+      return auth.signup().then(() => {
+        expect(res.status).to.have.been.calledWith(200);
+        expect(res.json).to.have.been.calledWith(
+          sinon.match({
+            token: helper.matchers.jwt,
+            user: {
+              id: helper.matchers.uuid,
+              username: 'my-user'
+            }
+          })
+        );
+      });
     });
   });
 });
