@@ -1,10 +1,24 @@
 const Sequelize = require('sequelize'),
-      databaseUri = process.env.DATABASE_URL || require('./database.json')[process.env.NODE_ENV];
+      database = process.env.DATABASE_URL || require('./database.json')[process.env.NODE_ENV];
 
 const logger = (...messages) => {
   if (process.env.NODE_ENV === 'test' && process.env.DEBUG !== 'true') return;
   console.log(...messages);
 };
+
+let sequelize;
+if (typeof database === 'string') {
+  sequelize = new Sequelize(database, { logging: logger });
+} else {
+  sequelize = new Sequelize({
+    database: database.database,
+    dialect: 'postgres',
+    username: process.env[database.user.ENV],
+    password: process.env[database.password.ENV],
+    port: database.port,
+    logging: logger
+  });
+}
 
 /**
  * @typedef Config
@@ -20,5 +34,5 @@ const logger = (...messages) => {
 module.exports = {
   log: logger,
   secret: process.env.SECRET_TOKEN,
-  sequelize: new Sequelize(databaseUri, { logging: logger })
+  sequelize
 };

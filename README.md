@@ -4,13 +4,16 @@ A Node API for Code Words, a game where you guess words.
 
 ## Setup
 
-Copy `.env.example` to `.env` and [generate a `SECRET_TOKEN` for development](secret-key-gen):
+Copy `.env.example` to `.env` and
+[generate a `SECRET_TOKEN` for development](secret-key-gen):
 
 ```
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'));"
 ```
 
-Replace `<SECRET_TOKEN>` in your new `.env` with this token.
+Replace `<SECRET_TOKEN>` in your new `.env` with this token. Replace the
+other `<BLAH>` things in your new `.env` with real values (e.g. Database
+credentials).
 
 Then run:
 
@@ -24,11 +27,13 @@ $ npm run migrate-up
 
 `npm start`
 
-This app uses [foreman-node], so `start` wraps `node server.js` (in the Procfile) with `nf start`.
+This app uses [foreman-node], so `start` wraps `node server.js` (in the
+Procfile) with `nf start`.
 
 ## Testing
 
-`npm run test` is just a shortcut for `nf run mocha`. To pass arguments, add `--` and your arguments, e.g.:
+`npm run test` is just a shortcut for `nf run mocha`. To pass arguments, add
+`--` and your arguments, e.g.:
 
 ```sh
 $ npm run test -- --growl

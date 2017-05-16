@@ -1,5 +1,20 @@
 {
-  "development": "postgres://root:@localhost:5432/code_words_api_development",
-  "test": "postgres://root:@localhost:5432/code_words_api_test",
+  "defaultEnv": { "ENV": "NODE_ENV" },
+  "development": {
+    "database": "code_words_api_development",
+    "driver": "pg",
+    "host": "localhost",
+    "port": 5432,
+    "user": { "ENV": "DATABASE_USER" },
+    "password": { "ENV": "DATABASE_PASSWORD" }
+  },
+  "test": {
+    "database": "code_words_api_test",
+    "driver": "pg",
+    "host": "localhost",
+    "port": 5432,
+    "user": { "ENV": "DATABASE_USER" },
+    "password": { "ENV": "DATABASE_PASSWORD" }
+  },
   "production": { "ENV": "DATABASE_URL" }
 }
