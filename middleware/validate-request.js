@@ -6,24 +6,25 @@ const jwt = require('jsonwebtoken'),
       User = require('../models/user');
 
 module.exports = (req, res, next) => {
-  const token = (req.body && req.body.access_token) || (req.query && req.query.access_token) || req.headers['x-access-token'],
+  const token = (req.body && req.body.access_token) ||
+          (req.query && req.query.access_token) ||
+          (req.headers && req.headers['x-access-token']),
         auth = new Auth(req, res);
 
-  if (!token) return auth.reject(null, 401);
-
-  new Promise((resolve, reject) => {
-    jwt.verify(token, config.secret, (err, decoded) => {
-      if (err) {
-        if (err.name === 'TokenExpiredError') reject(err, 400);
-        else reject(err);
-      } else {
-        resolve(decoded);
-      }
-    })
+  return new Promise((resolve, reject) => {
+    if (!token) return reject(new Error('No Token'));
+    resolve(jwt.verify(token, config.secret));
   }).then(({ userId }) => {
-    return User.find(userId);
+    return User.findById(userId);
   }).then((user) => {
     req.user = user;
     next();
-  }).catch(auth.reject);
+  }).catch((err) => {
+    let rejection;
+    switch (err.name) {
+      case 'TokenExpiredError': rejection = [err, 400]; break;
+      default: rejection = [err];
+    }
+    auth.reject(...rejection);
+  });
 };
