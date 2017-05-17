@@ -121,7 +121,7 @@ describe('validateRequest Middleware', () => {
     let req;
 
     beforeEach((done) => {
-      req = { headers: { 'x-access-token': null } };
+      req = { headers: { Authorization: null } };
       done();
     });
 
@@ -137,7 +137,7 @@ describe('validateRequest Middleware', () => {
 
     it('rejects an expired token', () => {
       sandbox.spy(Auth.prototype, 'reject');
-      req.headers['x-access-token'] = expiredToken;
+      req.headers.Authorization = `Bearer ${expiredToken}`;
 
       return validateRequest(req, res, nextStub).then(() => {
         expect(Auth.prototype.reject).to.have.been.calledWithExactly(sinon.match((value) => {
@@ -147,7 +147,7 @@ describe('validateRequest Middleware', () => {
     });
 
     it('accepts a valid token', () => {
-      req.headers['x-access-token'] = validToken;
+      req.headers.Authorization = `Bearer ${validToken}`;
 
       return validateRequest(req, res, nextStub).then(() => {
         expect(req.user.username).to.eq('test-user');

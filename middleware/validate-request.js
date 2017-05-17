@@ -5,10 +5,16 @@ const jwt = require('jsonwebtoken'),
       Auth = require('../lib/auth'),
       User = require('../models/user');
 
+const getToken = (req) => {
+  if (!req) return null;
+  if (req.body && req.body.access_token) return req.body.access_token;
+  if (req.query && req.query.access_token) return req.query.access_token;
+  if (req.headers && req.headers.Authorization) return req.headers.Authorization.replace(/^Bearer /, '');
+  return null;
+}
+
 module.exports = (req, res, next) => {
-  const token = (req.body && req.body.access_token) ||
-          (req.query && req.query.access_token) ||
-          (req.headers && req.headers['x-access-token']),
+  const token = getToken(req),
         auth = new Auth(req, res);
 
   return new Promise((resolve, reject) => {
