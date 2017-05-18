@@ -1,19 +1,22 @@
 'use strict';
 
 const Sequelize = require('sequelize'),
-      bcrypt = require('bcrypt'),
+      bcrypt = require('bcrypt-nodejs'),
       config = require('../config'),
       sequelizeInstance = config.sequelize;
 
 const setSecurePassword = (user, options, callback) => {
   user.username = user.username.toLowerCase().trim();
   if (!user.password) return callback(null, options);
-  bcrypt.hash(user.get('password'), 10)
-    .then((hash) => {
+  bcrypt.genSalt(10, (err, salt) => {
+    if (err) return callback(err);
+
+    bcrypt.hash(user.get('password'), salt, null, (err, hash) => {
+      if (err) return callback(err);
       user.set('passwordDigest', hash);
       callback(null, options);
-    })
-    .catch((err) => { callback(err); });
+    });
+  })
 };
 
 const User = sequelizeInstance.define('user', {
@@ -61,8 +64,13 @@ const User = sequelizeInstance.define('user', {
   },
   instanceMethods: {
     authenticate: function (password) {
-      return bcrypt.compare(password, this.passwordDigest)
-        .then((result) => result ? this : null);
+      return new Promise((resolve, reject) => {
+        bcrypt.compare(password, this.passwordDigest, (err, result) => {
+          if (err) return reject(err);
+          else resolve(result);
+        })
+      })
+      .then((result) => result ? this : null);
     },
     serialize: function() {
       return {

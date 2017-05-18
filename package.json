@@ -7,7 +7,7 @@
   "author": "Ben Saufley <contact@bensaufley.com>",
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^1.0.2",
+    "bcrypt-nodejs": "^0.0.3",
     "body-parser": "^1.17.1",
     "db-migrate": "^0.10.0-beta.20",
     "db-migrate-pg": "^0.1.11",
