@@ -16,7 +16,7 @@ const setSecurePassword = (user, options, callback) => {
       user.set('passwordDigest', hash);
       callback(null, options);
     });
-  })
+  });
 };
 
 const User = sequelizeInstance.define('user', {
@@ -35,18 +35,18 @@ const User = sequelizeInstance.define('user', {
   },
   passwordDigest: {
     field: 'password_digest',
-		type: Sequelize.STRING,
-		validate: {
-			notEmpty: true
-		}
-	},
-	password: {
-		type: Sequelize.VIRTUAL,
-		allowNull: false,
-		validate: {
-			notEmpty: true
-		}
-	},
+    type: Sequelize.STRING,
+    validate: {
+      notEmpty: true
+    }
+  },
+  password: {
+    type: Sequelize.VIRTUAL,
+    allowNull: false,
+    validate: {
+      notEmpty: true
+    }
+  }
 }, {
   hooks: {
     beforeCreate: setSecurePassword,
@@ -68,7 +68,7 @@ const User = sequelizeInstance.define('user', {
         bcrypt.compare(password, this.passwordDigest, (err, result) => {
           if (err) return reject(err);
           else resolve(result);
-        })
+        });
       })
       .then((result) => result ? this : null);
     },

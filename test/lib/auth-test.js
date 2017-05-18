@@ -10,19 +10,17 @@ const jwt = require('jsonwebtoken'),
 describe('Auth', () => {
   let res, sandbox;
 
-  beforeEach((done) => {
+  beforeEach(() => {
     sandbox = sinon.sandbox.create();
     res = {};
     res.status = () => res;
     res.json = () => res;
     sandbox.spy(res, 'json');
     sandbox.spy(res, 'status');
-    User.truncate().then(() => { done(); });
   });
 
-  afterEach((done) => {
+  afterEach(() => {
     sandbox.restore();
-    User.truncate().then(() => { done(); });
   });
 
   describe('constructor', () => {
@@ -30,10 +28,21 @@ describe('Auth', () => {
       let auth = new Auth();
 
       expect(auth).to.be.an.instanceOf(Auth);
-    })
+    });
   });
 
   describe('login', () => {
+    let user;
+
+    beforeEach(() => {
+      return User.create({ username: 'my-user', password: 'my-password' })
+        .then((u) => { user = u; });
+    });
+
+    afterEach(() => {
+      return User.truncate();
+    });
+
     it('rejects 401 if no username provided', () => {
       sandbox.stub(User, 'findOne');
       let auth = new Auth({ body: { username: '', password: 'password' } }, res);
@@ -48,81 +57,65 @@ describe('Auth', () => {
       sandbox.spy(User.Instance.prototype, 'authenticate');
       let auth = new Auth({ body: { username: 'my-user', password: '' } }, res);
 
-      return User.create({ username: 'my-user', password: 'my-password' })
-        .then((user) => {
-          return auth.login().then(() => {
-            expect(User.Instance.prototype.authenticate).to.have.been.calledWith('');
-            expect(res.status).to.have.been.calledWith(401);
-          });
-        });
+      return auth.login().then(() => {
+        expect(User.Instance.prototype.authenticate).to.have.been.calledWith('');
+        expect(res.status).to.have.been.calledWith(401);
+      });
     });
 
     it('returns 401 if username and password are not valid', () => {
       sandbox.spy(User.Instance.prototype, 'authenticate');
       let auth = new Auth({ body: { username: 'my-user', password: 'not-my-password' } }, res);
 
-      return User.create({ username: 'my-user', password: 'my-password' })
-        .then((user) => {
-          return auth.login().then(() => {
-            expect(User.Instance.prototype.authenticate).to.have.been.calledWith('not-my-password');
-            expect(res.status).to.have.been.calledWith(401);
-          });
-        });
+      return auth.login().then(() => {
+        expect(User.Instance.prototype.authenticate).to.have.been.calledWith('not-my-password');
+        expect(res.status).to.have.been.calledWith(401);
+      });
     });
 
     it('returns a token for a valid logged-in user', () => {
       let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
 
-      return User.create({ username: 'my-user', password: 'my-password' })
-        .then((user) => {
-          return auth.login().then(() => {
-            const json = res.json.getCall(0).args[0],
-                  decoded = jwt.verify(json.token, helper.config.secret);
+      return auth.login().then(() => {
+        const json = res.json.getCall(0).args[0],
+              decoded = jwt.verify(json.token, helper.config.secret);
 
-            expect(res.status).to.have.been.calledWith(200);
-            expect(decoded.userId).to.eq(user.id);
-          });
-        });
+        expect(res.status).to.have.been.calledWith(200);
+        expect(decoded.userId).to.eq(user.id);
+      });
     });
 
     it('accepts a User object to log in from internal retrieval', () => {
       let auth = new Auth({}, res);
 
-      return User.create({ username: 'my-user', password: 'my-password' })
-        .then((user) => {
-          return auth.login(user).then(() => {
-            const json = res.json.getCall(0).args[0],
-                  decoded = jwt.verify(json.token, helper.config.secret);
+      return auth.login(user).then(() => {
+        const json = res.json.getCall(0).args[0],
+              decoded = jwt.verify(json.token, helper.config.secret);
 
-            expect(res.status).to.have.been.calledWith(200);
-            expect(decoded.userId).to.eq(user.id);
-          });
-        });
+        expect(res.status).to.have.been.calledWith(200);
+        expect(decoded.userId).to.eq(user.id);
+      });
     });
 
     it('sets the token\'s expiration for 7 days out', () => {
       let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
 
-      return User.create({ username: 'my-user', password: 'my-password' })
-        .then((user) => {
-          return auth.login().then(() => {
-            const json = res.json.getCall(0).args[0],
-                  decoded = jwt.verify(json.token, helper.config.secret),
-                  nextWeek = Math.floor((new Date().getTime() + 7 * 60 * 60 * 24 * 1000) / 1000);
+      return auth.login().then(() => {
+        const json = res.json.getCall(0).args[0],
+              decoded = jwt.verify(json.token, helper.config.secret),
+              nextWeek = Math.floor((new Date().getTime() + 7 * 60 * 60 * 24 * 1000) / 1000);
 
-            expect(res.status).to.have.been.calledWith(200);
-            expect(decoded.exp).to.be.within(nextWeek - 1, nextWeek + 1);
-          });
-        });
+        expect(res.status).to.have.been.calledWith(200);
+        expect(decoded.exp).to.be.within(nextWeek - 1, nextWeek + 1);
+      });
     });
   });
 
   describe('reject', () => {
     let auth;
 
-    beforeEach((done) => {
+    beforeEach(() => {
       auth = new Auth({}, res);
-      done();
     });
 
     it('sets JSON for 400', () => {

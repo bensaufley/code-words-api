@@ -11,7 +11,7 @@ const getToken = (req) => {
   if (req.query && req.query.access_token) return req.query.access_token;
   if (req.headers && req.headers.Authorization) return req.headers.Authorization.replace(/^Bearer /, '');
   return null;
-}
+};
 
 module.exports = (req, res, next) => {
   const token = getToken(req),

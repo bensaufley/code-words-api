@@ -1,0 +1,14 @@
+engines:
+  eslint:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - javascript
+    exclude_paths:
+      - "migrations/"
+      - "test/**/*-test.js"
+ratings:
+   paths:
+     - "**.js"

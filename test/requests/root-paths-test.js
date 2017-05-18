@@ -1,19 +1,34 @@
 'use strict';
 
 const helper = require('../test-helper'),
-      sinon = helper.sinon,
       expect = helper.expect,
       User = require('../../models/user'),
       request = require('supertest'),
-      app = require('../../server');
+      { app } = require('../../server');
 
-describe('Auth Routes', () => {
-  beforeEach((done) => {
-    User.truncate().then(done);
+describe('Root Paths', () => {
+  describe('OPTIONS /login', () => {
+    it('returns 200 with Headers', () => {
+      return request(app)
+        .options('/login')
+        .then((response) => {
+          expect(response.status).to.eq(200);
+          expect(response.header['access-control-allow-origin']).to.eq('*'); // TODO: restrict to domains
+          expect(response.header['access-control-allow-methods']).to.eq('GET,PUT,POST,DELETE,OPTIONS');
+          expect(response.header['access-control-allow-headers']).to.eq('Content-type,Accept,Authorization');
+          expect(response.header.accept).to.eq('application/json');
+        });
+    });
   });
 
-  afterEach((done) => {
-    User.truncate().then(done);
+  describe('404', () => {
+    it('returns 404 for unspecified routes', () => {
+      return request(app)
+        .get('/blarg-and-flargle')
+        .then((response) => {
+          expect(response.status).to.eq(404);
+        });
+    });
   });
 
   describe('/signup', () => {
@@ -36,21 +51,22 @@ describe('Auth Routes', () => {
           expect(response.body.token).to.satisfy(helper.matchers.jwt.test);
           expect(response.body.user.username).to.eq('my-user');
           expect(response.body.user.id).to.satisfy(helper.matchers.uuid.test);
+
+          return User.truncate();
         });
     });
   });
 
   describe('/login', () => {
-    let user;
-
-    beforeEach((done) => {
-      User.create({
+    beforeEach(() => {
+      return User.create({
         username: 'my-user',
         password: 'my-password'
-      }).then((u) => {
-        user = u;
-        done();
       });
+    });
+
+    afterEach(() => {
+      return User.truncate();
     });
 
     it('rejects missing username', () => {

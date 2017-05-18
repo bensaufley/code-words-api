@@ -1,16 +1,16 @@
 'use strict';
 
 const express = require('express'),
-      path = require('path'),
       logger = require('morgan'),
       bodyParser = require('body-parser'),
-      config = require('./config');
+      validateRequest = require('./middleware/validate-request');
 
 const app = express();
 
 if (process.env.NODE_ENV !== 'test' || process.env.DEBUG === 'true') {
   app.use(logger('dev'));
 }
+
 app.use(bodyParser.json());
 
 app.all('/*', function(req, res, next) {
@@ -19,16 +19,15 @@ app.all('/*', function(req, res, next) {
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   // Set custom headers for CORS
   res.header('Access-Control-Allow-Headers', 'Content-type,Accept,Authorization');
+  res.header('Accept', 'application/json');
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-  } else {
-    next();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  next();
 });
 
 // Auth Middleware for api/v1 only
-app.all('/api/v1/*', [require('./middleware/validate-request')]);
+app.all('/api/v1/*', [validateRequest]);
 
 app.use('/', require('./routes'));
 

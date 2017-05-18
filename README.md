@@ -34,13 +34,14 @@ Procfile) with `nf start`.
 
 ## Testing
 
-`npm run test` is just a shortcut for `nf run mocha`. To pass arguments, add
-`--` and your arguments, e.g.:
+`npm test` is just a shortcut for `nf run mocha` (with [`nyc`] for coverage
+reporting). To pass arguments, add `--` and your arguments, e.g.:
 
 ```sh
-$ npm run test -- --growl
-$ npm run test -- test/requests
+$ npm test -- --growl
+$ npm test -- test/requests
 ```
 
 [secret-key-gen]: https://github.com/dwyl/learn-json-web-tokens#how-to-generate-secret-key
+[nyc]: https://github.com/istanbuljs/nyc
 [foreman-node]: https://github.com/strongloop/node-foreman

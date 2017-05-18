@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize'),
-      database = process.env.DATABASE_URL || require('./database.json')[process.env.NODE_ENV];
+      databaseJson = require('./database.json'),
+      database = process.env.DATABASE_URL || databaseJson[process.env.NODE_ENV];
 
 const logger = (...messages) => {
   if (process.env.NODE_ENV === 'test' && process.env.DEBUG !== 'true') return;

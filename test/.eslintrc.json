@@ -1,0 +1,11 @@
+{
+  "globals": {
+    "after": false,
+    "afterEach": false,
+    "before": false,
+    "beforeEach": false,
+    "context": false,
+    "describe": false,
+    "it": false
+  }
+}
