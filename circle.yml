@@ -8,3 +8,6 @@ database:
   override:
     - createdb code_words_api_test
     - npm run migrate-up
+test:
+  post:
+    - ./node_modules/.bin/codeclimate-test-reporter < ./coverage/lcov.info
