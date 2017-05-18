@@ -1,0 +1,10 @@
+machine:
+  node:
+    version: 6.1.0
+dependencies:
+  override:
+    - yarn install
+database:
+  override:
+    - createdb code_words_api_test
+    - npm run migrate-up
