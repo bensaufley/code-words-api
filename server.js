@@ -1,8 +1,10 @@
 'use strict';
 
 const express = require('express'),
+      http = require('http'),
       logger = require('morgan'),
       bodyParser = require('body-parser'),
+      createWebSocketsServer = require('./lib/web-sockets-server'),
       validateRequest = require('./middleware/validate-request');
 
 const app = express();
@@ -40,10 +42,17 @@ app.use(function(req, res, next) {
 
 app.set('port', process.env.PORT || 3000);
 
+let server = http.createServer(app),
+    wss = createWebSocketsServer(server);
+
 if (process.env.NODE_ENV !== 'test') {
-  var server = app.listen(app.get('port'), function() {
+  server.listen(app.get('port'), function() {
     console.log('Express server listening on port ' + server.address().port);
   });
 }
 
-module.exports = app;
+module.exports = {
+  app,
+  server,
+  wss
+};

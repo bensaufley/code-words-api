@@ -13,6 +13,12 @@ const UUIDV4_REGEXP = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[
 
 chai.use(sinonChai);
 
+// Unhandled Promise Rejections are a sign of a misconfigured test
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  process.exit();
+});
+
 before(() => User.truncate());
 after(() => User.truncate());
 
