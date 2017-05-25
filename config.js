@@ -4,10 +4,14 @@ const Sequelize = require('sequelize'),
 let dbUrl = process.env.DATABASE_URL;
 
 if (!dbUrl) {
-  let dbConfig = databaseJson[process.env.NODE_ENV],
-      dbUser = typeof dbConfig.user === 'string' ? dbConfig.user : process.env[dbConfig.user.ENV],
-      dbPass = typeof dbConfig.password === 'string' ? dbConfig.password : process.env[dbConfig.password.ENV];
-  dbUrl = `postgres://${dbUser}:${dbPass}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`;
+  let dbConfig = databaseJson[process.env.NODE_ENV];
+
+  for (let key in dbConfig) {
+    if (!dbConfig.hasOwnProperty(key) || typeof dbConfig[key] === 'string') continue;
+    if (dbConfig[key].ENV) dbConfig[key] = process.env[dbConfig[key].ENV];
+  }
+
+  dbUrl = `postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`;
 }
 
 const logger = (...messages) => {

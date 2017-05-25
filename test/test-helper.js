@@ -18,8 +18,6 @@ const chai = require('chai'),
 const UUIDV4_REGEXP = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
       JWT_REGEXP = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
 
-console.log(config.dbUrl);
-
 const cleanDatabase = () => {
   return new Promise((resolve, reject) => {
     pg.connect(config.dbUrl, (err, client, done) => {
