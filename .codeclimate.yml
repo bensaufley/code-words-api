@@ -1,6 +1,4 @@
 engines:
-  eslint:
-    enabled: true
   duplication:
     enabled: true
     config:
@@ -9,6 +7,12 @@ engines:
     exclude_paths:
       - "migrations/"
       - "test/**/*-test.js"
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  nodesecurity:
+    enabled: true
 ratings:
    paths:
      - "**.js"
