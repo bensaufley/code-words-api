@@ -1,0 +1,12 @@
+ {
+  "exclude": [
+    "migrations",
+    "test",
+    "test{,-*}.js",
+    "**/*-test.js",
+    "**/node_modules/**",
+    "coverage"
+  ],
+  "all": true,
+  "reporter": ["lcov", "text"]
+}

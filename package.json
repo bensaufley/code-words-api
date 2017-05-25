@@ -22,9 +22,9 @@
   },
   "scripts": {
     "start": "nf start",
-    "test": "./node_modules/.bin/nyc --reporter=lcov nf run mocha",
-    "migrate-up": "./node_modules/.bin/db-migrate up",
-    "migrate-down": "./node_modules/.bin/db-migrate down"
+    "test": "nyc nf run mocha",
+    "migrate-up": "db-migrate up",
+    "migrate-down": "db-migrate down"
   },
   "devDependencies": {
     "chai": "^3.5.0",
