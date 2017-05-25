@@ -31,9 +31,9 @@ describe('validateRequest Middleware', () => {
     });
   });
 
-  afterEach((done) => {
+  afterEach(() => {
     sandbox.restore();
-    User.truncate().then(done);
+    return helper.cleanDatabase();
   });
 
   context('post', () => {

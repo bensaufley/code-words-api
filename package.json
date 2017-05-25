@@ -29,6 +29,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "codeclimate-test-reporter": "^0.4.1",
+    "database-cleaner": "^1.2.0",
     "mocha": "^3.4.1",
     "nyc": "^10.3.2",
     "sinon": "^2.2.0",

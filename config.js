@@ -1,25 +1,21 @@
 const Sequelize = require('sequelize'),
-      databaseJson = require('./database.json'),
-      database = process.env.DATABASE_URL || databaseJson[process.env.NODE_ENV];
+      databaseJson = require('./database.json');
+
+let dbUrl = process.env.DATABASE_URL;
+
+if (!dbUrl) {
+  let dbConfig = databaseJson[process.env.NODE_ENV],
+      dbUser = typeof dbConfig.user === 'string' ? dbConfig.user : process.env[dbConfig.user.ENV],
+      dbPass = typeof dbConfig.password === 'string' ? dbConfig.password : process.env[dbConfig.password.ENV];
+  dbUrl = `postgres://${dbUser}:${dbPass}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`;
+}
 
 const logger = (...messages) => {
   if (process.env.NODE_ENV === 'test' && process.env.DEBUG !== 'true') return;
   console.log(...messages);
 };
 
-let sequelize;
-if (typeof database === 'string') {
-  sequelize = new Sequelize(database, { logging: logger });
-} else {
-  sequelize = new Sequelize({
-    database: database.database,
-    dialect: 'postgres',
-    username: process.env[database.user.ENV],
-    password: process.env[database.password.ENV],
-    port: database.port,
-    logging: logger
-  });
-}
+let sequelize = new Sequelize(dbUrl, { logging: logger });
 
 /**
  * @typedef Config
@@ -33,6 +29,7 @@ if (typeof database === 'string') {
  * @type {Config}
  */
 module.exports = {
+  dbUrl: dbUrl,
   log: logger,
   secret: process.env.SECRET_TOKEN,
   sequelize

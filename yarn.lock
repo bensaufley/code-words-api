@@ -466,6 +466,10 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
+database-cleaner@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/database-cleaner/-/database-cleaner-1.2.0.tgz#0f756f1270e29bdd838dd8e989c7b22cca8ddd64"
+
 db-migrate-base@^1.2.5:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/db-migrate-base/-/db-migrate-base-1.2.7.tgz#eedbc528f8053c7814feaad2469a8aa130a3009f"

@@ -1,4 +1,6 @@
 machine:
+  environment:
+    DATABASE_URL: postgresql://ubuntu:@127.0.0.1:5432/circle_test
   node:
     version: 6.1.0
 dependencies:

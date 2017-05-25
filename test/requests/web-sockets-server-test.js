@@ -20,7 +20,7 @@ describe('WebSockets Server', () => {
 
   after(() => {
     server.close();
-    return User.truncate();
+    return helper.cleanDatabase();
   });
 
   afterEach(() => {

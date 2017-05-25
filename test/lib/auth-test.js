@@ -40,7 +40,7 @@ describe('Auth', () => {
     });
 
     afterEach(() => {
-      return User.truncate();
+      return helper.cleanDatabase();
     });
 
     it('rejects 401 if no username provided', () => {

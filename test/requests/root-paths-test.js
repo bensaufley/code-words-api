@@ -7,6 +7,10 @@ const helper = require('../test-helper'),
       { app } = require('../../server');
 
 describe('Root Paths', () => {
+  afterEach(() => {
+    return helper.cleanDatabase();
+  });
+
   describe('OPTIONS /login', () => {
     it('returns 200 with Headers', () => {
       return request(app)
@@ -51,8 +55,6 @@ describe('Root Paths', () => {
           expect(response.body.token).to.satisfy(helper.matchers.jwt.test);
           expect(response.body.user.username).to.eq('my-user');
           expect(response.body.user.id).to.satisfy(helper.matchers.uuid.test);
-
-          return User.truncate();
         });
     });
   });
@@ -63,10 +65,6 @@ describe('Root Paths', () => {
         username: 'my-user',
         password: 'my-password'
       });
-    });
-
-    afterEach(() => {
-      return User.truncate();
     });
 
     it('rejects missing username', () => {
