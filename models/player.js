@@ -20,9 +20,9 @@ const Player = sequelizeInstance.define('player', {
       key: 'id'
     },
     unique: 'userGameIndex',
+    allowNull: false,
     validate: {
-      notEmpty: true,
-      notNull: true
+      notEmpty: { msg: 'userId cannot be blank' }
     }
   },
   gameId: {
@@ -33,24 +33,20 @@ const Player = sequelizeInstance.define('player', {
       key: 'id'
     },
     unique: ['userGameIndex', 'gameTeamRoleIndex'],
+    allowNull: false,
     validate: {
-      notEmpty: true,
-      notNull: true
+      notEmpty: { msg: 'gameId cannot be blank' }
     }
   },
   team: {
     type: Sequelize.ENUM('a', 'b'),
     unique: 'gameTeamRoleIndex',
-    validate: {
-      notNull: false
-    }
+    allowNull: true
   },
   role: {
-    type: Sequelize.ENUM('transmitter', 'receiver'),
+    type: Sequelize.ENUM('transmitter', 'decoder'),
     unique: 'gameTeamRoleIndex',
-    validate: {
-      notNull: false
-    }
+    allowNull: true
   }
 }, {
   underscored: true

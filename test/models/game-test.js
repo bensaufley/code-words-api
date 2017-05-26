@@ -9,7 +9,7 @@ describe('Game', () => {
   let game;
 
   beforeEach(() => {
-    return Game.create().then((g) => game = g);
+    return Game.create().then((g) => { game = g; });
   });
 
   afterEach(helper.cleanDatabase);
