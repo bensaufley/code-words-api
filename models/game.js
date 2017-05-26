@@ -31,6 +31,8 @@ const Game = sequelizeInstance.define('game', {
       key: 'id'
     }
   }
+}, {
+  underscored: true
 });
 
 module.exports = Game;

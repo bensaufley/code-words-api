@@ -52,6 +52,8 @@ const Player = sequelizeInstance.define('player', {
       notNull: false
     }
   }
+}, {
+  underscored: true
 });
 
 Player.Game = Player.belongsTo(Game);

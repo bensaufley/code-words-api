@@ -40,6 +40,16 @@ exports.up = function(db) {
       role: {
         type: 'role',
         notNull: false
+      },
+      created_at: {
+        type: 'timestamp',
+        defaultValue: new String('current_timestamp'),
+        notNull: true
+      },
+      updated_at: {
+        type: 'timestamp',
+        defaultValue: new String('current_timestamp'),
+        notNull: true
       }
     });
   }).then(() => {
@@ -52,11 +62,20 @@ exports.up = function(db) {
       db.addIndex('players', 'player_game_user_index', ['game_id', 'user_id'], true),
       db.addIndex('players', 'player_game_team_role_index', ['game_id', 'team', 'role'], true)
     ]);
+  }).then(() => {
+    return db.runSql('CREATE TRIGGER player_updated BEFORE UPDATE ON players FOR EACH ROW EXECUTE PROCEDURE refresh_updated_at_column();');
   });
 };
 
 exports.down = function(db) {
-  return db.dropTable('players');
+  return db.removeForeignKey('games', 'game_player_foreign')
+    .then(() => db.dropTable('players'))
+    .then(() => {
+      return db.runSql(`
+        DROP TYPE IF EXISTS team;
+        DROP TYPE IF EXISTS role;
+      `);
+    });
 };
 
 exports._meta = {

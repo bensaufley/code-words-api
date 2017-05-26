@@ -32,7 +32,19 @@ exports.up = function(db) {
     },
     active_player_id: {
       type: 'uuid'
+    },
+    created_at: {
+      type: 'timestamp',
+      defaultValue: new String('current_timestamp'),
+      notNull: true
+    },
+    updated_at: {
+      type: 'timestamp',
+      defaultValue: new String('current_timestamp'),
+      notNull: true
     }
+  }).then(() => {
+    return db.runSql('CREATE TRIGGER game_updated BEFORE UPDATE ON games FOR EACH ROW EXECUTE PROCEDURE refresh_updated_at_column();');
   });
 };
 
