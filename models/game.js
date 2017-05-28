@@ -6,6 +6,12 @@ const Sequelize = require('sequelize'),
       GameBoard = require('../lib/game-board');
 
 class Game extends Sequelize.Model {
+  completed() {
+    let lastTurn = this.turns[this.turns.length - 1];
+    if (!lastTurn) return false;
+    return lastTurn.type === 'completed';
+  }
+
   endGame(turn, activePlayer) {
     let finalTurn = { event: 'end' };
     if (turn.correct) {
@@ -18,8 +24,8 @@ class Game extends Sequelize.Model {
 
   giveClue(word, number) {
     if (!this.activePlayerId) return Promise.reject(new Error('Game has not begun'));
-    if (/\s*/.test(word)) return Promise.reject(new Error('Clue may only be one word'));
-    if (isNaN(number) || Math.round(number) !== number || number < 1) return Promise.reject(new Error('Number must be whole number greater than zero'));
+    if (!word || /\s*/.test(word)) return Promise.reject(new Error('Clue must be one single word'));
+    if (isNaN(number) || Math.round(number) !== number || number < 1 || number > 8) return Promise.reject(new Error('Number must be whole number greater than zero'));
 
     return this.getActivePlayer()
       .then((activePlayer) => {
@@ -91,12 +97,6 @@ class Game extends Sequelize.Model {
         });
         return this.update({ activePlayerId: activePlayer.id });
       });
-  }
-
-  completed() {
-    let lastTurn = this.turns[this.turns.length - 1];
-    if (!lastTurn) return false;
-    return lastTurn.type === 'completed';
   }
 }
 
