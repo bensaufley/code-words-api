@@ -32,4 +32,35 @@ describe('Game', () => {
     expect(game.board).to.be.instanceOf(GameBoard);
     expect(game.board.grid).to.eq(game.getDataValue('board'));
   });
+
+  describe('serializeFor', () => {
+    it('returns the full grid for transmitter players');
+    it('returns a redacted grid for decoder players');
+  });
+
+  context('gameplay', () => {
+    describe('start', () => {
+
+    });
+
+    describe('giveClue', () => {
+
+    });
+
+    describe('makeGuess', () => {
+
+    });
+
+    describe('nextTurn', () => {
+
+    });
+
+    describe('endGame', () => {
+
+    });
+
+    describe('completed', () => {
+
+    });
+  });
 });

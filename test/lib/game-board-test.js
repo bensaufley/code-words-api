@@ -2,6 +2,7 @@
 
 const helper = require('../test-helper'),
       expect = helper.expect,
+      sinon = helper.sinon,
       GameBoard = require('../../lib/game-board');
 
 const toTextFixture = [[{revealed:false,type:null,word:'rub'},{revealed:false,type:null,word:'bit'},{revealed:false,type:null,word:'cookie'},{revealed:false,type:'a',word:'industry'},{revealed:false,type:'b',word:'hang'}],[{revealed:false,type:null,word:'anything'},{revealed:false,type:null,word:'degree'},{revealed:false,type:null,word:'hide'},{revealed:false,type:'a',word:'decision'},{revealed:false,type:'a',word:'slide'}],[{revealed:false,type:'x',word:'internet'},{revealed:false,type:'b',word:'specific'},{revealed:false,type:'a',word:'window'},{revealed:false,type:null,word:'jury'},{revealed:false,type:'a',word:'wine'}],[{revealed:false,type:'a',word:'ball'},{revealed:false,type:'b',word:'shoulder'},{revealed:false,type:null,word:'plenty'},{revealed:false,type:null,word:'teaching'},{revealed:false,type:'a',word:'reserve'}],[{revealed:false,type:'a',word:'volume'},{revealed:false,type:'b',word:'world'},{revealed:false,type:'b',word:'fishing'},{revealed:false,type:'b',word:'mom'},{revealed:false,type:'b',word:'cup'}]];
@@ -63,12 +64,12 @@ describe('GameBoard', () => {
     it('defines a startingTeam', () => {
       let board = new GameBoard();
 
-      expect(board.startingTeam).to.be.oneOf(['a', 'b']);
+      expect(board._startingTeam).to.be.oneOf(['a', 'b']);
     });
 
     it('includes 8 tiles for the starting team', () => {
       let board = new GameBoard(),
-          startingTeam = board.startingTeam,
+          startingTeam = board._startingTeam,
           startingTeamTiles = [].concat.apply([], board.grid).filter((tile) => tile.type === startingTeam);
 
       expect(startingTeamTiles).to.have.length(8);
@@ -76,7 +77,7 @@ describe('GameBoard', () => {
 
     it('includes 7 tiles for the non-starting team', () => {
       let board = new GameBoard(),
-          team = board.startingTeam === 'a' ? 'b' : 'a',
+          team = board._startingTeam === 'a' ? 'b' : 'a',
           teamTiles = [].concat.apply([], board.grid).filter((tile) => tile.type === team);
 
       expect(teamTiles).to.have.length(7);
@@ -196,6 +197,87 @@ describe('GameBoard', () => {
       }
 
       expect(board.words(false)).to.have.lengthOf(25);
+    });
+  });
+
+  describe('startingTeam', () => {
+    it('gives the starting team from memory if it has it', () => {
+      let board = new GameBoard(),
+          startingTeam = board._startingTeam;
+      let concatSpy = sinon.spy(Array.prototype, 'concat');
+
+      expect(board.startingTeam()).to.eq(startingTeam);
+      expect(concatSpy).not.to.have.been.called;
+
+      concatSpy.restore();
+    });
+
+    it('calculates the starting team if it doesn\'t have it', () => {
+      let board = new GameBoard(),
+          startingTeam = board._startingTeam,
+          newBoard = new GameBoard(board.grid);
+      let concatSpy = sinon.spy(Array.prototype, 'concat');
+
+      expect(newBoard.startingTeam()).to.eq(startingTeam);
+      expect(concatSpy).to.have.been.called;
+
+      concatSpy.restore();
+    });
+  });
+
+  describe('teamTiles', () => {
+    it('gives the appropriate sets of tiles', () => {
+      let board = new GameBoard(),
+          startingTeam = board._startingTeam,
+          otherTeam = startingTeam === 'a' ? 'b' : 'a',
+          tileGroups = board.teamTiles();
+
+      expect(tileGroups[startingTeam]).to.have.lengthOf(8).and;
+      expect(tileGroups[otherTeam]).to.have.lengthOf(7);
+      expect(tileGroups[startingTeam].map((t) => t.type)).to.eql(new Array(8).fill(startingTeam));
+      expect(tileGroups[otherTeam].map((t) => t.type)).to.eql(new Array(7).fill(otherTeam));
+    });
+  });
+
+  describe('won', () => {
+    it('returns false for a new game', () => {
+      let board = new GameBoard();
+
+      expect(board.won()).to.be.false;
+    });
+
+    it('returns false for a game in progress', () => {
+      let board = new GameBoard(),
+          tileLocs = [].concat(...new Array(5).fill().map((_, y) => new Array(5).fill().map((_, x) => [x, y])));
+
+      for (let x = Math.round(Math.random() * 15) + 5; x--;) {
+        let [[x, y]] = tileLocs.splice(Math.floor(Math.random() * tileLocs.length), 1);
+        board.grid[y][x].revealed = true;
+      }
+      [].concat(...board.grid).find((t) => t.type === 'a').revealed = false;
+      [].concat(...board.grid).find((t) => t.type === 'b').revealed = false;
+
+      helper.config.log(board.toText());
+
+      expect(board.won()).to.be.false;
+    });
+
+    it('returns true for a completed game', () => {
+      let board = new GameBoard(),
+          winner = Math.round(Math.random()) === 1 ? 'a' : 'b',
+          loser = winner === 'a' ? 'b' : 'a',
+          tileLocs = [].concat(...new Array(5).fill().map((_, y) => new Array(5).fill().map((_, x) => [x, y])));
+
+      for (let x = Math.round(Math.random() * 15) + 5; x--;) {
+        let [[x, y]] = tileLocs.splice(Math.floor(Math.random() * tileLocs.length), 1);
+        board.grid[y][x].revealed = true;
+      }
+      [].concat(...board.grid).forEach((t) => { if (t.type === winner) t.revealed = true; });
+      [].concat(...board.grid).find((t) => t.type === loser).revealed = false;
+
+      helper.config.log(board.toText());
+
+      expect(board.won()).to.be.true;
     });
   });
 });
