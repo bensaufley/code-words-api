@@ -5,21 +5,53 @@ const Sequelize = require('sequelize'),
       config = require('../config'),
       sequelizeInstance = config.sequelize;
 
-const setSecurePassword = (user, options, callback) => {
-  user.username = user.username.toLowerCase().trim();
-  if (!user.password) return callback(null, options);
-  bcrypt.genSalt(10, (err, salt) => {
-    if (err) return callback(err);
-
-    bcrypt.hash(user.get('password'), salt, null, (err, hash) => {
-      if (err) return callback(err);
-      user.set('passwordDigest', hash);
-      callback(null, options);
+const setSecurePassword = (user, options) => {
+  return new Promise((resolve, reject) => {
+    user.username = user.username.toLowerCase().trim();
+    if (!user.password) return Promise.resolve(options);
+    bcrypt.genSalt(10, (err, salt) => {
+      if (err) reject(err);
+      else resolve(salt);
     });
+  }).then((salt) => {
+    return new Promise((resolve, reject) => {
+      bcrypt.hash(user.get('password'), salt, null, (err, hash) => {
+        if (err) reject(err);
+        else resolve(hash);
+      });
+    });
+  }).then((hash) => {
+    user.set('passwordDigest', hash);
+    return options;
   });
 };
 
-const User = sequelizeInstance.define('user', {
+class User extends Sequelize.Model {
+  authenticate (password) {
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password, this.passwordDigest, (err, result) => {
+        if (err) return reject(err);
+        else resolve(result);
+      });
+    })
+    .then((result) => result ? this : null);
+  }
+
+  serialize() {
+    return {
+      id: this.id,
+      username: this.username
+    };
+  }
+
+  static login(username, password) {
+    if (!username) return Promise.resolve(null);
+    return User.findOne({ where: { username: username } })
+      .then((user) => user ? user.authenticate(password) : null);
+  }
+}
+
+User.init({
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -48,38 +80,15 @@ const User = sequelizeInstance.define('user', {
     }
   }
 }, {
-  hooks: {
-    beforeCreate: setSecurePassword,
-    beforeUpdate: setSecurePassword
-  },
+  sequelize: sequelizeInstance,
   indexes: [
     { unique: true, fields: ['username'] }
   ],
-  classMethods: {
-    login: function(username, password) {
-      if (!username) return Promise.resolve(null);
-      return User.findOne({ where: { username: username } })
-        .then((user) => user ? user.authenticate(password) : null);
-    }
-  },
-  instanceMethods: {
-    authenticate: function (password) {
-      return new Promise((resolve, reject) => {
-        bcrypt.compare(password, this.passwordDigest, (err, result) => {
-          if (err) return reject(err);
-          else resolve(result);
-        });
-      })
-      .then((result) => result ? this : null);
-    },
-    serialize: function() {
-      return {
-        id: this.id,
-        username: this.username
-      };
-    }
-  },
+  tableName: 'users',
   underscored: true
 });
+
+User.beforeCreate(setSecurePassword);
+User.beforeUpdate(setSecurePassword);
 
 module.exports = User;

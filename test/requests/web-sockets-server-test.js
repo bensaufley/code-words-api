@@ -30,7 +30,7 @@ describe('WebSockets Server', () => {
       if (ws.readyState === 1) ws.close();
     });
 
-      describe('authentication', () => {
+    describe('authentication', () => {
       it('rejects missing access_token', () => {
         return new Promise((resolve, reject) => {
           ws = new WebSocket(wssUrl);
@@ -80,7 +80,7 @@ describe('WebSockets Server', () => {
           ws.on('error', reject);
 
           ws.on('open', resolve);
-        })
+        });
       });
 
       it('adds and removes the ws connection to config.sockets', () => {
@@ -97,7 +97,7 @@ describe('WebSockets Server', () => {
         }).then(() => {
           expect(helper.config.sockets[user.id]).to.be.undefined;
         });
-      })
+      });
     });
 
     describe('message', () => {
@@ -122,6 +122,6 @@ describe('WebSockets Server', () => {
 
       //   expect(true).to.be.true;
       // });
-    })
+    });
   });
 });

@@ -54,21 +54,21 @@ describe('Auth', () => {
     });
 
     it('rejects 401 if no password provided', () => {
-      sandbox.spy(User.Instance.prototype, 'authenticate');
+      sandbox.spy(User.prototype, 'authenticate');
       let auth = new Auth({ body: { username: 'my-user', password: '' } }, res);
 
       return auth.login().then(() => {
-        expect(User.Instance.prototype.authenticate).to.have.been.calledWith('');
+        expect(User.prototype.authenticate).to.have.been.calledWith('');
         expect(res.status).to.have.been.calledWith(401);
       });
     });
 
     it('returns 401 if username and password are not valid', () => {
-      sandbox.spy(User.Instance.prototype, 'authenticate');
+      sandbox.spy(User.prototype, 'authenticate');
       let auth = new Auth({ body: { username: 'my-user', password: 'not-my-password' } }, res);
 
       return auth.login().then(() => {
-        expect(User.Instance.prototype.authenticate).to.have.been.calledWith('not-my-password');
+        expect(User.prototype.authenticate).to.have.been.calledWith('not-my-password');
         expect(res.status).to.have.been.calledWith(401);
       });
     });

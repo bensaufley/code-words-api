@@ -6,7 +6,9 @@ const Sequelize = require('sequelize'),
       Game = require('./game'),
       User = require('./user');
 
-const Player = sequelizeInstance.define('player', {
+class Player extends Sequelize.Model {}
+
+Player.init({
   id: {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
@@ -49,6 +51,8 @@ const Player = sequelizeInstance.define('player', {
     allowNull: true
   }
 }, {
+  sequelize: sequelizeInstance,
+  tableName: 'players',
   underscored: true
 });
 

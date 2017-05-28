@@ -121,8 +121,8 @@ describe('Player', () => {
             ]);
           })
           .then(([p1, p2]) => {
-            expect(p1).to.be.an.instanceOf(Player.Instance);
-            expect(p2).to.be.an.instanceOf(Player.Instance);
+            expect(p1).to.be.an.instanceOf(Player);
+            expect(p2).to.be.an.instanceOf(Player);
 
             return Player.count();
           })
@@ -171,8 +171,8 @@ describe('Player', () => {
               Player.create({ userId: u2.id, gameId: game.id, team: 'a' })
             ]);
           }).then(([p1, p2]) => {
-            expect(p1).to.be.an.instanceOf(Player.Instance);
-            expect(p2).to.be.an.instanceOf(Player.Instance);
+            expect(p1).to.be.an.instanceOf(Player);
+            expect(p2).to.be.an.instanceOf(Player);
           });
       });
 
@@ -186,8 +186,8 @@ describe('Player', () => {
               Player.create({ userId: u2.id, gameId: game.id, role: 'decoder' })
             ]);
           }).then(([p1, p2]) => {
-            expect(p1).to.be.an.instanceOf(Player.Instance);
-            expect(p2).to.be.an.instanceOf(Player.Instance);
+            expect(p1).to.be.an.instanceOf(Player);
+            expect(p2).to.be.an.instanceOf(Player);
           });
       });
     });
