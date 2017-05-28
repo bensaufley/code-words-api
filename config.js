@@ -14,6 +14,8 @@ if (!dbUrl) {
   dbUrl = `postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`;
 }
 
+if (process.env.DEBUG === 'true') Error.stackTraceLimit = 100;
+
 const logger = (...messages) => {
   if (process.env.NODE_ENV === 'test' && process.env.DEBUG !== 'true') return;
   console.log(...messages);

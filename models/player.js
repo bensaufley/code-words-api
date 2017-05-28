@@ -60,5 +60,6 @@ Player.Game = Player.belongsTo(Game);
 Player.User = Player.belongsTo(User);
 Game.Players = Game.hasMany(Player);
 User.Players = User.hasMany(Player);
+Game.ActivePlayer = Game.belongsTo(Player, { as: 'activePlayer', foreignKey: 'activePlayerId', constraints: false });
 
 module.exports = Player;

@@ -46,7 +46,7 @@ describe('GameBoard', () => {
     it('returns tiles with revealed, type, and word attributes', () => {
       let board = new GameBoard();
 
-      [].concat.apply([], board.grid).forEach((cell) => {
+      [].concat(...board.grid).forEach((cell) => {
         expect(cell).to.have.property('revealed', false);
         expect(cell.type).to.be.oneOf(['a', 'b', null, 'x']);
         expect(cell.word).to.be.a('string').with.length.above(2);
@@ -55,7 +55,7 @@ describe('GameBoard', () => {
 
     it('does not include repeated words', () => {
       let board = new GameBoard(),
-          words = [].concat.apply([], board.grid).map((tile) => tile.word),
+          words = [].concat(...board.grid).map((tile) => tile.word),
           uniqueWords = [...new Set(words)];
 
       expect(uniqueWords).to.have.length(25);
@@ -70,7 +70,7 @@ describe('GameBoard', () => {
     it('includes 8 tiles for the starting team', () => {
       let board = new GameBoard(),
           startingTeam = board._startingTeam,
-          startingTeamTiles = [].concat.apply([], board.grid).filter((tile) => tile.type === startingTeam);
+          startingTeamTiles = [].concat(...board.grid).filter((tile) => tile.type === startingTeam);
 
       expect(startingTeamTiles).to.have.length(8);
     });
@@ -78,21 +78,21 @@ describe('GameBoard', () => {
     it('includes 7 tiles for the non-starting team', () => {
       let board = new GameBoard(),
           team = board._startingTeam === 'a' ? 'b' : 'a',
-          teamTiles = [].concat.apply([], board.grid).filter((tile) => tile.type === team);
+          teamTiles = [].concat(...board.grid).filter((tile) => tile.type === team);
 
       expect(teamTiles).to.have.length(7);
     });
 
     it('includes 9 null tiles', () => {
       let board = new GameBoard(),
-          nullTiles = [].concat.apply([], board.grid).filter((tile) => tile.type === null);
+          nullTiles = [].concat(...board.grid).filter((tile) => tile.type === null);
 
       expect(nullTiles).to.have.length(9);
     });
 
     it('includes 1 x tile', () => {
       let board = new GameBoard(),
-          xTile = [].concat.apply([], board.grid).filter((tile) => tile.type === 'x');
+          xTile = [].concat(...board.grid).filter((tile) => tile.type === 'x');
 
       expect(xTile).to.have.length(1);
     });

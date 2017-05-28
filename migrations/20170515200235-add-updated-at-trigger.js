@@ -19,7 +19,7 @@ exports.up = function(db) {
 CREATE OR REPLACE FUNCTION refresh_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.modified = now();
+    NEW.updated_at = now();
     RETURN NEW;
 END;
 $$ language 'plpgsql';

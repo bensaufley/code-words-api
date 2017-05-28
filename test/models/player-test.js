@@ -23,7 +23,7 @@ describe('Player', () => {
       it('does not allow null userId', () => {
         return Player.create({ gameId: game.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeValidationError');
@@ -34,7 +34,7 @@ describe('Player', () => {
       it('does not allow blank userId', () => {
         return Player.create({ userId: '', gameId: game.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeValidationError');
@@ -45,7 +45,7 @@ describe('Player', () => {
       it('does not allow invalid uuid as userId', () => {
         return Player.create({ userId: 'fart', gameId: game.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeDatabaseError');
@@ -56,7 +56,7 @@ describe('Player', () => {
       it('does not allow invalid userId', () => {
         return Player.create({ userId: '23ecb3e7-2996-4aba-9aa1-3ab9bf32521c', gameId: game.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeForeignKeyConstraintError');
@@ -69,7 +69,7 @@ describe('Player', () => {
       it('requires gameId', () => {
         return Player.create({ userId: user.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeValidationError');
@@ -80,7 +80,7 @@ describe('Player', () => {
       it('does not allow blank userId', () => {
         return Player.create({ gameId: '', userId: user.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeValidationError');
@@ -91,7 +91,7 @@ describe('Player', () => {
       it('does not allow invalid uuid as userId', () => {
         return Player.create({ gameId: 'fart', userId: user.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeDatabaseError');
@@ -102,7 +102,7 @@ describe('Player', () => {
       it('does not allow invalid userId', () => {
         return Player.create({ gameId: '23ecb3e7-2996-4aba-9aa1-3ab9bf32521c', userId: user.id })
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeForeignKeyConstraintError');
@@ -136,7 +136,7 @@ describe('Player', () => {
         return Player.create(params)
           .then(() => Player.create(params))
           .then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           })
           .catch((err) => {
             expect(err.name).to.eq('SequelizeUniqueConstraintError');
@@ -154,7 +154,7 @@ describe('Player', () => {
               Player.create({ userId: u2.id, gameId: game.id, team: 'a', role: 'transmitter' })
             ]);
           }).then(() => {
-            throw new Error('Should not have been accepted');
+            return Promise.reject(new Error('Should not have been accepted'));
           }).catch((err) => {
             expect(err.name).to.eq('SequelizeUniqueConstraintError');
             expect(err.parent.message).to.contain('violates unique constraint "player_game_team_role_index"');
