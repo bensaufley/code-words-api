@@ -43,7 +43,7 @@ app.use(function(req, res, next) {
 app.set('port', process.env.PORT || 3000);
 
 let server = http.createServer(app),
-    wss = createWebSocketsServer(server);
+    wss = createWebSocketsServer.v1(server);
 
 if (process.env.NODE_ENV !== 'test') {
   server.listen(app.get('port'), function() {

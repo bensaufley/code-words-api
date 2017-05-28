@@ -97,6 +97,21 @@ describe('GameBoard', () => {
     });
   });
 
+  describe('serialize', () => {
+    it('returns the full grid when redacted is false', () => {
+      let board = new GameBoard();
+
+      expect(board.serialize(false)).to.eql(board.grid);
+    });
+
+    it('returns a redacted grid when redacted is true', () => {
+      let board = new GameBoard(),
+          types = [].concat(...board.serialize(true)).map((tile) => tile.type);
+
+      expect(types).to.eql(new Array(25).fill('redacted'));
+    });
+  });
+
   describe('toText', () => {
     it('outputs the board in a predictable ASCII format', () => {
       let board = new GameBoard(toTextFixture),

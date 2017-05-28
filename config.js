@@ -36,5 +36,6 @@ module.exports = {
   dbUrl: dbUrl,
   log: logger,
   secret: process.env.SECRET_TOKEN,
-  sequelize
+  sequelize,
+  sockets: {}
 };
