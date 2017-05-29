@@ -12,38 +12,7 @@ class Game extends Sequelize.Model {
     return lastTurn.event === 'end';
   }
 
-  end(turn, activePlayer) {
-    let finalTurn = { event: 'end' };
-    if (turn.correct) {
-      finalTurn.winner = activePlayer.team;
-    } else {
-      finalTurn.winner = activePlayer.team === 'a' ? 'b' : 'a';
-    }
-    return this.update({ turns: [].concat(this.turns, finalTurn) });
-  }
-
-  giveClue(word, number) {
-    if (!this.activePlayerId) return Promise.reject(new Error('Game has not begun'));
-    if (!word || /\s+/.test(word)) return Promise.reject(new Error('Clue must be one single word'));
-    if (isNaN(number) || Math.round(number) !== number || number < 1 || number > 8) return Promise.reject(new Error('Number must be whole number greater than zero'));
-
-    return this.getActivePlayer()
-      .then((activePlayer) => {
-        this.activePlayer = activePlayer;
-        const turn = {
-          event: 'clue',
-          playerId: activePlayer.id,
-          clue: {
-            number: number,
-            word: word
-          }
-        };
-        return this.update({ turns: [].concat(this.turns, turn) });
-      })
-      .then(() => this.nextTurn());
-  }
-
-  makeGuess(x, y) {
+  decode(x, y) {
     if (x < 0 || x > 24 || y < 0 || y > 24) return Promise.reject(new Error('No such tile'));
     let turn,
         board = this.getDataValue('board'),
@@ -56,7 +25,7 @@ class Game extends Sequelize.Model {
 
         this.activePlayer = activePlayer;
 
-        turn = { event: 'guess', playerId: activePlayer.id, tile: { x, y }, correct: tile.type === activePlayer.team };
+        turn = { event: 'decoding', playerId: activePlayer.id, tile: { x, y }, correct: tile.type === activePlayer.team };
         let turns = [].concat(this.turns, turn);
 
         tile.revealed = true;
@@ -69,6 +38,16 @@ class Game extends Sequelize.Model {
           return this.nextTurn();
         }
       });
+  }
+
+  end(turn, activePlayer) {
+    let finalTurn = { event: 'end' };
+    if (turn.correct) {
+      finalTurn.winner = activePlayer.team;
+    } else {
+      finalTurn.winner = activePlayer.team === 'a' ? 'b' : 'a';
+    }
+    return this.update({ turns: [].concat(this.turns, finalTurn) });
   }
 
   nextTurn() {
@@ -110,6 +89,27 @@ class Game extends Sequelize.Model {
         });
         return this.update({ activePlayerId: activePlayer.id });
       });
+  }
+
+  transmit(word, number) {
+    if (!this.activePlayerId) return Promise.reject(new Error('Game has not begun'));
+    if (!word || /\s+/.test(word)) return Promise.reject(new Error('Transmission must be one single word'));
+    if (isNaN(number) || Math.round(number) !== number || number < 1 || number > 8) return Promise.reject(new Error('Number must be whole number greater than zero'));
+
+    return this.getActivePlayer()
+      .then((activePlayer) => {
+        this.activePlayer = activePlayer;
+        const turn = {
+          event: 'transmission',
+          playerId: activePlayer.id,
+          transmission: {
+            number: number,
+            word: word
+          }
+        };
+        return this.update({ turns: [].concat(this.turns, turn) });
+      })
+      .then(() => this.nextTurn());
   }
 }
 

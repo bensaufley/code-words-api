@@ -103,11 +103,11 @@ describe('Game', () => {
       });
     });
 
-    describe('giveClue', () => {
+    describe('transmit', () => {
       context('invalid', () => {
         it('rejects if game not started', () => {
-          return game.giveClue('word', 2)
-            .then(() => Promise.reject(new Error('Should not have accepted clue')))
+          return game.transmit('word', 2)
+            .then(() => Promise.reject(new Error('Should not have accepted transmission')))
             .catch((err) => {
               expect(err.message).to.eq('Game has not begun');
             });
@@ -116,46 +116,46 @@ describe('Game', () => {
         context('started game', () => {
           beforeEach(() => game.start());
 
-          it('rejects if clue includes spaces', () => {
-            return game.giveClue('not valid', 2)
-              .then(() => Promise.reject(new Error('Should not have accepted clue')))
+          it('rejects if transmission includes spaces', () => {
+            return game.transmit('not valid', 2)
+              .then(() => Promise.reject(new Error('Should not have accepted transmission')))
               .catch((err) => {
-                expect(err.message).to.eq('Clue must be one single word');
+                expect(err.message).to.eq('Transmission must be one single word');
               });
           });
 
-          it('rejects if clue is empty', () => {
-            return game.giveClue('', 2)
-              .then(() => Promise.reject(new Error('Should not have accepted clue')))
+          it('rejects if transmission is empty', () => {
+            return game.transmit('', 2)
+              .then(() => Promise.reject(new Error('Should not have accepted transmission')))
               .catch((err) => {
-                expect(err.message).to.eq('Clue must be one single word');
+                expect(err.message).to.eq('Transmission must be one single word');
               });
           });
 
           it('rejects number zero', () => {
-            return game.giveClue('valid-enough', 0)
-              .then(() => Promise.reject(new Error('Should not have accepted clue')))
+            return game.transmit('valid-enough', 0)
+              .then(() => Promise.reject(new Error('Should not have accepted transmission')))
               .catch((err) => {
                 expect(err.message).to.eq('Number must be whole number greater than zero');
               });
           });
 
           it('rejects non-whole numbers', () => {
-            return game.giveClue('valid-enough', 1.45)
-              .then(() => Promise.reject(new Error('Should not have accepted clue')))
+            return game.transmit('valid-enough', 1.45)
+              .then(() => Promise.reject(new Error('Should not have accepted transmission')))
               .catch((err) => {
                 expect(err.message).to.eq('Number must be whole number greater than zero');
               });
           });
-          // TODO: reject if clue is more than remaining words for team
+          // TODO: reject if transmission is more than remaining words for team
         });
       });
 
       context('valid', () => {
         beforeEach(() => game.start());
 
-        it('creates Turn with clue', () => {
-          return game.giveClue('clue', 2)
+        it('creates Turn with transmission', () => {
+          return game.transmit('transmission', 2)
             .then(() => {
               expect(game.turns).to.have.lengthOf(1);
             });
@@ -165,14 +165,14 @@ describe('Game', () => {
           let activePlayer = [aTransmitterPlayer, bTransmitterPlayer].find((p) => p.id === game.activePlayerId);
           sinon.stub(game, 'nextTurn');
 
-          return game.giveClue('clue', 2)
+          return game.transmit('transmission', 2)
             .then(() => {
               let turn = game.turns[0];
 
               expect(game.turns).to.have.lengthOf(1);
-              expect(turn.event).to.eq('clue');
+              expect(turn.event).to.eq('transmission');
               expect(turn.playerId).to.eq(activePlayer.id);
-              expect(turn.clue).to.eql({ number: 2, word: 'clue' });
+              expect(turn.transmission).to.eql({ number: 2, word: 'transmission' });
               expect(game.nextTurn).to.have.been.called;
 
               game.nextTurn.restore();
@@ -181,12 +181,12 @@ describe('Game', () => {
       });
     });
 
-    describe('makeGuess', () => {
+    describe('decode', () => {
       beforeEach(() => game.start());
 
       context('invalid', () => {
         it('rejects invalid tile coordinates', () => {
-          return game.makeGuess(-1, 15)
+          return game.decode(-1, 15)
             .then(() => Promise.reject(new Error('Coordinates should not have been accepted')))
             .catch((err) => {
               expect(err.message).to.eq('No such tile');
@@ -199,9 +199,9 @@ describe('Game', () => {
           board[y][x].revealed = true;
           return game.update({ board })
             .then(() => {
-              return game.makeGuess(x, y);
+              return game.decode(x, y);
             })
-            .then(() => Promise.reject(new Error('Guess should not have been accepted')))
+            .then(() => Promise.reject(new Error('Submission should not have been accepted')))
             .catch((err) => {
               expect(err.message).to.eq('Tile already revealed');
             });
@@ -210,8 +210,8 @@ describe('Game', () => {
         it('rejects for non-decoder players', () => {
           let [x, y] = [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)];
           return game.update({ activePlayerId: aTransmitterPlayer.id })
-            .then(() => game.makeGuess(x, y))
-            .then(() => Promise.reject('Player should not have been allowed to guess'))
+            .then(() => game.decode(x, y))
+            .then(() => Promise.reject('Player should not have been allowed to decoding'))
             .catch((err) => {
               expect(err.message).to.eq('Active Player cannot make guesses');
             });
@@ -230,19 +230,19 @@ describe('Game', () => {
               index = [].concat(...board).findIndex((tile) => tile.type !== activePlayer.team && tile.type !== 'x'),
               [x, y] = [index % 5, Math.floor(index / 5)];
 
-          return game.makeGuess(x, y)
+          return game.decode(x, y)
             .then(() => {
               expect(game.activePlayerId).not.to.eq(activePlayer.id);
             });
         });
 
-        it('does not change active player if guess is correct', () => {
+        it('does not change active player if decoding is correct', () => {
           let board = game.getDataValue('board'),
               activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
               index = [].concat(...board).findIndex((tile) => tile.type === activePlayer.team),
               [x, y] = [index % 5, Math.floor(index / 5)];
 
-          return game.makeGuess(x, y)
+          return game.decode(x, y)
             .then(() => {
               expect(game.activePlayerId).to.eq(activePlayer.id);
             });
@@ -254,11 +254,11 @@ describe('Game', () => {
               index = [].concat(...board).findIndex((tile) => tile.type !== activePlayer.team && tile.type !== 'x'),
               [x, y] = [index % 5, Math.floor(index / 5)];
 
-          return game.makeGuess(x, y)
+          return game.decode(x, y)
             .then(() => {
               let turn = game.turns[game.turns.length - 1];
 
-              expect(turn).to.have.property('event', 'guess');
+              expect(turn).to.have.property('event', 'decoding');
               expect(turn).to.have.property('playerId', activePlayer.id);
               expect(turn.tile).to.eql({ x, y });
             });
@@ -270,11 +270,11 @@ describe('Game', () => {
               index = [].concat(...board).findIndex((tile) => tile.type === activePlayer.team),
               [x, y] = [index % 5, Math.floor(index / 5)];
 
-          return game.makeGuess(x, y)
+          return game.decode(x, y)
             .then(() => {
               let turn = game.turns[game.turns.length - 1];
 
-              expect(turn).to.have.property('event', 'guess');
+              expect(turn).to.have.property('event', 'decoding');
               expect(turn).to.have.property('playerId', activePlayer.id);
               expect(turn.tile).to.eql({ x, y });
             });
@@ -288,10 +288,10 @@ describe('Game', () => {
                 [x, y] = [index % 5, Math.floor(index / 5)];
             sinon.spy(game, 'end');
 
-            return game.makeGuess(x, y)
+            return game.decode(x, y)
               .then(() => {
                 expect(game.end).to.have.been.calledWith(sinon.match({
-                  event: 'guess',
+                  event: 'decoding',
                   playerId: activePlayer.id,
                   tile: { x, y },
                   correct: false
@@ -316,10 +316,10 @@ describe('Game', () => {
             });
 
             return game.update({ board })
-              .then(() => game.makeGuess(x, y))
+              .then(() => game.decode(x, y))
               .then(() => {
                 expect(game.end).to.have.been.calledWith(sinon.match({
-                  event: 'guess',
+                  event: 'decoding',
                   playerId: activePlayer.id,
                   tile: { x, y },
                   correct: false
@@ -343,10 +343,10 @@ describe('Game', () => {
             });
 
             return game.update({ board })
-              .then(() => game.makeGuess(x, y))
+              .then(() => game.decode(x, y))
               .then(() => {
                 expect(game.end).to.have.been.calledWith(sinon.match({
-                  event: 'guess',
+                  event: 'decoding',
                   playerId: activePlayer.id,
                   tile: { x, y },
                   correct: true
@@ -419,7 +419,7 @@ describe('Game', () => {
           });
       });
 
-      it('sets the winner to the active player if the last guess was correct', () => {
+      it('sets the winner to the active player if the last decoding was correct', () => {
         return game.end({ event: 'turn', playerId: aDecoderPlayer.id, correct: true }, aDecoderPlayer)
           .then(() => {
             let endTurn = game.turns[game.turns.length - 1];
@@ -427,7 +427,7 @@ describe('Game', () => {
           });
       });
 
-      it('sets the winner to the other team if the last guess was not correct', () => {
+      it('sets the winner to the other team if the last decoding was not correct', () => {
         return game.end({ event: 'turn', playerId: aDecoderPlayer.id, correct: false }, aDecoderPlayer)
           .then(() => {
             let endTurn = game.turns[game.turns.length - 1];
@@ -443,9 +443,9 @@ describe('Game', () => {
 
       it('returns false for games in progress', () => {
         return game.update({ turns: [
-          { event: 'clue', playerId: aTransmitterPlayer.id, clue: { number: 2, word: 'clue' } },
-          { event: 'guess', playerId: aDecoderPlayer.id, tile: { x: 2, y: 1 }, correct: false },
-          { event: 'clue', playerId: bTransmitterPlayer.id, clue: { number: 2, word: 'flarb' } }
+          { event: 'transmission', playerId: aTransmitterPlayer.id, transmission: { number: 2, word: 'transmission' } },
+          { event: 'decoding', playerId: aDecoderPlayer.id, tile: { x: 2, y: 1 }, correct: false },
+          { event: 'transmission', playerId: bTransmitterPlayer.id, transmission: { number: 2, word: 'flarb' } }
         ], activePlayerId: bDecoderPlayer.id }).then(() => {
           expect(game.completed()).to.be.false;
         });

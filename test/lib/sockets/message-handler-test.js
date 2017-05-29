@@ -57,7 +57,7 @@ describe('MessageHandler', () => {
     it('calls transmit', () => {
       let messageHandler = new MessageHandler(null, aTransmitterUser);
       sinon.stub(messageHandler, 'transmit');
-      let payload = JSON.stringify({ event: 'transmit', gameId: game.id, clue: { word: 'blah', number: 1 } });
+      let payload = JSON.stringify({ event: 'transmit', gameId: game.id, transmission: { word: 'blah', number: 1 } });
 
       return messageHandler.handle(payload)
         .then(() => {
@@ -67,14 +67,14 @@ describe('MessageHandler', () => {
 
     it('rejects transmit for decoder', () => {
       let messageHandler = new MessageHandler(null, aDecoderUser),
-          payload = JSON.stringify({ event: 'transmit', gameId: game.id, clue: { word: 'blah', number: 1 } });
-      sinon.spy(game, 'giveClue');
+          payload = JSON.stringify({ event: 'transmit', gameId: game.id, transmission: { word: 'blah', number: 1 } });
+      sinon.spy(game, 'transmit');
 
       return messageHandler.handle(payload)
         .then(() => Promise.reject(new Error('Should not have succeeded')))
         .catch((err) => {
           expect(err.message).to.eq('User is not transmitter in this game');
-          expect(game.giveClue).not.to.have.been.called;
+          expect(game.transmit).not.to.have.been.called;
         });
     });
 
@@ -92,13 +92,13 @@ describe('MessageHandler', () => {
     it('rejects decode for transmitter', () => {
       let messageHandler = new MessageHandler(null, aTransmitterUser),
           payload = JSON.stringify({ event: 'decode', gameId: game.id, tile: { x: 3, y: 2 } });
-      sinon.spy(game, 'makeGuess');
+      sinon.spy(game, 'decode');
 
       return messageHandler.handle(payload)
         .then(() => Promise.reject(new Error('Should not have succeeded')))
         .catch((err) => {
           expect(err.message).to.eq('User is not decoder in this game');
-          expect(game.makeGuess).not.to.have.been.called;
+          expect(game.decode).not.to.have.been.called;
         });
     });
 
