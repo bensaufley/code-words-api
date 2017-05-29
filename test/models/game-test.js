@@ -61,12 +61,12 @@ describe('Game', () => {
   });
 
   context('gameplay', () => {
-    let aTransmitterUser, aDecoderUser, bTransmitterUser, bDecoderUser, aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer, game;
+    let aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer, game;
 
     beforeEach(() => {
       return gameHelpers.prepareGame()
         .then((response) => {
-          ({ aTransmitterUser, aDecoderUser, bTransmitterUser, bDecoderUser, aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer, game } = response);
+          ({ aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer, game } = response);
         });
     });
 
@@ -85,9 +85,9 @@ describe('Game', () => {
             .catch((err) => {
               expect(err.message).to.eq('Not enough players');
               expect(game.activePlayerId).to.be.null;
-            })
+            });
         });
-      })
+      });
 
       context('ready to start', () => {
         it('sets the active player to the starting team\'s transmitter', () => {
@@ -98,7 +98,7 @@ describe('Game', () => {
               if (!startingTeam || !startingPlayer) return Promise.reject(new Error('Could not determine starting player'));
 
               expect(game.activePlayerId).to.eq(startingPlayer.id);
-            })
+            });
         });
       });
     });
@@ -162,8 +162,7 @@ describe('Game', () => {
         });
 
         it('adds to turns and triggers nextTurn', () => {
-          let activePlayer = [aTransmitterPlayer, bTransmitterPlayer].find((p) => p.id === game.activePlayerId),
-              nextPlayer = [aDecoderPlayer, bDecoderPlayer].find((p) => p.team === activePlayer.team);
+          let activePlayer = [aTransmitterPlayer, bTransmitterPlayer].find((p) => p.id === game.activePlayerId);
           sinon.stub(game, 'nextTurn');
 
           return game.giveClue('clue', 2)
@@ -298,7 +297,7 @@ describe('Game', () => {
                   correct: false
                 }), sinon.match.instanceOf(Player).and(sinon.match.has('id', activePlayer.id)));
                 game.end.restore();
-              })
+              });
           });
 
           it('triggers end if tile is last for other team', () => {
@@ -417,7 +416,7 @@ describe('Game', () => {
           .then(() => {
             let endTurn = game.turns[game.turns.length - 1];
             expect(endTurn).to.have.property('event', 'end');
-          })
+          });
       });
 
       it('sets the winner to the active player if the last guess was correct', () => {
@@ -425,7 +424,7 @@ describe('Game', () => {
           .then(() => {
             let endTurn = game.turns[game.turns.length - 1];
             expect(endTurn).to.have.property('winner', 'a');
-          })
+          });
       });
 
       it('sets the winner to the other team if the last guess was not correct', () => {
