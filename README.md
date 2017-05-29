@@ -24,7 +24,6 @@ $ yarn install
 $ npm run migrate-up
 ```
 
-
 ## Run the App
 
 `npm start`
@@ -34,14 +33,9 @@ Procfile) with `nf start`.
 
 ## Testing
 
-`npm test` is just a shortcut for `nf run mocha` (with [`nyc`] for coverage
-reporting). To pass arguments, add `--` and your arguments, e.g.:
-
-```sh
-$ npm test -- --growl
-$ npm test -- test/requests
-```
+- `npm test` is just a shortcut for `nf run mocha`.
+- `npm run coverage-test` runs the test suite inside [`nyc`] for coverage reporting.
 
 [secret-key-gen]: https://github.com/dwyl/learn-json-web-tokens#how-to-generate-secret-key
-[nyc]: https://github.com/istanbuljs/nyc
+[`nyc`]: https://github.com/istanbuljs/nyc
 [foreman-node]: https://github.com/strongloop/node-foreman
