@@ -10,11 +10,12 @@ const config = require('../config'),
 const index = (req, res) => {
   let user = req.user;
 
-  Player.findAll({ where: { userId: user.id }, include: [Player.Game] })
-    .then((players) => {
-      const games = players.map((player) => player.game.serializeFor(player));
+  return Player.findAll({ where: { userId: user.id }, include: [Player.Game] })
+    .then((ps) => {
+      const games = ps.map((player) => player.game.serializeFor(player)),
+            players = ps.map((player) => player.serialize());
 
-      res.status(200).json({ games });
+      res.status(200).json({ games, players });
     })
     .catch(new ErrorHandler(req, res).process);
 };
@@ -23,7 +24,7 @@ const create = (req, res) => {
   let game, player,
       user = req.user;
 
-  sequelizeInstance.transaction((transaction) => {
+  return sequelizeInstance.transaction((transaction) => {
     return Game.create({}, { transaction })
       .then((g) => {
         game = g;

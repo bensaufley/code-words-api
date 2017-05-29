@@ -6,7 +6,17 @@ const Sequelize = require('sequelize'),
       Game = require('./game'),
       User = require('./user');
 
-class Player extends Sequelize.Model {}
+class Player extends Sequelize.Model {
+  serialize() {
+    return {
+      id: this.id,
+      userId: this.userId,
+      gameId: this.gameId,
+      role: this.role,
+      team: this.team
+    };
+  }
+}
 
 Player.init({
   id: {

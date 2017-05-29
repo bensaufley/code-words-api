@@ -192,4 +192,42 @@ describe('Player', () => {
       });
     });
   });
+
+  describe('serialize', () => {
+    let game, user, player;
+
+    beforeEach(() => {
+      return Promise.all([
+        User.create({ id: '005ed80c-ba18-450c-9d26-b57583292592', username: 'my-user', password: 'my-password' }),
+        Game.create({ id: 'c4db5d8c-2eb8-464c-9975-be2580ed0a26' })
+      ])
+        .then(([u, g]) => {
+          user = u;
+          game = g;
+
+          return Player.create({
+            id: '0b2ca838-bdc7-4df1-9ff9-440afe999796',
+            userId: user.id,
+            gameId: game.id,
+            role: 'transmitter',
+            team: 'a'
+          });
+        })
+        .then((p) => {
+          player = p;
+        });
+    });
+
+    afterEach(helper.cleanDatabase);
+
+    it('returns an Object of the relevant information', () => {
+      expect(player.serialize()).to.eql({
+        id: '0b2ca838-bdc7-4df1-9ff9-440afe999796',
+        userId: '005ed80c-ba18-450c-9d26-b57583292592',
+        gameId: 'c4db5d8c-2eb8-464c-9975-be2580ed0a26',
+        role: 'transmitter',
+        team: 'a'
+      });
+    });
+  });
 });
