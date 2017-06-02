@@ -88,7 +88,24 @@ const show = (req, res) => {
 };
 
 const destroy = (req, res) => {
+  let user = req.user,
+      gameId = req.query && req.query.id;
 
+  return new Promise((resolve, reject) => {
+    if (!gameId) return reject(new Error('No game id specified'));
+    if (!user) return reject(new Error('No user defined'));
+
+    return Game.findOne({
+      where: { id: gameId },
+      include: [Game.Players]
+    }).then(resolve).catch(reject);
+  })
+    .then((game) => {
+      return game.delete();
+    })
+    .then((game) => {
+      res.status(200);
+    });
 };
 
 module.exports = {

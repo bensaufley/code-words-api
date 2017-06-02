@@ -40,6 +40,19 @@ class Game extends Sequelize.Model {
       });
   }
 
+  delete() {
+    return sequelizeInstance.transaction((transaction) => {
+      let deletedAt = new Date();
+      return this.getPlayers()
+        .then((players) => {
+          return Promise.all([
+            players.map((player) => player.update({ deletedAt })),
+            this.update({ deletedAt })
+          ]);
+        });
+    });
+  }
+
   end(turn, activePlayer) {
     let finalTurn = { event: 'end' };
     if (turn.correct) {
@@ -136,9 +149,24 @@ Game.init({
     field: 'active_player_id',
     type: Sequelize.UUID,
     notNull: false
+  },
+  deletedAt: {
+    field: 'deleted_at',
+    type: Sequelize.DATE,
+    notNull: false
   }
 }, {
+  defaultScope: {
+    where: { deletedAt: null }
+  },
   sequelize: sequelizeInstance,
+  scopes: {
+    deleted: {
+      where: {
+        $not: { deletedAt: null }
+      }
+    }
+  },
   tableName: 'games',
   underscored: true
 });

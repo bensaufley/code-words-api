@@ -111,8 +111,8 @@ describe('Games Resource', () => {
 
     beforeEach(() => {
       return Promise.all([
-          User.create({ username: 'my-user', password: 'my-password' }),
-          User.create({ username: 'another-user', password: 'another-pass' })
+        User.create({ username: 'my-user', password: 'my-password' }),
+        User.create({ username: 'another-user', password: 'another-pass' })
       ])
         .then((users) => {
           [user, anotherUser] = users;
@@ -163,7 +163,7 @@ describe('Games Resource', () => {
           expect(res.status).to.have.been.calledWith(200);
           expect(resJson.users.map((p) => p.id).sort()).to.eql([user.id, anotherUser.id].sort());
           expect(resJson.players.map((p) => p.id).sort()).to.eql([userPlayer.id, anotherUserPlayer.id].sort());
-        })
+        });
     });
 
     it('returns a redacted game for a decoder', () => {
@@ -175,7 +175,7 @@ describe('Games Resource', () => {
 
           expect(res.status).to.have.been.calledWith(200);
           expect([].concat(...resJson.game.board).map((tile) => tile.type)).to.eql(new Array(25).fill('redacted'));
-        })
+        });
     });
 
     it('returns an unredacted game for a transmitter', () => {
@@ -188,11 +188,51 @@ describe('Games Resource', () => {
           expect(res.status).to.have.been.calledWith(200);
           expect([].concat(...resJson.game.board).map((tile) => tile.type)).to.have.members(['a', 'b', null, 'x']);
           expect([].concat(...resJson.game.board).map((tile) => tile.type)).not.to.have.members(['redacted']);
-        })
+        });
     });
   });
 
   describe('destroy', () => {
+    let user, player, game;
+    beforeEach(() => {
+      return Promise.all([
+        User.create({ username: 'my-user', password: 'my-password' }),
+        Game.create()
+      ])
+        .then((response) => {
+          [user, game] = response;
 
+          return Player.create({ gameId: game.id, userId: user.id });
+        })
+        .then((p) => { player = p; });
+    });
+
+    afterEach(() => helper.cleanDatabase());
+
+    it('marks the game as deleted', () => {
+      let res = requestHelper.stubRes();
+
+      return gamesResource.destroy({ user, query: { id: game.id } }, res)
+        .then(() => {
+          return Game.unscoped().findOne({ where: { id: game.id } });
+        })
+        .then((g) => {
+          expect(res.status).to.have.been.calledWith(200);
+          expect(g.deletedAt).not.to.be.null;
+        });
+    });
+
+    it('marks the players as deleted', () => {
+      let res = requestHelper.stubRes();
+
+      return gamesResource.destroy({ user, query: { id: game.id } }, res)
+        .then(() => {
+          return Player.unscoped().findOne({ where: { id: player.id } });
+        })
+        .then((p) => {
+          expect(res.status).to.have.been.calledWith(200);
+          expect(p.deletedAt).not.to.be.null;
+        });
+    });
   });
 });

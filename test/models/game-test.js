@@ -5,6 +5,7 @@ const helper = require('../test-helper'),
       sinon = helper.sinon,
       Game = require('../../models/game'),
       Player = require('../../models/player'),
+      User = require('../../models/user'),
       GameBoard = require('../../lib/game-board'),
       gameHelpers = require('../support/game-helpers');
 
@@ -457,6 +458,85 @@ describe('Game', () => {
         ]}).then(() => {
           expect(game.completed()).to.be.true;
         });
+      });
+    });
+  });
+
+  describe('delete', () => {
+    context('deleting', () => {
+      let game, user, player;
+
+      beforeEach(() => {
+        return Promise.all([
+          Game.create(),
+          User.create({ username: 'my-user', password: 'my-password' })
+        ])
+          .then(([g, u]) => {
+            game = g;
+            user = u;
+            return Player.create({ userId: user.id, gameId: game.id });
+          })
+          .then((p) => { player = p; });
+      });
+
+      afterEach(() => helper.cleanDatabase());
+
+      it('marks the record as deleted without destroying it', () => {
+        return game.delete()
+          .then(() => {
+            return Game.unscoped().findAll({ where: { id: game.id } });
+          })
+          .then((g) => {
+            expect(g).not.to.be.null;
+            expect(g.deleted_at).not.to.be.null;
+          });
+      });
+
+      it('marks associated players as deleted', () => {
+        return game.delete()
+          .then(() => {
+            return Player.unscoped().findAll({ where: { gameId: game.id } });
+          })
+          .then((players) => {
+            expect(players.length).to.eq(1);
+            expect(players[0].id).to.eq(player.id);
+            expect(players[0].deletedAt).not.to.be.null;
+          });
+      });
+    });
+
+    context('deleted behavior', () => {
+      let game1, game2, game3;
+
+      beforeEach(() => {
+        return Promise.all([
+          Game.create(),
+          Game.create(),
+          Game.create()
+        ])
+          .then((games) => {
+            [game1, game2, game3] = games;
+
+            return game2.delete();
+          });
+      });
+
+      afterEach(() => helper.cleanDatabase());
+
+      it('does not return deleted games', () => {
+        return Game.findAll()
+          .then((games) => {
+            let gameIds = games.map((g) => g.id);
+            expect(gameIds).not.to.include(game2.id);
+            expect(gameIds).to.have.members([game.id, game1.id, game3.id]);
+          });
+      });
+
+      it('is available through deleted scope', () => {
+        return Game.scope('deleted').findAll()
+          .then((games) => {
+            expect(games[0].id).to.eq(game2.id);
+          });
       });
     });
   });

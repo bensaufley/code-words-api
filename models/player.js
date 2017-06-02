@@ -59,9 +59,24 @@ Player.init({
     type: Sequelize.ENUM('transmitter', 'decoder'),
     unique: 'gameTeamRoleIndex',
     allowNull: true
+  },
+  deletedAt: {
+    field: 'deleted_at',
+    type: Sequelize.DATE,
+    notNull: false
   }
 }, {
+  defaultScope: {
+    where: { deletedAt: null }
+  },
   sequelize: sequelizeInstance,
+  scopes: {
+    deleted: {
+      where: {
+        $not: { deletedAt: null }
+      }
+    }
+  },
   tableName: 'players',
   underscored: true
 });
