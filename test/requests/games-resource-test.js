@@ -1,13 +1,11 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      expect = helper.expect,
-      sinon = helper.sinon,
-      requestHelper = require('../support/request-helper'),
-      User = require('../../models/user'),
-      Game = require('../../models/game'),
-      Player = require('../../models/player'),
-      gamesResource = require('../../resources/games');
+import { cleanDatabase, expect, sinon } from '../test-helper';
+import requestHelper from '../support/request-helper';
+import User from '../../models/user';
+import Game from '../../models/game';
+import Player from '../../models/player';
+import gamesResource from '../../resources/games';
 
 describe('Games Resource', () => {
   describe('index', () => {
@@ -28,7 +26,7 @@ describe('Games Resource', () => {
         });
     });
 
-    afterEach(helper.cleanDatabase);
+    afterEach(() => cleanDatabase());
 
     it('returns only the user\'s games', () => {
       let res = requestHelper.stubRes();
@@ -79,7 +77,7 @@ describe('Games Resource', () => {
         .then((u) => { user = u; });
     });
 
-    afterEach(() => helper.cleanDatabase());
+    afterEach(() => cleanDatabase());
 
     it('rejects if no user', () => {
       let res = requestHelper.stubRes();
@@ -131,7 +129,7 @@ describe('Games Resource', () => {
         });
     });
 
-    afterEach(() => helper.cleanDatabase());
+    afterEach(() => cleanDatabase());
 
     it('rejects if no game ID', () => {
       let res = requestHelper.stubRes();
@@ -207,7 +205,7 @@ describe('Games Resource', () => {
         .then((p) => { player = p; });
     });
 
-    afterEach(() => helper.cleanDatabase());
+    afterEach(() => cleanDatabase());
 
     it('marks the game as deleted', () => {
       let res = requestHelper.stubRes();

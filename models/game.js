@@ -1,9 +1,8 @@
 'use strict';
 
-const Sequelize = require('sequelize'),
-      config = require('../config'),
-      sequelizeInstance = config.sequelize,
-      GameBoard = require('../lib/game-board');
+import Sequelize from 'sequelize';
+import { sequelize as sequelizeInstance } from '../config';
+import GameBoard from '../lib/game-board';
 
 class Game extends Sequelize.Model {
   completed() {
@@ -46,8 +45,8 @@ class Game extends Sequelize.Model {
       return this.getPlayers()
         .then((players) => {
           return Promise.all([
-            players.map((player) => player.update({ deletedAt })),
-            this.update({ deletedAt })
+            players.map((player) => player.update({ deletedAt }, { transaction })),
+            this.update({ deletedAt }, { transaction })
           ]);
         });
     });
@@ -171,4 +170,4 @@ Game.init({
   underscored: true
 });
 
-module.exports = Game;
+export default Game;

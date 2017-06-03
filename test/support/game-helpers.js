@@ -1,11 +1,10 @@
 'use strict';
 
-let helper = require('../test-helper'),
-    User = require('../../models/user'),
-    Player = require('../../models/player'),
-    Game = require('../../models/game');
+import User  from '../../models/user';
+import Player  from '../../models/player';
+import Game  from '../../models/game';
 
-module.exports = {
+export default {
   activePlayer: (players, game) => {
     return players.find((p) => p.id === game.activePlayerId);
   },

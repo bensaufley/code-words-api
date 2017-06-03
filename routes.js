@@ -1,10 +1,10 @@
 'use strict';
 
-const express = require('express'),
-      router = express.Router();
+import express from 'express';
+const router = express.Router();
 
-const Auth = require('./lib/auth'),
-      Games = require('./resources/games');
+import Auth from './lib/auth';
+import Games from './resources/games';
 
 /* Unauthenticated routes */
 router.post('/login', (req, res) => { new Auth(req, res).login(); });
@@ -17,4 +17,4 @@ router.post('/api/v1/games', Games.create);
 router.get('/api/v1/game/:id', Games.show);
 router.delete('/api/v1/game/:id', Games.destroy);
 
-module.exports = router;
+export default router;

@@ -1,12 +1,10 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      jwt = require('jsonwebtoken'),
-      expect = helper.expect,
-      sinon = helper.sinon,
-      validateRequest = require('../../middleware/validate-request'),
-      Auth = require('../../lib/auth'),
-      User = require('../../models/user');
+import { cleanDatabase, config, expect, sinon } from '../test-helper';
+import jwt from 'jsonwebtoken';
+import validateRequest from '../../middleware/validate-request';
+import Auth from '../../lib/auth';
+import User from '../../models/user';
 
 describe('validateRequest Middleware', () => {
   let res, sandbox, validToken, expiredToken, user, nextStub;
@@ -25,15 +23,15 @@ describe('validateRequest Middleware', () => {
       password: 'test-password'
     }).then((u) => {
       user = u;
-      validToken = jwt.sign({ userId: u.id }, helper.config.secret, { expiresIn: '7 days' });
-      expiredToken = jwt.sign({ userId: u.id }, helper.config.secret, { expiresIn: '0s' });
+      validToken = jwt.sign({ userId: u.id }, config.secret, { expiresIn: '7 days' });
+      expiredToken = jwt.sign({ userId: u.id }, config.secret, { expiresIn: '0s' });
       done();
     });
   });
 
   afterEach(() => {
     sandbox.restore();
-    return helper.cleanDatabase();
+    return cleanDatabase();
   });
 
   context('post', () => {

@@ -1,11 +1,11 @@
 'use strict';
 
-const express = require('express'),
-      http = require('http'),
-      logger = require('morgan'),
-      bodyParser = require('body-parser'),
-      createWebSocketsServer = require('./lib/web-sockets-server'),
-      validateRequest = require('./middleware/validate-request');
+import express from 'express';
+import http from 'http';
+import logger from 'morgan';
+import bodyParser from 'body-parser';
+import createWebSocketsServer from './lib/web-sockets-server';
+import validateRequest from './middleware/validate-request';
 
 const app = express();
 
@@ -51,7 +51,7 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-module.exports = {
+export default {
   app,
   server,
   wss

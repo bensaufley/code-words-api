@@ -1,10 +1,9 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      expect = helper.expect,
-      Game = require('../../models/game'),
-      User = require('../../models/user'),
-      Player = require('../../models/player');
+import { cleanDatabase, expect } from '../test-helper';
+import Game from '../../models/game';
+import User from '../../models/user';
+import Player from '../../models/player';
 
 describe('Player', () => {
   describe('validation', () => {
@@ -17,7 +16,7 @@ describe('Player', () => {
       ]);
     });
 
-    afterEach(helper.cleanDatabase);
+    afterEach(() => cleanDatabase());
 
     describe('user association', () => {
       it('does not allow null userId', () => {
@@ -218,7 +217,7 @@ describe('Player', () => {
         });
     });
 
-    afterEach(helper.cleanDatabase);
+    afterEach(() => cleanDatabase());
 
     it('returns an Object of the relevant information', () => {
       expect(player.serialize()).to.eql({

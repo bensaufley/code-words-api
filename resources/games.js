@@ -1,11 +1,10 @@
 'use strict';
 
-const config = require('../config'),
-      sequelizeInstance = config.sequelize,
-      ErrorHandler = require('../lib/error-handler'),
-      Player = require('../models/player'),
-      Game = require('../models/game'),
-      SocketNotifier = require('../lib/socket-notifier');
+import { sequelize as sequelizeInstance } from '../config';
+import ErrorHandler from '../lib/error-handler';
+import Player from '../models/player';
+import Game from '../models/game';
+import SocketNotifier from '../lib/socket-notifier';
 
 const index = (req, res) => {
   let user = req.user;
@@ -108,7 +107,7 @@ const destroy = (req, res) => {
     });
 };
 
-module.exports = {
+export default {
   index,
   create,
   show,

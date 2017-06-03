@@ -1,10 +1,9 @@
 'use strict';
 
-const Sequelize = require('sequelize'),
-      config = require('../config'),
-      sequelizeInstance = config.sequelize,
-      Game = require('./game'),
-      User = require('./user');
+import Sequelize from 'sequelize';
+import { sequelize as sequelizeInstance } from '../config';
+import Game from './game';
+import User from './user';
 
 class Player extends Sequelize.Model {
   serialize() {
@@ -89,4 +88,4 @@ User.Players = User.hasMany(Player, { as: 'players' });
 User.Games = User.belongsToMany(Game, { through: Player, as: 'games' });
 Game.ActivePlayer = Game.belongsTo(Player, { as: 'activePlayer', foreignKey: 'activePlayerId', constraints: false });
 
-module.exports = Player;
+export default Player;

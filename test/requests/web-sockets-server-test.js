@@ -1,11 +1,10 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      expect = helper.expect,
-      WebSocket = require('ws'),
-      jwt = require('jsonwebtoken'),
-      User = require('../../models/user'),
-      { server } = require('../../server');
+import { cleanDatabase, config, expect } from '../test-helper';
+import WebSocket from 'ws';
+import jwt from 'jsonwebtoken';
+import User from '../../models/user';
+import { server } from '../../server';
 
 describe('WebSockets Server', () => {
   describe('v1', () => {
@@ -15,7 +14,7 @@ describe('WebSockets Server', () => {
 
     before(() => {
       server.listen(wssPort, () => {
-        helper.config.log(`Listening at ${wssUrl}…`);
+        config.log(`Listening at ${wssUrl}…`);
       });
       return User.create({ username: 'test-user', password: 'test-password' })
         .then((u) => { user = u; });
@@ -23,7 +22,7 @@ describe('WebSockets Server', () => {
 
     after(() => {
       server.close();
-      return helper.cleanDatabase();
+      return cleanDatabase();
     });
 
     afterEach(() => {
@@ -53,7 +52,7 @@ describe('WebSockets Server', () => {
 
       it('rejects access_token for null UserId', () => {
         return new Promise((resolve, reject) => {
-          let token = jwt.sign({ userId: null }, helper.config.secret);
+          let token = jwt.sign({ userId: null }, config.secret);
           ws = new WebSocket(`${wssUrl}?access_token=${token}`);
           ws.on('open', reject);
           ws.on('error', resolve);
@@ -64,7 +63,7 @@ describe('WebSockets Server', () => {
 
       it('rejects access_token for invalid User', () => {
         return new Promise((resolve, reject) => {
-          let token = jwt.sign({ userId: 'not-valid' }, helper.config.secret);
+          let token = jwt.sign({ userId: 'not-valid' }, config.secret);
           ws = new WebSocket(`${wssUrl}?access_token=${token}`);
           ws.on('open', reject);
           ws.on('error', resolve);
@@ -75,7 +74,7 @@ describe('WebSockets Server', () => {
 
       it('accepts access_token for valid User', () => {
         return new Promise((resolve, reject) => {
-          let token = jwt.sign({ userId: user.id }, helper.config.secret);
+          let token = jwt.sign({ userId: user.id }, config.secret);
           ws = new WebSocket(`${wssUrl}?access_token=${token}`);
           ws.on('error', reject);
 
@@ -85,24 +84,24 @@ describe('WebSockets Server', () => {
 
       it('adds and removes the ws connection to config.sockets', () => {
         return new Promise((resolve, reject) => {
-          let token = jwt.sign({ userId: user.id }, helper.config.secret);
+          let token = jwt.sign({ userId: user.id }, config.secret);
           ws = new WebSocket(`${wssUrl}?access_token=${token}`);
           ws.on('error', reject);
           ws.on('open', resolve);
         }).then(() => {
-          expect(helper.config.sockets[user.id]).to.be.an.instanceOf(WebSocket);
+          expect(config.sockets[user.id]).to.be.an.instanceOf(WebSocket);
 
           ws.close();
           return new Promise((resolve) => { setTimeout(resolve, 5); });
         }).then(() => {
-          expect(helper.config.sockets[user.id]).to.be.undefined;
+          expect(config.sockets[user.id]).to.be.undefined;
         });
       });
     });
 
     describe('message', () => {
       beforeEach(() => {
-        let token = jwt.sign({ userId: user.id }, helper.config.secret);
+        let token = jwt.sign({ userId: user.id }, config.secret);
         ws = new WebSocket(`${wssUrl}?access_token=${token}`);
         return new Promise((resolve, reject) => {
           ws.on('error', reject);

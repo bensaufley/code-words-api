@@ -1,15 +1,12 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      expect = helper.expect,
-      User = require('../../models/user'),
-      request = require('supertest'),
-      { app } = require('../../server');
+import { cleanDatabase, expect, matchers } from '../test-helper';
+import User from '../../models/user';
+import request from 'supertest';
+import { app } from '../../server';
 
 describe('Root Paths', () => {
-  afterEach(() => {
-    return helper.cleanDatabase();
-  });
+  afterEach(() => cleanDatabase());
 
   describe('OPTIONS /login', () => {
     it('returns 200 with Headers', () => {
@@ -52,9 +49,9 @@ describe('Root Paths', () => {
         .send({ username: 'my-user', password: 'my-password' })
         .then((response) => {
           expect(response.status).to.eq(200);
-          expect(response.body.token).to.satisfy(helper.matchers.jwt.test);
+          expect(response.body.token).to.satisfy(matchers.jwt.test);
           expect(response.body.user.username).to.eq('my-user');
-          expect(response.body.user.id).to.satisfy(helper.matchers.uuid.test);
+          expect(response.body.user.id).to.satisfy(matchers.uuid.test);
         });
     });
   });

@@ -1,14 +1,11 @@
 'use strict';
 
-const helper = require('../../test-helper'),
-      config = helper.config,
-      expect = helper.expect,
-      sinon = helper.sinon,
-      WebSocket = require('ws'),
-      MessageHandler = require('../../../lib/sockets/message-handler'),
-      User = require('../../../models/user'),
-      Game = require('../../../models/game'),
-      gameHelpers = require('../../support/game-helpers');
+import { cleanDatabase, config, expect, sinon } from '../../test-helper';
+import WebSocket from 'ws';
+import MessageHandler from '../../../lib/sockets/message-handler';
+import User from '../../../models/user';
+import Game from '../../../models/game';
+import gameHelpers from '../../support/game-helpers';
 
 describe('MessageHandler', () => {
   let aTransmitterUser, aDecoderUser, game;
@@ -20,7 +17,7 @@ describe('MessageHandler', () => {
       });
   });
 
-  afterEach(() => helper.cleanDatabase());
+  afterEach(() => cleanDatabase());
 
   describe('handle', () => {
     it('rejects invalid JSON', () => {

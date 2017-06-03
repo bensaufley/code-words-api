@@ -1,11 +1,9 @@
 'use strict';
 
-const jwt = require('jsonwebtoken'),
-      helper = require('../test-helper'),
-      Auth = require('../../lib/auth'),
-      User = require('../../models/user'),
-      expect = helper.expect,
-      sinon = helper.sinon;
+import jwt from 'jsonwebtoken';
+import { cleanDatabase, config, expect, matchers, sinon } from '../test-helper';
+import Auth from '../../lib/auth';
+import User from '../../models/user';
 
 describe('Auth', () => {
   let res, sandbox;
@@ -40,7 +38,7 @@ describe('Auth', () => {
     });
 
     afterEach(() => {
-      return helper.cleanDatabase();
+      return cleanDatabase();
     });
 
     it('rejects 401 if no username provided', () => {
@@ -78,7 +76,7 @@ describe('Auth', () => {
 
       return auth.login().then(() => {
         const json = res.json.getCall(0).args[0],
-              decoded = jwt.verify(json.token, helper.config.secret);
+              decoded = jwt.verify(json.token, config.secret);
 
         expect(res.status).to.have.been.calledWith(200);
         expect(decoded.userId).to.eq(user.id);
@@ -90,7 +88,7 @@ describe('Auth', () => {
 
       return auth.login(user).then(() => {
         const json = res.json.getCall(0).args[0],
-              decoded = jwt.verify(json.token, helper.config.secret);
+              decoded = jwt.verify(json.token, config.secret);
 
         expect(res.status).to.have.been.calledWith(200);
         expect(decoded.userId).to.eq(user.id);
@@ -102,7 +100,7 @@ describe('Auth', () => {
 
       return auth.login().then(() => {
         const json = res.json.getCall(0).args[0],
-              decoded = jwt.verify(json.token, helper.config.secret),
+              decoded = jwt.verify(json.token, config.secret),
               nextWeek = Math.floor((new Date().getTime() + 7 * 60 * 60 * 24 * 1000) / 1000);
 
         expect(res.status).to.have.been.calledWith(200);
@@ -171,9 +169,9 @@ describe('Auth', () => {
         expect(res.status).to.have.been.calledWith(200);
         expect(res.json).to.have.been.calledWith(
           sinon.match({
-            token: helper.matchers.jwt,
+            token: matchers.jwt,
             user: {
-              id: helper.matchers.uuid,
+              id: matchers.uuid,
               username: 'my-user'
             }
           })

@@ -2,18 +2,19 @@
 
 process.env.NODE_ENV = 'test';
 
-const chai = require('chai'),
-      sinon = require('sinon'),
-      sinonChai = require('sinon-chai'),
-      DatabaseCleaner = require('database-cleaner'),
-      pg = require('pg'),
-      config = require('../config'),
-      databaseCleaner = new DatabaseCleaner('postgresql', {
-        postgresql: {
-          skipTables: ['migrations'],
-          strategy: 'truncation'
-        }
-      });
+import chai from 'chai';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+import DatabaseCleaner from 'database-cleaner';
+import pg from 'pg';
+import config from '../config';
+
+const databaseCleaner = new DatabaseCleaner('postgresql', {
+  postgresql: {
+    skipTables: ['migrations'],
+    strategy: 'truncation'
+  }
+});
 
 const UUIDV4_REGEXP = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
       JWT_REGEXP = /^[a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)?$/;
@@ -46,7 +47,7 @@ process.on('unhandledRejection', (reason, p) => {
 before(() => cleanDatabase());
 after(() => cleanDatabase());
 
-module.exports = {
+export default {
   cleanDatabase: cleanDatabase,
   config: config,
   expect: chai.expect,

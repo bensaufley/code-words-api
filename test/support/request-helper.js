@@ -1,9 +1,8 @@
 'use strict';
 
-let helper = require('../test-helper'),
-    sinon = helper.sinon;
+import { sinon } from '../test-helper';
 
-module.exports = {
+export default {
   stubRes() {
     let res = {};
     res.status = sinon.stub().returns(res);

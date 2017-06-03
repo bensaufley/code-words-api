@@ -1,13 +1,11 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      expect = helper.expect,
-      sinon = helper.sinon,
-      Game = require('../../models/game'),
-      Player = require('../../models/player'),
-      User = require('../../models/user'),
-      GameBoard = require('../../lib/game-board'),
-      gameHelpers = require('../support/game-helpers');
+import { cleanDatabase, expect, sinon } from '../test-helper';
+import Game from '../../models/game';
+import Player from '../../models/player';
+import User from '../../models/user';
+import GameBoard from '../../lib/game-board';
+import gameHelpers from '../support/game-helpers';
 
 describe('Game', () => {
   let game;
@@ -16,7 +14,7 @@ describe('Game', () => {
     return Game.create().then((g) => { game = g; });
   });
 
-  afterEach(helper.cleanDatabase);
+  afterEach(() => cleanDatabase());
 
   describe('initialization', () => {
     it('creates a new game board', () => {
@@ -479,7 +477,7 @@ describe('Game', () => {
           .then((p) => { player = p; });
       });
 
-      afterEach(() => helper.cleanDatabase());
+      afterEach(() => cleanDatabase());
 
       it('marks the record as deleted without destroying it', () => {
         return game.delete()
@@ -521,7 +519,7 @@ describe('Game', () => {
           });
       });
 
-      afterEach(() => helper.cleanDatabase());
+      afterEach(() => cleanDatabase());
 
       it('does not return deleted games', () => {
         return Game.findAll()

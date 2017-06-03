@@ -1,9 +1,9 @@
 'use strict';
 
-const jwt = require('jsonwebtoken'),
-      config = require('../config'),
-      Auth = require('../lib/auth'),
-      User = require('../models/user');
+import jwt from 'jsonwebtoken';
+import config from '../config';
+import Auth from '../lib/auth';
+import User from '../models/user';
 
 const getToken = (req) => {
   if (!req) return null;
@@ -13,7 +13,7 @@ const getToken = (req) => {
   return null;
 };
 
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   const token = getToken(req),
         auth = new Auth(req, res);
 

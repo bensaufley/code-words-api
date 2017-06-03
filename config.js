@@ -1,5 +1,7 @@
-const Sequelize = require('sequelize'),
-      databaseJson = require('./database.json');
+'use strict';
+
+import Sequelize from 'sequelize';
+import databaseJson from './database.json';
 
 let dbUrl = process.env.DATABASE_URL;
 
@@ -34,7 +36,7 @@ let sequelize = new Sequelize(dbUrl, { logging: logger });
 /**
  * @type {Config}
  */
-module.exports = {
+export default {
   dbUrl: dbUrl,
   log: logger,
   secret: process.env.SECRET_TOKEN,

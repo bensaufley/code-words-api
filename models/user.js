@@ -1,9 +1,8 @@
 'use strict';
 
-const Sequelize = require('sequelize'),
-      bcrypt = require('bcrypt-nodejs'),
-      config = require('../config'),
-      sequelizeInstance = config.sequelize;
+import Sequelize from 'sequelize';
+import bcrypt from 'bcrypt-nodejs';
+import { sequelize as sequelizeInstance } from '../config';
 
 const setSecurePassword = (user, options) => {
   return new Promise((resolve, reject) => {
@@ -91,4 +90,4 @@ User.init({
 User.beforeCreate(setSecurePassword);
 User.beforeUpdate(setSecurePassword);
 
-module.exports = User;
+export default User;

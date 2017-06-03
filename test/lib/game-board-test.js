@@ -1,9 +1,7 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      expect = helper.expect,
-      sinon = helper.sinon,
-      GameBoard = require('../../lib/game-board');
+import { config, expect, sinon } from '../test-helper';
+import GameBoard from '../../lib/game-board';
 
 const toTextFixture = [[{revealed:false,type:null,word:'rub'},{revealed:false,type:null,word:'bit'},{revealed:false,type:null,word:'cookie'},{revealed:false,type:'a',word:'industry'},{revealed:false,type:'b',word:'hang'}],[{revealed:false,type:null,word:'anything'},{revealed:false,type:null,word:'degree'},{revealed:false,type:null,word:'hide'},{revealed:false,type:'a',word:'decision'},{revealed:false,type:'a',word:'slide'}],[{revealed:false,type:'x',word:'internet'},{revealed:false,type:'b',word:'specific'},{revealed:false,type:'a',word:'window'},{revealed:false,type:null,word:'jury'},{revealed:false,type:'a',word:'wine'}],[{revealed:false,type:'a',word:'ball'},{revealed:false,type:'b',word:'shoulder'},{revealed:false,type:null,word:'plenty'},{revealed:false,type:null,word:'teaching'},{revealed:false,type:'a',word:'reserve'}],[{revealed:false,type:'a',word:'volume'},{revealed:false,type:'b',word:'world'},{revealed:false,type:'b',word:'fishing'},{revealed:false,type:'b',word:'mom'},{revealed:false,type:'b',word:'cup'}]];
 
@@ -257,7 +255,7 @@ describe('GameBoard', () => {
       [].concat(...board.grid).find((t) => t.type === 'a').revealed = false;
       [].concat(...board.grid).find((t) => t.type === 'b').revealed = false;
 
-      helper.config.log(board.toText());
+      config.log(board.toText());
 
       expect(board.won()).to.be.false;
     });
@@ -275,7 +273,7 @@ describe('GameBoard', () => {
       [].concat(...board.grid).forEach((t) => { if (t.type === winner) t.revealed = true; });
       [].concat(...board.grid).find((t) => t.type === loser).revealed = false;
 
-      helper.config.log(board.toText());
+      config.log(board.toText());
 
       expect(board.won()).to.be.true;
     });
