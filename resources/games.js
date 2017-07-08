@@ -4,30 +4,14 @@ const config = require('../config'),
       sequelizeInstance = config.sequelize,
       ErrorHandler = require('../lib/error-handler'),
       Player = require('../models/player'),
-      Game = require('../models/game'),
-      SocketNotifier = require('../lib/socket-notifier');
+      Game = require('../models/game');
+      // { SocketNotifier } = require('../lib/socket-notifier');
 
 const index = (req, res) => {
   let user = req.user;
 
-  return Player.findAll({
-    where: {
-      userId: user.id
-    },
-    include: [{
-      association: Player.Game,
-      include: [Game.Players, Game.Users]
-    }]
-  })
-    .then((players) => {
-      const games = players.map((player) => {
-        return {
-          game: player.game.serializeFor(player),
-          players: player.game.players.map((p) => p.serialize()),
-          users: player.game.users.map((u) => u.serialize())
-        };
-      });
-
+  return user.indexGames()
+    .then((games) => {
       res.status(200).json({ games });
     })
     .catch(new ErrorHandler(req, res).process);
