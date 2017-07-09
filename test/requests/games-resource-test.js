@@ -11,7 +11,7 @@ const helper = require('../test-helper'),
 
 describe('Games Resource', () => {
   describe('index', () => {
-    let user, game1, game2, game3;
+    let user, game1, game3;
 
     beforeEach(() => {
       return User.create({ username: 'my-user', password: 'my-password' })
@@ -20,7 +20,8 @@ describe('Games Resource', () => {
           return Promise.all([ Game.create(), Game.create(), Game.create() ]);
         })
         .then((games) => {
-          [game1, game2, game3] = games;
+          game1 = games[0];
+          game3 = games[2];
           return Promise.all([
             Player.create({ userId: user.id, gameId: game1.id, role: 'transmitter' }),
             Player.create({ gameId: game3.id, userId: user.id, role: 'decoder' })
@@ -96,7 +97,6 @@ describe('Games Resource', () => {
 
       return gamesResource.create({ user }, res)
         .then(() => {
-          let responseJson = res.json.getCall(0).args[0];
           expect(res.status).to.have.been.calledWith(200);
           expect(res.json).to.have.been.calledWith(sinon.match({
             game: sinon.match.object,
@@ -126,8 +126,7 @@ describe('Games Resource', () => {
             Player.create({ userId: user.id, gameId: game2.id, role: 'transmitter' })
           ]);
         }).then((players) => {
-          let thirdPlayer;
-          [userPlayer, anotherUserPlayer, thirdPlayer] = players;
+          [userPlayer, anotherUserPlayer] = players;
         });
     });
 

@@ -4,9 +4,7 @@ const helper = require('../../test-helper'),
       config = helper.config,
       expect = helper.expect,
       sinon = helper.sinon,
-      WebSocket = require('ws'),
       MessageHandler = require('../../../lib/sockets/message-handler'),
-      User = require('../../../models/user'),
       Game = require('../../../models/game'),
       gameHelpers = require('../../support/game-helpers');
 

@@ -1,7 +1,6 @@
 'use strict';
 
-let helper = require('../test-helper'),
-    User = require('../../models/user'),
+let User = require('../../models/user'),
     Player = require('../../models/player'),
     Game = require('../../models/game');
 

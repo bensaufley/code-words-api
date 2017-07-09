@@ -25,7 +25,8 @@
     "test": "NODE_ENV=test nf run mocha",
     "cov": "nyc npm test",
     "migrate-up": "db-migrate up",
-    "migrate-down": "db-migrate down"
+    "migrate-down": "db-migrate down",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "chai": "^3.5.0",

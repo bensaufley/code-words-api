@@ -46,8 +46,8 @@ class Game extends Sequelize.Model {
       return this.getPlayers()
         .then((players) => {
           return Promise.all([
-            players.map((player) => player.update({ deletedAt })),
-            this.update({ deletedAt })
+            players.map((player) => player.update({ deletedAt }, { transaction })),
+            this.update({ deletedAt }, { transaction })
           ]);
         });
     });

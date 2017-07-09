@@ -1,28 +1,24 @@
 'use strict';
 
-const config = require('../config'),
-      sequelizeInstance = config.sequelize,
-      ErrorHandler = require('../lib/error-handler'),
+const ErrorHandler = require('../lib/error-handler'),
       Player = require('../models/player'),
       Game = require('../models/game');
-      // { SocketNotifier } = require('../lib/socket-notifier');
 
 const index = (req, res) => {
   let user = req.user;
 
   return user.indexGames()
-    .then((games) => {
-      res.status(200).json({ games });
-    })
+    .then((games) => { res.status(200).json({ games }); })
     .catch(new ErrorHandler(req, res).process);
 };
 
 const create = (req, res) => {
   let user = req.user;
 
-  if (!user) return Promise.resolve(new ErrorHandler(req, res).process(new Error('No user defined')));
-
-  return user.newGame()
+  return new Promise((resolve, reject) => {
+    if (!user) return reject(new Error('No user defined'));
+    return user.newGame().then(resolve);
+  })
     .then((data) => { res.status(200).json(data); })
     .catch(new ErrorHandler(req, res).process);
 };
@@ -69,12 +65,8 @@ const destroy = (req, res) => {
       include: [Game.Players]
     }).then(resolve).catch(reject);
   })
-    .then((game) => {
-      return game.delete();
-    })
-    .then((game) => {
-      res.status(200);
-    });
+    .then((game) => { return game.delete(); })
+    .then(() => { res.status(200); });
 };
 
 module.exports = {
