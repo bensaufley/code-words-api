@@ -9,6 +9,7 @@ const express = require('express'),
 
 const app = express();
 
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test' || process.env.DEBUG === 'true') {
   app.use(logger('dev'));
 }
@@ -45,6 +46,7 @@ app.set('port', process.env.PORT || 3000);
 let server = http.createServer(app),
     wss = createWebSocketsServer.v1(server);
 
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
   server.listen(app.get('port'), function() {
     console.log('Express server listening on port ' + server.address().port);
