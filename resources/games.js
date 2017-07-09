@@ -18,28 +18,13 @@ const index = (req, res) => {
 };
 
 const create = (req, res) => {
-  let game, player,
-      user = req.user;
+  let user = req.user;
 
-  return sequelizeInstance.transaction((transaction) => {
-    if (!user) return Promise.reject(new Error('No user defined'));
-    return Game.create({}, { transaction })
-      .then((g) => {
-        game = g;
-        return Player.create({
-          userId: user.id,
-          gameId: game.id
-        }, { transaction });
-      })
-      .then((p) => { player = p; });
-  }).then(() => {
-    res.status(200).json({
-      game: game.serializeFor(player),
-      players: [player.serialize()],
-      users: [user.serialize()]
-    });
-  })
-  .catch(new ErrorHandler(req, res).process);
+  if (!user) return Promise.resolve(new ErrorHandler(req, res).process(new Error('No user defined')));
+
+  return user.newGame()
+    .then((data) => { res.status(200).json(data); })
+    .catch(new ErrorHandler(req, res).process);
 };
 
 const show = (req, res) => {
