@@ -12,6 +12,6 @@ database:
     - npm run migrate-up
 test:
   override:
-    - npm run coverage-test
+    - npm run cov
   post:
     - ./node_modules/.bin/codeclimate-test-reporter < ./coverage/lcov.info

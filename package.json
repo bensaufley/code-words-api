@@ -23,7 +23,7 @@
   "scripts": {
     "start": "nf start",
     "test": "nf run mocha",
-    "coverage-test": "nyc nf run mocha",
+    "cov": "nyc nf run mocha",
     "migrate-up": "db-migrate up",
     "migrate-down": "db-migrate down"
   },

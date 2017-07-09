@@ -34,7 +34,7 @@ Procfile) with `nf start`.
 ## Testing
 
 - `npm test` is just a shortcut for `nf run mocha`.
-- `npm run coverage-test` runs the test suite inside [`nyc`] for coverage reporting.
+- `npm run cov` runs the test suite inside [`nyc`] for coverage reporting.
 
 [secret-key-gen]: https://github.com/dwyl/learn-json-web-tokens#how-to-generate-secret-key
 [`nyc`]: https://github.com/istanbuljs/nyc
