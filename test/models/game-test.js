@@ -148,7 +148,21 @@ describe('Game', () => {
                 expect(err.message).to.eq('Number must be whole number greater than zero');
               });
           });
-          // TODO: reject if transmission is more than remaining words for team
+
+          it('rejects if transmission is more than remaining words for team', () => {
+            let gameBoard = game.getDataValue('board'),
+                startingTeam = game.board.startingTeam(),
+                board = gameBoard.map((row) => row.map((tile) => Object.assign({}, tile, { revealed: tile.type === startingTeam })));
+
+            return game.update({ board })
+              .then((g) => {
+                return g.transmit('valid', 3);
+              })
+              .then(() => Promise.reject(new Error('Should not have accepted transmission')))
+              .catch((err) => {
+                expect(err.message).to.eq('Number exceeds remaining tiles for team.');
+              });
+          });
         });
       });
 
