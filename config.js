@@ -3,6 +3,9 @@ const Sequelize = require('sequelize'),
 
 let dbUrl = process.env.DATABASE_URL;
 
+/* db config will only ever do one of if/else so coverage will
+ * always be reported for one or the other. Best to ignore. */
+/* istanbul ignore next */
 if (!dbUrl) {
   let dbConfig = databaseJson[process.env.NODE_ENV];
 
@@ -14,11 +17,13 @@ if (!dbUrl) {
   dbUrl = `postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.database}`;
 }
 
+/* istanbul ignore next */
 if (process.env.DEBUG === 'true') Error.stackTraceLimit = 100;
 
 const logger = (...messages) => {
+  /* istanbul ignore else */
   if (process.env.NODE_ENV === 'test' && process.env.DEBUG !== 'true') return;
-  console.log(...messages);
+  else console.log(...messages);
 };
 
 let sequelize = new Sequelize(dbUrl, { logging: logger });
