@@ -81,27 +81,6 @@ Player.init({
   underscored: true
 });
 
-User.prototype.indexGames = function () {
-  return Player.findAll({
-    where: {
-      userId: this.id
-    },
-    include: [{
-      association: Player.Game,
-      include: [Game.Players, Game.Users]
-    }]
-  })
-    .then((players) => {
-      return players.map((player) => {
-        return {
-          game: player.game.serializeFor(player),
-          players: player.game.players.map((p) => p.serialize()),
-          users: player.game.users.map((u) => u.serialize())
-        };
-      });
-    });
-};
-
 Player.Game = Player.belongsTo(Game, { as: 'game' });
 Player.User = Player.belongsTo(User, { as: 'user' });
 Game.Players = Game.hasMany(Player, { as: 'players' });

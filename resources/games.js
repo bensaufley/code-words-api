@@ -2,12 +2,13 @@
 
 const ErrorHandler = require('../lib/error-handler'),
       Player = require('../models/player'),
-      Game = require('../models/game');
+      Game = require('../models/game'),
+      GameSerializer = require('../lib/game-serializer');
 
 const index = (req, res) => {
   let user = req.user;
 
-  return user.indexGames()
+  return GameSerializer.serializeGamesForUser(user)
     .then((games) => { res.status(200).json({ games }); })
     .catch(new ErrorHandler(req, res).process);
 };
@@ -42,11 +43,9 @@ const show = (req, res) => {
     .then((player) => {
       if (!player) return Promise.reject(new Error('No player found'));
 
-      res.status(200).json({
-        game: player.game.serializeFor(player),
-        players: player.game.players.map((p) => p.serialize()),
-        users: player.game.users.map((u) => u.serialize())
-      });
+      return GameSerializer.serializeGameForPlayer(player);
+    }).then((data) => {
+      res.status(200).json(data);
     })
     .catch(new ErrorHandler(req, res).process);
 };

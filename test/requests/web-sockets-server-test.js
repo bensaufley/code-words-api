@@ -6,6 +6,7 @@ const helper = require('../test-helper'),
       jwt = require('jsonwebtoken'),
       sinon = require('sinon'),
       User = require('../../models/user'),
+      GameSerializer = require('../../lib/game-serializer'),
       { server } = require('../../server'),
       { GAMES_INDEX } = require('../../lib/sockets/socket-notifier');
 
@@ -107,7 +108,7 @@ describe('WebSockets Server', () => {
 
       beforeEach(() => {
         sandbox = sinon.sandbox.create();
-        sandbox.stub(User.prototype, 'indexGames').callsFake(() => {
+        sandbox.stub(GameSerializer, 'serializeGamesForUser').callsFake(() => {
           return Promise.resolve([ { id: '5432' }]);
         });
       });
