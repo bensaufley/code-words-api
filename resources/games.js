@@ -41,7 +41,6 @@ const show = (req, res) => {
   })
     .then((player) => {
       if (!player) return Promise.reject(new Error('No player found'));
-      if (!player.game) return Promise.reject(new Error('No game found'));
 
       res.status(200).json({
         game: player.game.serializeFor(player),
@@ -66,7 +65,8 @@ const destroy = (req, res) => {
     }).then(resolve).catch(reject);
   })
     .then((game) => { return game.delete(); })
-    .then(() => { res.status(200); });
+    .then(() => { res.status(200); })
+    .catch(new ErrorHandler(req, res).process);
 };
 
 module.exports = {

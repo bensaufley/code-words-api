@@ -152,6 +152,19 @@ describe('Games Resource', () => {
         });
     });
 
+    it('rejects if no player', () => {
+      let res = requestHelper.stubRes();
+
+      return Player.destroy({ where: { userId: user.id, gameId: game.id } })
+        .then(() => {
+          return gamesResource.show({ user, query: { id: game.id } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No player found' }));
+            });
+        });
+    });
+
     it('returns all players and users', () => {
       let res = requestHelper.stubRes();
 
@@ -193,6 +206,7 @@ describe('Games Resource', () => {
 
   describe('destroy', () => {
     let user, player, game;
+
     beforeEach(() => {
       return Promise.all([
         User.create({ username: 'my-user', password: 'my-password' }),
@@ -207,6 +221,26 @@ describe('Games Resource', () => {
     });
 
     afterEach(() => helper.cleanDatabase());
+
+    it('rejects if no user', () => {
+      let res = requestHelper.stubRes();
+
+      return gamesResource.destroy({ query: { id: game.id } }, res)
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(500);
+          expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No user defined' }));
+        });
+    });
+
+    it('rejects if no game ID', () => {
+      let res = requestHelper.stubRes();
+
+      return gamesResource.destroy({ user }, res)
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(500);
+          expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No game id specified' }));
+        });
+    });
 
     it('marks the game as deleted', () => {
       let res = requestHelper.stubRes();
