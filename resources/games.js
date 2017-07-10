@@ -8,7 +8,7 @@ const ErrorHandler = require('../lib/error-handler'),
 const index = (req, res) => {
   let user = req.user;
 
-  return GameSerializer.serializeGamesForUser(user)
+  return new GameSerializer(user).serializeGames()
     .then((games) => { res.status(200).json({ games }); })
     .catch(new ErrorHandler(req, res).process);
 };
@@ -32,22 +32,10 @@ const show = (req, res) => {
     if (!gameId) return reject(new Error('No game id specified'));
     if (!user) return reject(new Error('No user defined'));
 
-    Player.findOne({
-      where: { userId: user.id, gameId: gameId },
-      include: [{
-        association: Player.Game,
-        include: [Game.Players, Game.Users]
-      }]
-    }).then(resolve).catch(reject);
-  })
-    .then((player) => {
-      if (!player) return Promise.reject(new Error('No player found'));
-
-      return GameSerializer.serializeGameForPlayer(player);
-    }).then((data) => {
-      res.status(200).json(data);
-    })
-    .catch(new ErrorHandler(req, res).process);
+    new GameSerializer(user).serializeGame(gameId).then(resolve).catch(reject);
+  }).then((data) => {
+    res.status(200).json(data);
+  }).catch(new ErrorHandler(req, res).process);
 };
 
 const destroy = (req, res) => {

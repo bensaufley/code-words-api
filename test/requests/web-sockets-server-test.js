@@ -108,7 +108,7 @@ describe('WebSockets Server', () => {
 
       beforeEach(() => {
         sandbox = sinon.sandbox.create();
-        sandbox.stub(GameSerializer, 'serializeGamesForUser').callsFake(() => {
+        sandbox.stub(GameSerializer.prototype, 'serializeGames').callsFake(() => {
           return Promise.resolve([ { id: '5432' }]);
         });
       });
