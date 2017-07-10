@@ -34,6 +34,7 @@
     "database-cleaner": "^1.2.0",
     "mocha": "^3.4.1",
     "nyc": "^11.0.3",
+    "pryjs": "^1.0.3",
     "sinon": "^2.2.0",
     "sinon-chai": "^2.10.0",
     "supertest": "^3.0.0"
