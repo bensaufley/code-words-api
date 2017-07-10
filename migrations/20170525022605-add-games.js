@@ -44,7 +44,7 @@ exports.up = function(db) {
       notNull: true
     }
   }).then(() => {
-    return db.runSql('CREATE TRIGGER game_updated BEFORE UPDATE ON games FOR EACH ROW EXECUTE PROCEDURE refresh_updated_at_column();');
+    return db.runSql('CREATE TRIGGER GAME_UPDATEDd BEFORE UPDATE ON games FOR EACH ROW EXECUTE PROCEDURE refresh_updated_at_column();');
   });
 };
 

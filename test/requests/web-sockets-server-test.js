@@ -8,7 +8,7 @@ const helper = require('../test-helper'),
       User = require('../../models/user'),
       GameSerializer = require('../../lib/game-serializer'),
       { server } = require('../../server'),
-      { GAMES_INDEX } = require('../../lib/sockets/socket-notifier');
+      { GAMES_INDEXED } = require('../../lib/sockets/socket-notifier');
 
 describe('WebSockets Server', () => {
   describe('v1', () => {
@@ -124,7 +124,7 @@ describe('WebSockets Server', () => {
           ws.on('error', reject);
           ws.on('message', resolve);
         }).then((data) => {
-          expect(data).to.have.eq(JSON.stringify({ event: GAMES_INDEX, payload: { games: [ { id: '5432' } ] } }));
+          expect(data).to.have.eq(JSON.stringify({ event: GAMES_INDEXED, payload: { games: [ { id: '5432' } ] } }));
         });
       });
     });

@@ -1,7 +1,6 @@
 'use strict';
 
 const ErrorHandler = require('../lib/error-handler'),
-      Player = require('../models/player'),
       Game = require('../models/game'),
       GameSerializer = require('../lib/game-serializer');
 

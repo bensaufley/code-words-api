@@ -9,7 +9,7 @@ const getToken = (req) => {
   if (!req) return null;
   if (req.body && req.body.access_token) return req.body.access_token;
   if (req.query && req.query.access_token) return req.query.access_token;
-  if (req.headers && req.headers.Authorization) return req.headers.Authorization.replace(/^Bearer /, '');
+  if (req.get('Authorization')) return req.get('Authorization').replace(/^Bearer /, '');
   return null;
 };
 
