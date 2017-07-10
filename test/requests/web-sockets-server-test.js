@@ -125,7 +125,7 @@ describe('WebSockets Server', () => {
         }).then((data) => {
           expect(data).to.have.eq(JSON.stringify({ event: GAMES_INDEX, payload: { games: [ { id: '5432' } ] } }));
         });
-      }).timeout(10000);
+      });
     });
 
     describe('message', () => {

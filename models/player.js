@@ -102,28 +102,6 @@ User.prototype.indexGames = function () {
     });
 };
 
-User.prototype.newGame = function () {
-  let game, player;
-
-  return sequelizeInstance.transaction((transaction) => {
-    return Game.create({}, { transaction })
-      .then((g) => {
-        game = g;
-        return Player.create({
-          userId: this.id,
-          gameId: game.id
-        }, { transaction });
-      })
-      .then((p) => { player = p; });
-  }).then(() => {
-    return {
-      game: game.serializeFor(player),
-      players: [player.serialize()],
-      users: [this.serialize()]
-    };
-  });
-};
-
 Player.Game = Player.belongsTo(Game, { as: 'game' });
 Player.User = Player.belongsTo(User, { as: 'user' });
 Game.Players = Game.hasMany(Player, { as: 'players' });

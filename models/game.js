@@ -127,6 +127,25 @@ class Game extends Sequelize.Model {
       })
       .then(() => this.nextTurn());
   }
+
+  static createForUser(user) {
+    let game, player;
+
+    return sequelizeInstance.transaction((transaction) => {
+      return this.create({}, { transaction })
+        .then((g) => {
+          game = g;
+          return game.createPlayer({ gameId: game.id, userId: user.id }, { transaction });
+        })
+        .then((p) => { player = p; });
+    }).then(() => {
+      return {
+        game: game.serializeFor(player),
+        players: [player.serialize()],
+        users: [user.serialize()]
+      };
+    });
+  }
 }
 
 Game.init({

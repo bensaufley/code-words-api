@@ -4,6 +4,7 @@ const helper = require('../../test-helper'),
       config = helper.config,
       expect = helper.expect,
       sinon = helper.sinon,
+      WebSocket = require('ws'),
       MessageHandler = require('../../../lib/sockets/message-handler'),
       Game = require('../../../models/game'),
       gameHelpers = require('../../support/game-helpers');
@@ -102,8 +103,8 @@ describe('MessageHandler', () => {
 
     it('notifies connected players', () => {
       config.sockets = {
-        [aTransmitterUser.id]: { send: sinon.stub() },
-        [aDecoderUser.id]: { send: sinon.stub() }
+        [aTransmitterUser.id]: { readyState: WebSocket.OPEN, send: sinon.stub() },
+        [aDecoderUser.id]: { readyState: WebSocket.OPEN, send: sinon.stub() }
       };
       let messageHandler = new MessageHandler(null, aDecoderUser);
       sinon.stub(messageHandler, 'decode');

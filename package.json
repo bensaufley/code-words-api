@@ -23,6 +23,7 @@
   "scripts": {
     "start": "nf start",
     "test": "nf run mocha",
+    "test:watch": "npm test -- -- -w",
     "cov": "nyc npm test",
     "migrate-up": "db-migrate up",
     "migrate-down": "db-migrate down",

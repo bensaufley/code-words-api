@@ -17,7 +17,7 @@ const create = (req, res) => {
 
   return new Promise((resolve, reject) => {
     if (!user) return reject(new Error('No user defined'));
-    return user.newGame().then(resolve);
+    return Game.createForUser(user).then(resolve);
   })
     .then((data) => { res.status(200).json(data); })
     .catch(new ErrorHandler(req, res).process);
