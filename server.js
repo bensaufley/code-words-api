@@ -1,6 +1,7 @@
 'use strict';
 
-const express = require('express'),
+const config = require('./config'),
+      express = require('express'),
       http = require('http'),
       logger = require('morgan'),
       bodyParser = require('body-parser'),
@@ -18,7 +19,16 @@ app.use(bodyParser.json());
 
 app.all('/*', function(req, res, next) {
   // CORS headers
-  res.header('Access-Control-Allow-Origin', '*'); // TODO: restrict to domains
+  /* istanbul ignore else */
+  if (config.corsDomains) {
+    let origin = req.get('origin');
+    origin = origin && origin.replace(/^.*\/\//, '');
+    if (config.corsDomains.length && origin && config.corsDomains.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+    }
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   // Set custom headers for CORS
   res.header('Access-Control-Allow-Headers', 'Content-type,Accept,Authorization');

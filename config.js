@@ -28,6 +28,12 @@ const logger = (...messages) => {
 
 let sequelize = new Sequelize(dbUrl, { logging: logger });
 
+const CORS_DOMAINS = {
+  development: null,
+  test: ['code-words-web.herokuapp.com'],
+  production: ['code-words-web.herokuapp.com']
+};
+
 /**
  * @typedef Config
  *
@@ -40,6 +46,7 @@ let sequelize = new Sequelize(dbUrl, { logging: logger });
  * @type {Config}
  */
 module.exports = {
+  corsDomains: CORS_DOMAINS[process.env.NODE_ENV],
   dbUrl: dbUrl,
   log: logger,
   secret: process.env.SECRET_TOKEN,

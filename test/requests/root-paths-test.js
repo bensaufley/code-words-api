@@ -15,12 +15,22 @@ describe('Root Paths', () => {
     it('returns 200 with Headers', () => {
       return request(app)
         .options('/login')
+        .set('Origin', 'code-words-web.herokuapp.com')
         .then((response) => {
           expect(response.status).to.eq(200);
-          expect(response.header['access-control-allow-origin']).to.eq('*'); // TODO: restrict to domains
+          expect(response.header['access-control-allow-origin']).to.eq('code-words-web.herokuapp.com');
           expect(response.header['access-control-allow-methods']).to.eq('GET,PUT,POST,DELETE,OPTIONS');
           expect(response.header['access-control-allow-headers']).to.eq('Content-type,Accept,Authorization');
           expect(response.header.accept).to.eq('application/json');
+        });
+    });
+
+    it('returns empty CORS for non-whitelisted domains', () => {
+      return request(app)
+        .options('/login')
+        .set('Origin', 'google.com')
+        .then((response) => {
+          expect(response.header['access-control-allow-origin']).to.be.undefined;
         });
     });
   });
