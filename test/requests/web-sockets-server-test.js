@@ -7,7 +7,7 @@ const helper = require('../test-helper'),
       sinon = require('sinon'),
       User = require('../../models/user'),
       { server } = require('../../server'),
-      { GAMES_INDEX } = require('../../lib/socket-notifier');
+      { GAMES_INDEX } = require('../../lib/sockets/socket-notifier');
 
 describe('WebSockets Server', () => {
   describe('v1', () => {
