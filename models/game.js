@@ -12,11 +12,11 @@ class Game extends Sequelize.Model {
     return lastTurn.event === 'end';
   }
 
-  decode(x, y) {
-    if (x < 0 || x > 24 || y < 0 || y > 24) return Promise.reject(new Error('No such tile'));
+  decode(i) {
+    if (i < 0 || i > 24) return Promise.reject(new Error('No such tile'));
     let turn,
         board = this.getDataValue('board'),
-        tile = board[y][x];
+        tile = board[i];
     if (tile.revealed) return Promise.reject(new Error('Tile already revealed'));
 
     return this.getActivePlayer()
@@ -25,8 +25,8 @@ class Game extends Sequelize.Model {
 
         this.activePlayer = activePlayer;
 
-        turn = { event: 'decoding', playerId: activePlayer.id, tile: { x, y }, correct: tile.type === activePlayer.team };
-        let turns = [].concat(this.turns, turn);
+        turn = { event: 'decoding', playerId: activePlayer.id, tile: i, correct: tile.type === activePlayer.team };
+        let turns = [...this.turns, turn];
 
         tile.revealed = true;
 
@@ -60,7 +60,7 @@ class Game extends Sequelize.Model {
     } else {
       finalTurn.winner = activePlayer.team === 'a' ? 'b' : 'a';
     }
-    return this.update({ turns: [].concat(this.turns, finalTurn) });
+    return this.update({ turns: [...this.turns, finalTurn] });
   }
 
   nextTurn() {
@@ -123,7 +123,7 @@ class Game extends Sequelize.Model {
             word: word
           }
         };
-        return this.update({ turns: [].concat(this.turns, turn) });
+        return this.update({ turns: [...this.turns, turn] });
       })
       .then(() => this.nextTurn());
   }
@@ -156,7 +156,7 @@ Game.init({
   },
   board: {
     type: Sequelize.JSONB,
-    defaultValue: () => new GameBoard().grid,
+    defaultValue: () => new GameBoard().tiles,
     get() {
       return new GameBoard(this.getDataValue('board'));
     }

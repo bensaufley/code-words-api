@@ -62,9 +62,9 @@ describe('Games Resource', () => {
         .then(() => {
           let json = res.json.getCall(0).args[0],
               decoderGame = json.games.find((g) => g.game.id === game3.id).game,
-              decoderTileTypes = [].concat(...decoderGame.board).map((t) => t.type),
+              decoderTileTypes = decoderGame.board.map((t) => t.type),
               transmitterGame = json.games.find((g) => g.game.id === game1.id).game,
-              transmitterTileTypes = [].concat(...transmitterGame.board).map((t) => t.type);
+              transmitterTileTypes = transmitterGame.board.map((t) => t.type);
 
           expect(decoderTileTypes).to.eql(new Array(25).fill('redacted'));
           expect(transmitterTileTypes).to.have.members(['a', 'b', null, 'x']);
@@ -186,7 +186,7 @@ describe('Games Resource', () => {
           let resJson = res.json.getCall(0).args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect([].concat(...resJson.game.board).map((tile) => tile.type)).to.eql(new Array(25).fill('redacted'));
+          expect(resJson.game.board.map((tile) => tile.type)).to.eql(new Array(25).fill('redacted'));
         });
     });
 
@@ -198,8 +198,8 @@ describe('Games Resource', () => {
           let resJson = res.json.getCall(0).args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect([].concat(...resJson.game.board).map((tile) => tile.type)).to.have.members(['a', 'b', null, 'x']);
-          expect([].concat(...resJson.game.board).map((tile) => tile.type)).not.to.have.members(['redacted']);
+          expect(resJson.game.board.map((tile) => tile.type)).to.have.members(['a', 'b', null, 'x']);
+          expect(resJson.game.board.map((tile) => tile.type)).not.to.have.members(['redacted']);
         });
     });
   });

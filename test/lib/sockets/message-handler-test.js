@@ -80,17 +80,19 @@ describe('MessageHandler', () => {
     it('calls decode', () => {
       let messageHandler = new MessageHandler(null, aDecoderUser);
       sinon.stub(messageHandler, 'decode');
-      let payload = JSON.stringify({ event: 'decode', gameId: game.id, tile: { x: 3, y: 2 } });
+      let i = Math.floor(Math.random() * 25);
+      let payload = JSON.stringify({ event: 'decode', gameId: game.id, tile: i });
 
       return messageHandler.handle(payload)
         .then(() => {
-          expect(messageHandler.decode).to.have.been.calledWith(sinon.match.instanceOf(Game).and(sinon.match.has('id', game.id)), sinon.match({x: 3, y: 2 }));
+          expect(messageHandler.decode).to.have.been.calledWith(sinon.match.instanceOf(Game).and(sinon.match.has('id', game.id)), i);
         });
     });
 
     it('rejects decode for transmitter', () => {
       let messageHandler = new MessageHandler(null, aTransmitterUser),
-          payload = JSON.stringify({ event: 'decode', gameId: game.id, tile: { x: 3, y: 2 } });
+          i = Math.floor(Math.random() * 25),
+          payload = JSON.stringify({ event: 'decode', gameId: game.id, tile: i });
       sinon.spy(game, 'decode');
 
       return messageHandler.handle(payload)
@@ -106,9 +108,10 @@ describe('MessageHandler', () => {
         [aTransmitterUser.id]: { readyState: WebSocket.OPEN, send: sinon.stub() },
         [aDecoderUser.id]: { readyState: WebSocket.OPEN, send: sinon.stub() }
       };
-      let messageHandler = new MessageHandler(null, aDecoderUser);
+      let messageHandler = new MessageHandler(null, aDecoderUser),
+          i = Math.floor(Math.random() * 25),
+          payload = JSON.stringify({ event: 'decode', gameId: game.id, tile: i });
       sinon.stub(messageHandler, 'decode');
-      let payload = JSON.stringify({ event: 'decode', gameId: game.id, tile: { x: 3, y: 2 } });
 
       return messageHandler.handle(payload)
         .then(() => {

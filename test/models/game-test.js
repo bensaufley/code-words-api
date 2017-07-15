@@ -22,9 +22,8 @@ describe('Game', () => {
     it('creates a new game board', () => {
       let board = game.getDataValue('board');
 
-      expect(board).to.have.lengthOf(5);
-      expect([].concat(...board)).to.have.lengthOf(25);
-      [].concat(...board).forEach((tile) => {
+      expect(board).to.have.lengthOf(25);
+      board.forEach((tile) => {
         expect(tile.revealed).to.be.false;
         expect(tile.type).to.be.oneOf(['a', 'b', null, 'x']);
         expect(tile.word).to.be.a('string').with.length.above(2);
@@ -34,7 +33,7 @@ describe('Game', () => {
 
   it('returns a GameBoard object for its board property', () => {
     expect(game.board).to.be.instanceOf(GameBoard);
-    expect(game.board.grid).to.eq(game.getDataValue('board'));
+    expect(game.board.tiles).to.eql(game.getDataValue('board'));
   });
 
   describe('serializeFor', () => {
@@ -57,7 +56,7 @@ describe('Game', () => {
       let serialized = game.serializeFor(decoder);
 
       expect(serialized.board).not.to.eq(game.getDataValue('board'));
-      expect([].concat(...serialized.board).map((t) => t.type)).to.eql(new Array(25).fill('redacted'));
+      expect(serialized.board.map((t) => t.type)).to.eql(new Array(25).fill('redacted'));
     });
   });
 
@@ -152,12 +151,10 @@ describe('Game', () => {
           it('rejects if transmission is more than remaining words for team', () => {
             let gameBoard = game.getDataValue('board'),
                 startingTeam = game.board.startingTeam(),
-                board = gameBoard.map((row) => row.map((tile) => Object.assign({}, tile, { revealed: tile.type === startingTeam })));
+                board = gameBoard.map((tile) => Object.assign({}, tile, { revealed: tile.type === startingTeam }));
 
             return game.update({ board })
-              .then((g) => {
-                return g.transmit('valid', 3);
-              })
+              .then((g) => g.transmit('valid', 3))
               .then(() => Promise.reject(new Error('Should not have accepted transmission')))
               .catch((err) => {
                 expect(err.message).to.eq('Number exceeds remaining tiles for team.');
@@ -209,13 +206,11 @@ describe('Game', () => {
         });
 
         it('rejects already-revealed tiles', () => {
-          let [x, y] = [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)],
+          let i = Math.floor(Math.random() * 25),
               board = game.getDataValue('board');
-          board[y][x].revealed = true;
+          board[i].revealed = true;
           return game.update({ board })
-            .then(() => {
-              return game.decode(x, y);
-            })
+            .then(() => game.decode(i))
             .then(() => Promise.reject(new Error('Submission should not have been accepted')))
             .catch((err) => {
               expect(err.message).to.eq('Tile already revealed');
@@ -223,9 +218,9 @@ describe('Game', () => {
         });
 
         it('rejects for non-decoder players', () => {
-          let [x, y] = [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)];
+          let i = Math.floor(Math.random() * 25);
           return game.update({ activePlayerId: aTransmitterPlayer.id })
-            .then(() => game.decode(x, y))
+            .then(() => game.decode(i))
             .then(() => Promise.reject('Player should not have been allowed to decoding'))
             .catch((err) => {
               expect(err.message).to.eq('Active Player cannot make guesses');
@@ -242,10 +237,9 @@ describe('Game', () => {
         it('changes active player if tile is not of same team', () => {
           let board = game.getDataValue('board'),
               activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
-              index = [].concat(...board).findIndex((tile) => tile.type !== activePlayer.team && tile.type !== 'x'),
-              [x, y] = [index % 5, Math.floor(index / 5)];
+              index = board.findIndex((tile) => tile.type !== activePlayer.team && tile.type !== 'x');
 
-          return game.decode(x, y)
+          return game.decode(index)
             .then(() => {
               expect(game.activePlayerId).not.to.eq(activePlayer.id);
             });
@@ -254,10 +248,9 @@ describe('Game', () => {
         it('does not change active player if decoding is correct', () => {
           let board = game.getDataValue('board'),
               activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
-              index = [].concat(...board).findIndex((tile) => tile.type === activePlayer.team),
-              [x, y] = [index % 5, Math.floor(index / 5)];
+              index = board.findIndex((tile) => tile.type === activePlayer.team);
 
-          return game.decode(x, y)
+          return game.decode(index)
             .then(() => {
               expect(game.activePlayerId).to.eq(activePlayer.id);
             });
@@ -266,32 +259,30 @@ describe('Game', () => {
         it('creates a turn for incorrect guesses', () => {
           let board = game.getDataValue('board'),
               activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
-              index = [].concat(...board).findIndex((tile) => tile.type !== activePlayer.team && tile.type !== 'x'),
-              [x, y] = [index % 5, Math.floor(index / 5)];
+              index = board.findIndex((tile) => tile.type !== activePlayer.team && tile.type !== 'x');
 
-          return game.decode(x, y)
+          return game.decode(index)
             .then(() => {
               let turn = game.turns[game.turns.length - 1];
 
               expect(turn).to.have.property('event', 'decoding');
               expect(turn).to.have.property('playerId', activePlayer.id);
-              expect(turn.tile).to.eql({ x, y });
+              expect(turn.tile).to.eql(index);
             });
         });
 
         it('creates a turn for correct guesses', () => {
           let board = game.getDataValue('board'),
               activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
-              index = [].concat(...board).findIndex((tile) => tile.type === activePlayer.team),
-              [x, y] = [index % 5, Math.floor(index / 5)];
+              index = board.findIndex((tile) => tile.type === activePlayer.team);
 
-          return game.decode(x, y)
+          return game.decode(index)
             .then(() => {
               let turn = game.turns[game.turns.length - 1];
 
               expect(turn).to.have.property('event', 'decoding');
               expect(turn).to.have.property('playerId', activePlayer.id);
-              expect(turn.tile).to.eql({ x, y });
+              expect(turn.tile).to.eql(index);
             });
         });
 
@@ -299,16 +290,15 @@ describe('Game', () => {
           it('triggers end if tile is x type', () => {
             let board = game.getDataValue('board'),
                 activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
-                index = [].concat(...board).findIndex((tile) => tile.type === 'x'),
-                [x, y] = [index % 5, Math.floor(index / 5)];
+                index = board.findIndex((tile) => tile.type === 'x');
             sinon.spy(game, 'end');
 
-            return game.decode(x, y)
+            return game.decode(index)
               .then(() => {
                 expect(game.end).to.have.been.calledWith(sinon.match({
                   event: 'decoding',
                   playerId: activePlayer.id,
-                  tile: { x, y },
+                  tile: index,
                   correct: false
                 }), sinon.match.instanceOf(Player).and(sinon.match.has('id', activePlayer.id)));
                 game.end.restore();
@@ -319,24 +309,21 @@ describe('Game', () => {
             let board = game.getDataValue('board'),
                 activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
                 otherTeam = activePlayer.team === 'a' ? 'b' : 'a',
-                index = [].concat(...board).findIndex((tile) => tile.type === otherTeam),
-                [x, y] = [index % 5, Math.floor(index / 5)];
+                index = board.findIndex((tile) => tile.type === otherTeam);
             sinon.spy(game, 'end');
 
-            board.forEach((row, iy) => {
-              row.forEach((tile, ix) => {
-                if (ix === x && iy === y) return;
-                if (tile.type === otherTeam) tile.revealed = true;
-              });
+            board.forEach((tile, i) => {
+              if (i === index) return;
+              if (tile.type === otherTeam) tile.revealed = true;
             });
 
             return game.update({ board })
-              .then(() => game.decode(x, y))
+              .then(() => game.decode(index))
               .then(() => {
                 expect(game.end).to.have.been.calledWith(sinon.match({
                   event: 'decoding',
                   playerId: activePlayer.id,
-                  tile: { x, y },
+                  tile: index,
                   correct: false
                 }), sinon.match.instanceOf(Player).and(sinon.match.has('id', activePlayer.id)));
                 game.end.restore();
@@ -346,24 +333,21 @@ describe('Game', () => {
           it('triggers end if tile is last for active player\'s team', () => {
             let board = game.getDataValue('board'),
                 activePlayer = gameHelpers.activePlayer([aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer], game),
-                index = [].concat(...board).findIndex((tile) => tile.type === activePlayer.team),
-                [x, y] = [index % 5, Math.floor(index / 5)];
+                index = board.findIndex((tile) => tile.type === activePlayer.team);
             sinon.spy(game, 'end');
 
-            board.forEach((row, iy) => {
-              row.forEach((tile, ix) => {
-                if (ix === x && iy === y) return;
-                if (tile.type === activePlayer.team) tile.revealed = true;
-              });
+            board.forEach((tile, i) => {
+              if (i === index) return;
+              if (tile.type === activePlayer.team) tile.revealed = true;
             });
 
             return game.update({ board })
-              .then(() => game.decode(x, y))
+              .then(() => game.decode(index))
               .then(() => {
                 expect(game.end).to.have.been.calledWith(sinon.match({
                   event: 'decoding',
                   playerId: activePlayer.id,
-                  tile: { x, y },
+                  tile: index,
                   correct: true
                 }), sinon.match.instanceOf(Player).and(sinon.match.has('id', activePlayer.id)));
                 game.end.restore();
@@ -459,7 +443,7 @@ describe('Game', () => {
       it('returns false for games in progress', () => {
         return game.update({ turns: [
           { event: 'transmission', playerId: aTransmitterPlayer.id, transmission: { number: 2, word: 'transmission' } },
-          { event: 'decoding', playerId: aDecoderPlayer.id, tile: { x: 2, y: 1 }, correct: false },
+          { event: 'decoding', playerId: aDecoderPlayer.id, tile: 7, correct: false },
           { event: 'transmission', playerId: bTransmitterPlayer.id, transmission: { number: 2, word: 'flarb' } }
         ], activePlayerId: bDecoderPlayer.id }).then(() => {
           expect(game.completed()).to.be.false;
