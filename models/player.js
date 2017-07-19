@@ -8,12 +8,14 @@ const Sequelize = require('sequelize'),
 
 class Player extends Sequelize.Model {
   serialize() {
+    if (!this.user) throw new Error('No user data associated with Player object');
+
     return {
       id: this.id,
-      userId: this.userId,
       gameId: this.gameId,
       role: this.role,
-      team: this.team
+      team: this.team,
+      user: this.user.serialize()
     };
   }
 }

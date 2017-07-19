@@ -11,7 +11,7 @@ const helper = require('../test-helper'),
 
 describe('Games Resource', () => {
   describe('index', () => {
-    let user, game1, game3;
+    let user, game1, game3, player1, player2;
 
     beforeEach(() => {
       return User.create({ username: 'my-user', password: 'my-password' })
@@ -26,6 +26,9 @@ describe('Games Resource', () => {
             Player.create({ userId: user.id, gameId: game1.id, role: 'transmitter' }),
             Player.create({ gameId: game3.id, userId: user.id, role: 'decoder' })
           ]);
+        })
+        .then((players) => {
+          [player1, player2] = players;
         });
     });
 
@@ -43,15 +46,15 @@ describe('Games Resource', () => {
         });
     });
 
-    it('returns the associated players and users', () => {
+    it('returns the associated players and their associated users', () => {
       let res = requestHelper.stubRes();
 
       return gamesResource.index({ user }, res)
         .then(() => {
           let json = res.json.getCall(0).args[0];
 
-          expect(json.games.map((g) => g.players.map((p) => p.userId))).to.eql([[user.id], [user.id]]);
-          expect(json.games.map((g) => g.users.map((p) => p.id))).to.eql([[user.id], [user.id]]);
+          expect(json.games.map((g) => g.players.map((p) => p.id)).sort()).to.eql([[player1.id], [player2.id]].sort());
+          expect(json.games.map((g) => g.players.map((p) => p.user).map((u) => u.username))).to.eql([[user.username], [user.username]]);
         });
     });
 
@@ -100,7 +103,7 @@ describe('Games Resource', () => {
           expect(res.status).to.have.been.calledWith(200);
           expect(res.json).to.have.been.calledWith(sinon.match({
             game: sinon.match.object,
-            players: [sinon.match.has('userId', user.id)]
+            players: [sinon.match.has('user', sinon.match(user.serialize()))]
           }));
         });
     });
@@ -165,7 +168,7 @@ describe('Games Resource', () => {
         });
     });
 
-    it('returns all players and users', () => {
+    it('returns all players with relevant users', () => {
       let res = requestHelper.stubRes();
 
       return gamesResource.show({ user, query: { id: game.id } }, res)
@@ -173,8 +176,8 @@ describe('Games Resource', () => {
           let resJson = res.json.getCall(0).args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect(resJson.users.map((p) => p.id).sort()).to.eql([user.id, anotherUser.id].sort());
           expect(resJson.players.map((p) => p.id).sort()).to.eql([userPlayer.id, anotherUserPlayer.id].sort());
+          expect(resJson.players.map((p) => p.user).map((u) => u.id).sort()).to.eql([user.id, anotherUser.id].sort());
         });
     });
 

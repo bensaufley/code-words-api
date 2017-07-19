@@ -19,6 +19,7 @@ const create = (req, res) => {
     if (!user) return reject(new Error('No user defined'));
     return Game.createForUser(user).then(resolve);
   })
+    .then((game) => new GameSerializer(user).serializeGameForPlayer(game.players[0]))
     .then((data) => { res.status(200).json(data); })
     .catch(new ErrorHandler(req, res).process);
 };

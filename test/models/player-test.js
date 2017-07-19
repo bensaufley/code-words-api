@@ -220,13 +220,19 @@ describe('Player', () => {
 
     afterEach(helper.cleanDatabase);
 
+    it('throws an error if no user data is associated with object', () => {
+      expect(() => { player.serialize(); }).to.throw(Error, 'No user data associated with Player object');
+    });
+
     it('returns an Object of the relevant information', () => {
+      player.user = user;
+
       expect(player.serialize()).to.eql({
         id: '0b2ca838-bdc7-4df1-9ff9-440afe999796',
-        userId: '005ed80c-ba18-450c-9d26-b57583292592',
         gameId: 'c4db5d8c-2eb8-464c-9975-be2580ed0a26',
         role: 'transmitter',
-        team: 'a'
+        team: 'a',
+        user: user.serialize()
       });
     });
   });

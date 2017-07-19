@@ -129,7 +129,7 @@ class Game extends Sequelize.Model {
   }
 
   static createForUser(user) {
-    let game, player;
+    let game;
 
     return sequelizeInstance.transaction((transaction) => {
       return this.create({}, { transaction })
@@ -137,13 +137,11 @@ class Game extends Sequelize.Model {
           game = g;
           return game.createPlayer({ gameId: game.id, userId: user.id }, { transaction });
         })
-        .then((p) => { player = p; });
-    }).then(() => {
-      return {
-        game: game.serializeFor(player),
-        players: [player.serialize()],
-        users: [user.serialize()]
-      };
+        .then((p) => {
+          p.user = user;
+          game.players = [p];
+          return game;
+        });
     });
   }
 }
