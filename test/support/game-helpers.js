@@ -8,7 +8,7 @@ module.exports = {
   activePlayer: (players, game) => {
     return players.find((p) => p.id === game.activePlayerId);
   },
-  prepareGame: () => {
+  prepareGame: (attrs = {}) => {
     let aTransmitterUser, aDecoderUser, bTransmitterUser, bDecoderUser, aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer, game;
     return Promise.all([
       User.create({ username: 'transmitter-a', password: 'password' }),
@@ -18,7 +18,7 @@ module.exports = {
     ])
     .then((responses) => {
       [aTransmitterUser, aDecoderUser, bTransmitterUser, bDecoderUser] = responses;
-      return Game.create();
+      return Game.create(attrs);
     })
     .then((g) => {
       game = g;

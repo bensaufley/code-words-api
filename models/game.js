@@ -87,7 +87,7 @@ class Game extends Sequelize.Model {
     return {
       id: this.id,
       activePlayerId: this.activePlayerId,
-      board: this.board.serialize(player.role !== 'transmitter'),
+      board: this.board.serialize(!this.activePlayerId || player.role !== 'transmitter'),
       completed: this.completed(),
       started: !!this.activePlayerId
     };

@@ -46,10 +46,19 @@ describe('Game', () => {
         });
     });
 
-    it('includes the full grid for transmitter players', () => {
+    it('includes a redacted grid for transmitters before the game is started', () => {
       let serialized = game.serializeFor(transmitter);
 
-      expect(serialized.board).to.eq(game.getDataValue('board'));
+      expect(serialized.board.map((t) => t.type)).to.eql(new Array(25).fill('redacted'));
+    });
+
+    it('includes the full grid for transmitter players', () => {
+      return game.start()
+        .then(() => {
+          let serialized = game.serializeFor(transmitter);
+
+          expect(serialized.board).to.eq(game.getDataValue('board'));
+        });
     });
 
     it('includes a redacted grid for decoder players', () => {
