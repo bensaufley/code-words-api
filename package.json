@@ -33,6 +33,7 @@
     "chai": "^3.5.0",
     "codeclimate-test-reporter": "^0.4.1",
     "database-cleaner": "^1.2.0",
+    "eslint": "^4.3.0",
     "mocha": "^3.4.1",
     "nyc": "^11.0.3",
     "pryjs": "^1.0.3",

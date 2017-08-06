@@ -7,6 +7,8 @@ const helper = require('../test-helper'),
       User = require('../../models/user'),
       Game = require('../../models/game'),
       Player = require('../../models/player'),
+      GameSerializer = require('../../lib/game-serializer'),
+      { SocketNotifier, GAME_UPDATED } = require('../../lib/sockets/socket-notifier'),
       gamesResource = require('../../resources/games');
 
 describe('Games Resource', () => {
@@ -24,9 +26,9 @@ describe('Games Resource', () => {
           return Promise.all([
             Player.create({ gameId: game1.id, userId: user.id, role: 'transmitter', team: 'b' }),
             Player.create({ gameId: game3.id, userId: user.id, role: 'decoder' }),
-            User.create({ username: 'user2', password: 'password2' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'b' })),
-            User.create({ username: 'user3', password: 'password3' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'transmitter', team: 'a' })),
-            User.create({ username: 'user4', password: 'password4' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'a' }))
+            User.create({ username: 'user-2', password: 'password2' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'b' })),
+            User.create({ username: 'user-3', password: 'password3' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'transmitter', team: 'a' })),
+            User.create({ username: 'user-4', password: 'password4' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'a' }))
           ]);
         })
         .then((players) => {
@@ -216,8 +218,8 @@ describe('Games Resource', () => {
       let res = requestHelper.stubRes();
 
       return Promise.all([
-        User.create({ username: 'user7', password: 'password7' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'decoder', team: 'a' })),
-        User.create({ username: 'user8', password: 'password8' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'transmitter', team: 'b' }))
+        User.create({ username: 'user-7', password: 'password7' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'decoder', team: 'a' })),
+        User.create({ username: 'user-8', password: 'password8' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'transmitter', team: 'b' }))
       ]).then(() => game.start())
         .then(() => gamesResource.show({ user: user, query: { id: game.id } }, res))
         .then(() => {
@@ -227,6 +229,255 @@ describe('Games Resource', () => {
           expect(resJson.game.board.map((tile) => tile.type)).to.have.members(['a', 'b', null, 'x']);
           expect(resJson.game.board.map((tile) => tile.type)).not.to.have.members(['redacted']);
         });
+    });
+  });
+
+  describe('turns', () => {
+    let sandbox, game, aTransmitterUser, aTransmitterPlayer, aDecoderUser, aDecoderPlayer, bTransmitterUser, bDecoderUser, bDecoderPlayer;
+
+    beforeEach(() => {
+      sandbox = sinon.sandbox.create();
+      return Promise.all([
+        Game.create(),
+        User.create({ username: 'user-1', password: 'pass-1' }),
+        User.create({ username: 'user-2', password: 'pass-2' }),
+        User.create({ username: 'user-3', password: 'pass-3' }),
+        User.create({ username: 'user-4', password: 'pass-4' })
+      ])
+        .then((results) => {
+          [game, aTransmitterUser, aDecoderUser, bTransmitterUser, bDecoderUser] = results;
+          return Promise.all([
+            Player.create({ userId: aTransmitterUser.id, gameId: game.id, team: 'a', role: 'transmitter' }),
+            Player.create({ userId: aDecoderUser.id, gameId: game.id, team: 'a', role: 'decoder' }),
+            Player.create({ userId: bTransmitterUser.id, gameId: game.id, team: 'b', role: 'transmitter' }),
+            Player.create({ userId: bDecoderUser.id, gameId: game.id, team: 'b', role: 'decoder' })
+          ]);
+        })
+        .then((ps) => {
+          [aTransmitterPlayer, aDecoderPlayer, , bDecoderPlayer] = ps;
+        });
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+      return helper.cleanDatabase();
+    });
+
+    describe('transmit', () => {
+      context('invalid', () => {
+        it('rejects an empty body', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No data passed' }));
+            });
+        });
+
+        it('rejects an un-started Game', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 3 } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Game has not begun' }));
+            });
+        });
+
+        it('rejects an invalid body', () => {
+          let res = requestHelper.stubRes();
+
+          return game.update({ activePlayerId: aTransmitterPlayer.id })
+            .then(() => gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'two words', number: 4 } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Transmission must be one single word' }));
+            });
+        });
+
+        it('rejects when not User\'s turn', () => {
+          let res = requestHelper.stubRes();
+
+          return game.update({ activePlayerId: bDecoderPlayer.id })
+            .then(() => gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: `Error: It is not ${aTransmitterUser.username}'s turn` }));
+            });
+        });
+      });
+
+      context('valid', () => {
+        beforeEach(() => {
+          return game.update({ activePlayerId: aTransmitterPlayer.id });
+        });
+
+        it('adds the turn to the game', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+            .then(() => game.reload())
+            .then(() => {
+              expect(game.turns[game.turns.length - 1]).to.eql({
+                event: 'transmission',
+                playerId: aTransmitterPlayer.id,
+                transmission: {
+                  number: 5,
+                  word: 'transmission'
+                }
+              });
+            });
+        });
+
+        it('advances activePlayerId', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+            .then(() => game.reload())
+            .then(() => {
+              expect(game.activePlayerId).to.eq(aDecoderPlayer.id);
+            });
+        });
+
+        it('returns the serialized game', () => {
+          let res = requestHelper.stubRes();
+          sandbox.spy(GameSerializer, 'serializeGameForPlayer');
+
+          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+            .then(() => {
+              expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', aTransmitterPlayer.id)));
+              expect(res.status).to.have.been.calledWith(200);
+              expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+            });
+        });
+
+        it('attempts to notify other players via WebSockets', () => {
+          let res = requestHelper.stubRes(),
+              eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
+
+          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+            .then(() => {
+              expect(eventStub).to.have.callCount(3);
+              expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);
+            });
+        });
+      });
+    });
+
+    describe('decode', () => {
+      context('invalid', () => {
+        it('rejects an empty body', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No data passed' }));
+            });
+        });
+
+        it('rejects an un-started Game', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: 12 } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Game has not begun' }));
+            });
+        });
+
+        it('rejects an invalid body', () => {
+          let res = requestHelper.stubRes();
+
+          return game.update({ activePlayerId: bDecoderPlayer.id })
+            .then(() => gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: 28 } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No such tile' }));
+            });
+        });
+
+        it('rejects when not User\'s turn', () => {
+          let res = requestHelper.stubRes();
+
+          return game.update({ activePlayerId: aTransmitterPlayer.id })
+            .then(() => gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: 13 } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: `Error: It is not ${bDecoderUser.username}'s turn` }));
+            });
+        });
+      });
+
+      context('valid', () => {
+        let safeTile;
+
+        beforeEach(() => {
+          safeTile = game.getDataValue('board').findIndex((t) => t.type === 'b');
+          return game.update({ activePlayerId: bDecoderPlayer.id });
+        });
+
+        it('adds the turn to the game', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+            .then(() => game.reload())
+            .then(() => {
+              expect(game.turns[game.turns.length - 1]).to.eql({
+                correct: true,
+                event: 'decoding',
+                playerId: bDecoderPlayer.id,
+                tile: safeTile
+              });
+            });
+        });
+
+        it('reveals tile', () => {
+          let res = requestHelper.stubRes();
+
+          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+            .then(() => game.reload())
+            .then(() => {
+              expect(game.getDataValue('board')[safeTile].revealed).to.be.true;
+            });
+        });
+
+        it('returns the serialized game', () => {
+          let res = requestHelper.stubRes();
+          sandbox.spy(GameSerializer, 'serializeGameForPlayer');
+
+          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+            .then(() => {
+              expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', bDecoderPlayer.id)));
+              expect(res.status).to.have.been.calledWith(200);
+              expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+            });
+        });
+
+        it('advances turn when guess is wrong', () => {
+          let res = requestHelper.stubRes(),
+              wrongTile = game.getDataValue('board').findIndex((t) => t.type === 'a');
+          sandbox.spy(GameSerializer, 'serializeGameForPlayer');
+
+          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: wrongTile } }, res)
+            .then(() => game.reload())
+            .then(() => {
+              expect(game.activePlayerId).to.eq(aTransmitterPlayer.id);
+            });
+        });
+
+        it('attempts to notify other players via WebSockets', () => {
+          let res = requestHelper.stubRes(),
+              eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
+
+          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+            .then(() => {
+              expect(eventStub).to.have.callCount(3);
+              expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);
+            });
+        });
+      });
     });
   });
 

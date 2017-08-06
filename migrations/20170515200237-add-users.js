@@ -23,7 +23,7 @@ exports.up = function(db) {
     },
     username: {
       type: 'string',
-      length: 50,
+      length: 24,
       notNull: true,
       unique: true
     },

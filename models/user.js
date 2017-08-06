@@ -34,7 +34,7 @@ class User extends Sequelize.Model {
         else resolve(result);
       });
     })
-    .then((result) => result ? this : null);
+      .then((result) => result ? this : null);
   }
 
   serialize() {
@@ -61,14 +61,16 @@ User.init({
     type: Sequelize.STRING(50),
     allowNull: false,
     validate: {
-      notEmpty: true,
-      len: [1, 50]
+      is: ['^[a-z\\d\\-\\.]{6,24}$', 'i'],
+      len: [6, 24],
+      notEmpty: true
     }
   },
   passwordDigest: {
     field: 'password_digest',
     type: Sequelize.STRING,
     validate: {
+      len: [6,24],
       notEmpty: true
     }
   },

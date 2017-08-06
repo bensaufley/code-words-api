@@ -40,7 +40,7 @@ chai.use(sinonChai);
 // Unhandled Promise Rejections are a sign of a misconfigured test
 process.on('unhandledRejection', (reason, p) => {
   console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-  process.exit();
+  chai.expect.fail();
 });
 
 before(() => cleanDatabase());

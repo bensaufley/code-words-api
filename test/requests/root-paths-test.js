@@ -49,7 +49,7 @@ describe('Root Paths', () => {
     it('rejects invalid user signup info', () => {
       return request(app)
         .post('/signup')
-        .send({ username: 'blah', password: '' })
+        .send({ username: 'blah-user', password: '' })
         .then((response) => {
           expect(response.status).to.eq(400);
           expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' });

@@ -19,9 +19,11 @@ class Game extends Sequelize.Model {
         tile = board[i];
     if (tile.revealed) return Promise.reject(new Error('Tile already revealed'));
 
+    if (!this.activePlayerId) return Promise.reject(new Error('Game has not begun'));
+
     return this.getActivePlayer()
       .then((activePlayer) => {
-        if (!activePlayer || activePlayer.role !== 'decoder') return Promise.reject(new Error('Active Player cannot make guesses'));
+        if (activePlayer.role !== 'decoder') return Promise.reject(new Error('Active Player cannot make guesses'));
 
         this.activePlayer = activePlayer;
 
@@ -32,11 +34,9 @@ class Game extends Sequelize.Model {
 
         return this.update({ board, turns });
       }).then(() => {
-        if (tile.type === 'x' || this.board.won()) {
-          return this.end(turn, this.activePlayer);
-        } else if (!turn.correct) {
-          return this.nextTurn();
-        }
+        if (tile.type === 'x' || this.board.won()) return this.end(turn, this.activePlayer);
+        else if (!turn.correct) return this.nextTurn();
+        return this;
       });
   }
 
