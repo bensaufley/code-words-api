@@ -107,12 +107,14 @@ class Game extends Sequelize.Model {
   }
 
   transmit(word, number) {
-    if (!this.activePlayerId) return Promise.reject(new Error('Game has not begun'));
-    if (!word || /\s+/.test(word)) return Promise.reject(new Error('Transmission must be one single word'));
-    if (isNaN(number) || Math.round(number) !== number || number < 1 || number > 8) return Promise.reject(new Error('Number must be whole number greater than zero'));
-    if (number > this.board.teamTiles()[this.board.startingTeam()].filter((t) => !t.revealed).length) return Promise.reject(new Error('Number exceeds remaining tiles for team.'));
-
-    return this.getActivePlayer()
+    return new Promise((resolve, reject) => {
+      if (!this.activePlayerId) reject(new Error('Game has not begun'));
+      else if (!word || /\s+/.test(word)) reject(new Error('Transmission must be one single word'));
+      else if (isNaN(number) || Math.round(number) !== number || number < 1 || number > 8) reject(new Error('Number must be whole number greater than zero'));
+      else if (number > this.board.teamTiles()[this.board.startingTeam()].filter((t) => !t.revealed).length) reject(new Error('Number exceeds remaining tiles for team.'));
+      else resolve();
+    })
+      .then(() => this.getActivePlayer())
       .then((activePlayer) => {
         this.activePlayer = activePlayer;
         const turn = {

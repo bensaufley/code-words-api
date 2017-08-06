@@ -1,3 +1,5 @@
+exclude_paths:
+  - "migrations/"
 engines:
   duplication:
     enabled: true
