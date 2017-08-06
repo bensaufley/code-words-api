@@ -296,6 +296,17 @@ describe('Games Resource', () => {
             });
         });
 
+        it('rejects a decoder', () => {
+          let res = requestHelper.stubRes();
+
+          return game.update({ activePlayerId: aDecoderPlayer.id })
+            .then(() => gamesResource.transmit({ user: aDecoderUser, query: { id: game.id }, body: { word: 'two words', number: 4 } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: User is not transmitter in this game' }));
+            });
+        });
+
         it('rejects when not User\'s turn', () => {
           let res = requestHelper.stubRes();
 
@@ -406,6 +417,17 @@ describe('Games Resource', () => {
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: `Error: It is not ${bDecoderUser.username}'s turn` }));
+            });
+        });
+
+        it('rejects a transmitter', () => {
+          let res = requestHelper.stubRes();
+
+          return game.update({ activePlayerId: aTransmitterPlayer.id })
+            .then(() => gamesResource.decode({ user: aTransmitterUser, query: { id: game.id }, body: { tile: 13 } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: User is not decoder in this game' }));
             });
         });
       });
