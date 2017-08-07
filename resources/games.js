@@ -1,35 +1,17 @@
 'use strict';
 
-const ErrorHandler = require('../lib/error-handler'),
-      { SocketNotifier, GAME_UPDATED } = require('../lib/sockets/socket-notifier'),
+const { ErrorHandler } = require('../lib/error-handler'),
+      { notifyPlayersAndRespond, requireGame } = require('../lib/response-helpers'),
       Game = require('../models/game'),
       GameSerializer = require('../lib/game-serializer');
 
-
-const _notifyPlayersAndRespond = (res, user) => {
-  return (game) => {
-    let userPlayer = game.players.find((p) => p.userId === user.id),
-        otherPlayers = game.players.filter((p) => p.userId !== user.id);
-    userPlayer.game = game;
-
-    return Promise.all([
-      GameSerializer.serializeGameForPlayer(userPlayer).then((data) => res.status(200).json(data)),
-      ...otherPlayers.map((player) => {
-        player.game = game;
-        return GameSerializer.serializeGameForPlayer(player)
-          .then((data) => { new SocketNotifier(player.userId).event(GAME_UPDATED, data); });
-      })
-    ]);
-  };
-};
-
 const _playTurn = (role, turnFunc) => {
-  return _requireGame((req, res) => {
-    let { user, query: { id } } = req;
+  return requireGame((req, res) => {
+    let { user, params: { gameId } } = req;
 
     if (!req.body) return new ErrorHandler(req, res).promise(new Error('No data passed'));
 
-    return Game.findOne({ where: { id }, include: [Game.Players] })
+    return Game.findOne({ where: { id: gameId }, include: [Game.Players] })
       .then((game) => {
         let player = game.players.find((p) => p.userId === user.id && p.role === role);
         if (!player) throw new Error(`User is not ${role} in this game`);
@@ -37,21 +19,9 @@ const _playTurn = (role, turnFunc) => {
         else return game;
       })
       .then(turnFunc(req))
-      .then(_notifyPlayersAndRespond(res, user))
+      .then(notifyPlayersAndRespond(res, user))
       .catch(new ErrorHandler(req, res).process);
   });
-};
-
-const _requireGame = (func) => {
-  return (req, res) => {
-    let user = req.user,
-        gameId = req.query && req.query.id;
-
-    if (!gameId) return Promise.reject(new Error('No game id specified')).catch(new ErrorHandler(req, res).process);
-    if (!user) return Promise.reject(new Error('No user defined')).catch(new ErrorHandler(req, res).process);
-
-    return func(req, res);
-  };
 };
 
 const index = (req, res) => {
@@ -74,11 +44,11 @@ const create = (req, res) => {
     .catch(new ErrorHandler(req, res).process);
 };
 
-const show = _requireGame((req, res) => {
-  let { user, query: { id } } = req;
+const show = requireGame((req, res) => {
+  let { user, params: { gameId } } = req;
 
   return new GameSerializer(user)
-    .serializeGame(id)
+    .serializeGame(gameId)
     .then((data) => {
       res.status(200).json(data);
     })
@@ -103,7 +73,7 @@ const decode = _playTurn('decoder', (req) => {
 
 const destroy = (req, res) => {
   let user = req.user,
-      gameId = req.query && req.query.id;
+      gameId = req.params && req.params.gameId;
 
   return new Promise((resolve, reject) => {
     if (!gameId) return reject(new Error('No game id specified'));

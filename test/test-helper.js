@@ -3,6 +3,7 @@
 process.env.NODE_ENV = 'test';
 
 const chai = require('chai'),
+      { expect } = chai,
       sinon = require('sinon'),
       sinonChai = require('sinon-chai'),
       DatabaseCleaner = require('database-cleaner'),
@@ -39,18 +40,18 @@ chai.use(sinonChai);
 
 // Unhandled Promise Rejections are a sign of a misconfigured test
 process.on('unhandledRejection', (reason, p) => {
-  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-  chai.expect.fail();
+  config.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  expect.fail();
 });
 
 before(() => cleanDatabase());
 after(() => cleanDatabase());
 
 module.exports = {
-  cleanDatabase: cleanDatabase,
-  config: config,
-  expect: chai.expect,
-  sinon: sinon,
+  cleanDatabase,
+  config,
+  expect,
+  sinon,
   matchers: {
     uuid: sinon.match((val) => { return UUIDV4_REGEXP.test(val); }, 'UUID'),
     jwt: sinon.match((val) => { return JWT_REGEXP.test(val); }, 'JsonWebToken')

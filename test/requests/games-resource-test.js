@@ -157,7 +157,7 @@ describe('Games Resource', () => {
     it('rejects if no user', () => {
       let res = requestHelper.stubRes();
 
-      return gamesResource.show({ query: { id: game.id } }, res)
+      return gamesResource.show({ params: { gameId: game.id } }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(500);
           expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No user defined' }));
@@ -169,7 +169,7 @@ describe('Games Resource', () => {
 
       return Player.destroy({ where: { userId: user.id, gameId: game.id } })
         .then(() => {
-          return gamesResource.show({ user, query: { id: game.id } }, res)
+          return gamesResource.show({ user, params: { gameId: game.id } }, res)
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No player found' }));
@@ -180,7 +180,7 @@ describe('Games Resource', () => {
     it('returns all players with relevant users', () => {
       let res = requestHelper.stubRes();
 
-      return gamesResource.show({ user, query: { id: game.id } }, res)
+      return gamesResource.show({ user, params: { gameId: game.id } }, res)
         .then(() => {
           let resJson = res.json.getCall(0).args[0];
 
@@ -193,7 +193,7 @@ describe('Games Resource', () => {
     it('returns a redacted game for a decoder', () => {
       let res = requestHelper.stubRes();
 
-      return gamesResource.show({ user: anotherUser, query: { id: game.id } }, res)
+      return gamesResource.show({ user: anotherUser, params: { gameId: game.id } }, res)
         .then(() => {
           let resJson = res.json.getCall(0).args[0];
 
@@ -205,7 +205,7 @@ describe('Games Resource', () => {
     it('returns a redacted game for a transmitter before the game has started', () => {
       let res = requestHelper.stubRes();
 
-      return gamesResource.show({ user: user, query: { id: game.id } }, res)
+      return gamesResource.show({ user: user, params: { gameId: game.id } }, res)
         .then(() => {
           let resJson = res.json.getCall(0).args[0];
 
@@ -221,7 +221,7 @@ describe('Games Resource', () => {
         User.create({ username: 'user-7', password: 'password7' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'decoder', team: 'a' })),
         User.create({ username: 'user-8', password: 'password8' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'transmitter', team: 'b' }))
       ]).then(() => game.start())
-        .then(() => gamesResource.show({ user: user, query: { id: game.id } }, res))
+        .then(() => gamesResource.show({ user: user, params: { gameId: game.id } }, res))
         .then(() => {
           let resJson = res.json.getCall(0).args[0];
 
@@ -268,7 +268,7 @@ describe('Games Resource', () => {
         it('rejects an empty body', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id } }, res)
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id } }, res)
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No data passed' }));
@@ -278,7 +278,7 @@ describe('Games Resource', () => {
         it('rejects an un-started Game', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 3 } }, res)
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 3 } }, res)
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Game has not begun' }));
@@ -289,7 +289,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
 
           return game.update({ activePlayerId: aTransmitterPlayer.id })
-            .then(() => gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'two words', number: 4 } }, res))
+            .then(() => gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'two words', number: 4 } }, res))
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Transmission must be one single word' }));
@@ -300,7 +300,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
 
           return game.update({ activePlayerId: aDecoderPlayer.id })
-            .then(() => gamesResource.transmit({ user: aDecoderUser, query: { id: game.id }, body: { word: 'two words', number: 4 } }, res))
+            .then(() => gamesResource.transmit({ user: aDecoderUser, params: { gameId: game.id }, body: { word: 'two words', number: 4 } }, res))
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: User is not transmitter in this game' }));
@@ -311,7 +311,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
 
           return game.update({ activePlayerId: bDecoderPlayer.id })
-            .then(() => gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res))
+            .then(() => gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res))
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: `Error: It is not ${aTransmitterUser.username}'s turn` }));
@@ -327,7 +327,7 @@ describe('Games Resource', () => {
         it('adds the turn to the game', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
             .then(() => game.reload())
             .then(() => {
               expect(game.turns[game.turns.length - 1]).to.eql({
@@ -344,7 +344,7 @@ describe('Games Resource', () => {
         it('advances activePlayerId', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
             .then(() => game.reload())
             .then(() => {
               expect(game.activePlayerId).to.eq(aDecoderPlayer.id);
@@ -355,7 +355,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
           sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
-          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
             .then(() => {
               expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', aTransmitterPlayer.id)));
               expect(res.status).to.have.been.calledWith(200);
@@ -367,7 +367,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes(),
               eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
 
-          return gamesResource.transmit({ user: aTransmitterUser, query: { id: game.id }, body: { word: 'transmission', number: 5 } }, res)
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
             .then(() => {
               expect(eventStub).to.have.callCount(3);
               expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);
@@ -381,7 +381,7 @@ describe('Games Resource', () => {
         it('rejects an empty body', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id } }, res)
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id } }, res)
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No data passed' }));
@@ -391,7 +391,7 @@ describe('Games Resource', () => {
         it('rejects an un-started Game', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: 12 } }, res)
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: 12 } }, res)
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Game has not begun' }));
@@ -402,7 +402,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
 
           return game.update({ activePlayerId: bDecoderPlayer.id })
-            .then(() => gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: 28 } }, res))
+            .then(() => gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: 28 } }, res))
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No such tile' }));
@@ -413,7 +413,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
 
           return game.update({ activePlayerId: aTransmitterPlayer.id })
-            .then(() => gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: 13 } }, res))
+            .then(() => gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: 13 } }, res))
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: `Error: It is not ${bDecoderUser.username}'s turn` }));
@@ -424,7 +424,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
 
           return game.update({ activePlayerId: aTransmitterPlayer.id })
-            .then(() => gamesResource.decode({ user: aTransmitterUser, query: { id: game.id }, body: { tile: 13 } }, res))
+            .then(() => gamesResource.decode({ user: aTransmitterUser, params: { gameId: game.id }, body: { tile: 13 } }, res))
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
               expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: User is not decoder in this game' }));
@@ -443,7 +443,7 @@ describe('Games Resource', () => {
         it('adds the turn to the game', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
             .then(() => game.reload())
             .then(() => {
               expect(game.turns[game.turns.length - 1]).to.eql({
@@ -458,7 +458,7 @@ describe('Games Resource', () => {
         it('reveals tile', () => {
           let res = requestHelper.stubRes();
 
-          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
             .then(() => game.reload())
             .then(() => {
               expect(game.getDataValue('board')[safeTile].revealed).to.be.true;
@@ -469,7 +469,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes();
           sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
-          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
             .then(() => {
               expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', bDecoderPlayer.id)));
               expect(res.status).to.have.been.calledWith(200);
@@ -482,7 +482,7 @@ describe('Games Resource', () => {
               wrongTile = game.getDataValue('board').findIndex((t) => t.type === 'a');
           sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
-          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: wrongTile } }, res)
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: wrongTile } }, res)
             .then(() => game.reload())
             .then(() => {
               expect(game.activePlayerId).to.eq(aTransmitterPlayer.id);
@@ -493,7 +493,7 @@ describe('Games Resource', () => {
           let res = requestHelper.stubRes(),
               eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
 
-          return gamesResource.decode({ user: bDecoderUser, query: { id: game.id }, body: { tile: safeTile } }, res)
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
             .then(() => {
               expect(eventStub).to.have.callCount(3);
               expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);
@@ -524,7 +524,7 @@ describe('Games Resource', () => {
     it('rejects if no user', () => {
       let res = requestHelper.stubRes();
 
-      return gamesResource.destroy({ query: { id: game.id } }, res)
+      return gamesResource.destroy({ params: { gameId: game.id } }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(500);
           expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No user defined' }));
@@ -544,7 +544,7 @@ describe('Games Resource', () => {
     it('marks the game as deleted', () => {
       let res = requestHelper.stubRes();
 
-      return gamesResource.destroy({ user, query: { id: game.id } }, res)
+      return gamesResource.destroy({ user, params: { gameId: game.id } }, res)
         .then(() => {
           return Game.unscoped().findOne({ where: { id: game.id } });
         })
@@ -557,7 +557,7 @@ describe('Games Resource', () => {
     it('marks the players as deleted', () => {
       let res = requestHelper.stubRes();
 
-      return gamesResource.destroy({ user, query: { id: game.id } }, res)
+      return gamesResource.destroy({ user, params: { gameId: game.id } }, res)
         .then(() => {
           return Player.unscoped().findOne({ where: { id: player.id } });
         })

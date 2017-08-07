@@ -4,7 +4,7 @@ const helper = require('../test-helper'),
       config = helper.config,
       sinon = helper.sinon,
       expect = helper.expect,
-      ErrorHandler = require('../../lib/error-handler');
+      { ErrorHandler } = require('../../lib/error-handler');
 
 describe('ErrorHandler', () => {
   describe('process', () => {

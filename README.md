@@ -118,11 +118,11 @@ Creates a new Game for the authenticated User. Expects no params.
 
 Responds with [serialized Game object](#the-serialized-game-record)
 
-#### GET `/games/:id`: Show
+#### GET `/games/:gameId`: Show
 
 Returns [serialized Game object](#the-serialized-game-record) for requested `id`
 
-#### PUT `/games/:id/transmit`: Transmit
+#### PUT `/games/:gameId/transmit`: Transmit
 
 Creates new "transmit" turn on Game with requested `id` for authenticated User, if User's
 corresponding Player has `role` of `'transmitter'`.
@@ -134,7 +134,7 @@ Expects JSON:
 
 Returns updated [serialized Game object](#the-serialized-game-record)
 
-#### PUT `/games/:id/decode`: Decode
+#### PUT `/games/:gameId/decode`: Decode
 
 Creates new "decode" turn on Game with requested `id` for authenticated User, if User's
 corresponding Player has `role` of `'decoder'`.
@@ -145,12 +145,37 @@ Expects JSON:
 
 Returns updated [serialized Game object](#the-serialized-game-record)
 
-#### DELETE `/games/:id`: Destroy
+#### DELETE `/games/:gameId`: Destroy
 
 Sets `deletedAt` for Game with requested `id` to current timestamp, effectively
 deleting the Game.
 
 Returns 200 status.
+
+### Players Resource
+
+#### POST `/games/:gameId/players`: Create
+
+Creates new Player association between Game and User. Expects JSON:
+
+- `username`: String to search for to find User
+
+Returns updated [serialized Game object](#the-serialized-game-record)
+
+#### PUT `/games/:gameId/players/:playerId`: Update
+
+Changes `team` and/or `role` attribute for Player. Only allowed before Game has started. Expects JSON:
+
+- `team`: String, `'a'` or `'b'`
+- `role`: String, `'decoder'` or `'transmitter'`
+
+Returns updated [serialized Game object](#the-serialized-game-record)
+
+#### DELETE `/games/:gameId/players/:playerId`: Destroy
+
+Deletes Player record associating User with game. Only allowed before Game has started. Expects no body data.
+
+Returns updated [serialized Game object](#the-serialized-game-record), unless initiating user has deleted his or her own Player.
 
 [JSONWebToken]: https://github.com/auth0/node-jsonwebtoken
 [Bearer authorization]: http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html
