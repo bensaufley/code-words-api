@@ -1,5 +1,7 @@
 exclude_paths:
   - "migrations/"
+  - "docs-source/"
+  - "docs/"
 engines:
   duplication:
     enabled: true

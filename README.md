@@ -2,7 +2,7 @@
 [![Code Climate](https://codeclimate.com/github/bensaufley/code-words-api/badges/gpa.svg)](https://codeclimate.com/github/bensaufley/code-words-api) [![Issue Count](https://codeclimate.com/github/bensaufley/code-words-api/badges/issue_count.svg)](https://codeclimate.com/github/bensaufley/code-words-api) [![Test Coverage](https://codeclimate.com/github/bensaufley/code-words-api/badges/coverage.svg)](https://codeclimate.com/github/bensaufley/code-words-api/coverage) [![CircleCI](https://circleci.com/gh/bensaufley/code-words-api/tree/master.svg?style=shield)](https://circleci.com/gh/bensaufley/code-words-api/tree/master)
 
 
-A Node API for Code Words, a game where you guess words.
+A Node API for Code Words, a game where you guess words. Docs available at [GitHub Page](https://bensaufley.github.io/code-words-api/)
 
 ## Setup
 
