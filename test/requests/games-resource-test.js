@@ -3,7 +3,8 @@
 const helper = require('../test-helper'),
       expect = helper.expect,
       sinon = helper.sinon,
-      requestHelper = require('../support/request-helper'),
+      { stubRes } = require('../support/request-helper'),
+      { prepareGame } = require('../support/game-helpers'),
       User = require('../../models/user'),
       Game = require('../../models/game'),
       Player = require('../../models/player'),
@@ -39,7 +40,7 @@ describe('Games Resource', () => {
     afterEach(helper.cleanDatabase);
 
     it('returns only the user\'s games', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.index({ user }, res)
         .then(() => {
@@ -51,7 +52,7 @@ describe('Games Resource', () => {
     });
 
     it('returns the associated players and their associated users', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.index({ user }, res)
         .then(() => {
@@ -67,7 +68,7 @@ describe('Games Resource', () => {
     });
 
     it('redacts games appropriately', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return game1.start()
         .then(() => gamesResource.index({ user }, res))
@@ -95,7 +96,7 @@ describe('Games Resource', () => {
     afterEach(() => helper.cleanDatabase());
 
     it('rejects if no user', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.create({}, res)
         .then(() => {
@@ -105,7 +106,7 @@ describe('Games Resource', () => {
     });
 
     it('creates a new game', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.create({ user }, res)
         .then(() => {
@@ -145,7 +146,7 @@ describe('Games Resource', () => {
     afterEach(() => helper.cleanDatabase());
 
     it('rejects if no game ID', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.show({ user }, res)
         .then(() => {
@@ -155,7 +156,7 @@ describe('Games Resource', () => {
     });
 
     it('rejects if no user', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.show({ params: { gameId: game.id } }, res)
         .then(() => {
@@ -165,7 +166,7 @@ describe('Games Resource', () => {
     });
 
     it('rejects if no player', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return Player.destroy({ where: { userId: user.id, gameId: game.id } })
         .then(() => {
@@ -178,7 +179,7 @@ describe('Games Resource', () => {
     });
 
     it('returns all players with relevant users', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.show({ user, params: { gameId: game.id } }, res)
         .then(() => {
@@ -191,7 +192,7 @@ describe('Games Resource', () => {
     });
 
     it('returns a redacted game for a decoder', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.show({ user: anotherUser, params: { gameId: game.id } }, res)
         .then(() => {
@@ -203,7 +204,7 @@ describe('Games Resource', () => {
     });
 
     it('returns a redacted game for a transmitter before the game has started', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.show({ user: user, params: { gameId: game.id } }, res)
         .then(() => {
@@ -215,7 +216,7 @@ describe('Games Resource', () => {
     });
 
     it('returns an unredacted game for a transmitter', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return Promise.all([
         User.create({ username: 'user-7', password: 'password7' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'decoder', team: 'a' })),
@@ -228,6 +229,87 @@ describe('Games Resource', () => {
           expect(res.status).to.have.been.calledWith(200);
           expect(resJson.game.board.map((tile) => tile.type)).to.have.members(['a', 'b', null, 'x']);
           expect(resJson.game.board.map((tile) => tile.type)).not.to.have.members(['redacted']);
+        });
+    });
+  });
+
+  describe('start', () => {
+    let sandbox, aTransmitterUser, aTransmitterPlayer, bDecoderPlayer, game;
+
+    beforeEach(() => {
+      sandbox = sinon.sandbox.create();
+      return prepareGame()
+        .then((response) => {
+          ({ aTransmitterUser, aTransmitterPlayer, bDecoderPlayer, game } = response);
+        });
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+      return helper.cleanDatabase();
+    });
+
+    it('rejects a game without enough players', () => {
+      let res = stubRes();
+      return bDecoderPlayer.destroy()
+        .then(() => gamesResource.start({ user: aTransmitterUser, params: { gameId: game.id } }, res))
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(500);
+          expect(res.json).to.have.been.calledWith({ error: 'Error: Not enough players' });
+        });
+    });
+
+    it('rejects a game without proper teams and roles', () => {
+      let res = stubRes();
+      return bDecoderPlayer.update({ role: null })
+        .then(() => gamesResource.start({ user: aTransmitterUser, params: { gameId: game.id } }, res))
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(500);
+          expect(res.json).to.have.been.calledWith({ error: 'Error: All players must have roles and teams' });
+        });
+    });
+
+    it('rejects a game that is already started', () => {
+      let res = stubRes();
+
+      return game.start()
+        .then(() => gamesResource.start({ user: aTransmitterUser, params: { gameId: game.id } }, res))
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(500);
+          expect(res.json).to.have.been.calledWith({ error: 'Error: Game has already been started' });
+        });
+    });
+
+    it('assigns activePlayerId', () => {
+      let res = stubRes();
+      return gamesResource.start({ user: aTransmitterUser, params: { gameId: game.id } }, res)
+        .then(() => game.reload())
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(200);
+          expect(game.activePlayerId).not.to.be.null;
+        });
+    });
+
+    it('returns the serialized game', () => {
+      let res = stubRes();
+      sandbox.spy(GameSerializer, 'serializeGameForPlayer');
+
+      return gamesResource.start({ user: aTransmitterUser, params: { gameId: game.id } }, res)
+        .then(() => {
+          expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', aTransmitterPlayer.id)));
+          expect(res.status).to.have.been.calledWith(200);
+          expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+        });
+    });
+
+    it('attempts to notify other players via WebSockets', () => {
+      let res = stubRes(),
+          eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
+
+      return gamesResource.start({ user: aTransmitterUser, params: { gameId: game.id } }, res)
+        .then(() => {
+          expect(eventStub).to.have.callCount(3);
+          expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);
         });
     });
   });
@@ -266,7 +348,7 @@ describe('Games Resource', () => {
     describe('transmit', () => {
       context('invalid', () => {
         it('rejects an empty body', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id } }, res)
             .then(() => {
@@ -276,7 +358,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects an un-started Game', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 3 } }, res)
             .then(() => {
@@ -286,7 +368,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects an invalid body', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return game.update({ activePlayerId: aTransmitterPlayer.id })
             .then(() => gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'two words', number: 4 } }, res))
@@ -297,7 +379,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects a decoder', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return game.update({ activePlayerId: aDecoderPlayer.id })
             .then(() => gamesResource.transmit({ user: aDecoderUser, params: { gameId: game.id }, body: { word: 'two words', number: 4 } }, res))
@@ -308,7 +390,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects when not User\'s turn', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return game.update({ activePlayerId: bDecoderPlayer.id })
             .then(() => gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res))
@@ -325,7 +407,7 @@ describe('Games Resource', () => {
         });
 
         it('adds the turn to the game', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
             .then(() => game.reload())
@@ -342,7 +424,7 @@ describe('Games Resource', () => {
         });
 
         it('advances activePlayerId', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
             .then(() => game.reload())
@@ -352,7 +434,7 @@ describe('Games Resource', () => {
         });
 
         it('returns the serialized game', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
           sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
@@ -364,7 +446,7 @@ describe('Games Resource', () => {
         });
 
         it('attempts to notify other players via WebSockets', () => {
-          let res = requestHelper.stubRes(),
+          let res = stubRes(),
               eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
 
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
@@ -379,7 +461,7 @@ describe('Games Resource', () => {
     describe('decode', () => {
       context('invalid', () => {
         it('rejects an empty body', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id } }, res)
             .then(() => {
@@ -389,7 +471,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects an un-started Game', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: 12 } }, res)
             .then(() => {
@@ -399,7 +481,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects an invalid body', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return game.update({ activePlayerId: bDecoderPlayer.id })
             .then(() => gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: 28 } }, res))
@@ -410,7 +492,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects when not User\'s turn', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return game.update({ activePlayerId: aTransmitterPlayer.id })
             .then(() => gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: 13 } }, res))
@@ -421,7 +503,7 @@ describe('Games Resource', () => {
         });
 
         it('rejects a transmitter', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return game.update({ activePlayerId: aTransmitterPlayer.id })
             .then(() => gamesResource.decode({ user: aTransmitterUser, params: { gameId: game.id }, body: { tile: 13 } }, res))
@@ -441,7 +523,7 @@ describe('Games Resource', () => {
         });
 
         it('adds the turn to the game', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
             .then(() => game.reload())
@@ -456,7 +538,7 @@ describe('Games Resource', () => {
         });
 
         it('reveals tile', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
 
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
             .then(() => game.reload())
@@ -466,7 +548,7 @@ describe('Games Resource', () => {
         });
 
         it('returns the serialized game', () => {
-          let res = requestHelper.stubRes();
+          let res = stubRes();
           sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
@@ -478,7 +560,7 @@ describe('Games Resource', () => {
         });
 
         it('advances turn when guess is wrong', () => {
-          let res = requestHelper.stubRes(),
+          let res = stubRes(),
               wrongTile = game.getDataValue('board').findIndex((t) => t.type === 'a');
           sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
@@ -490,7 +572,7 @@ describe('Games Resource', () => {
         });
 
         it('attempts to notify other players via WebSockets', () => {
-          let res = requestHelper.stubRes(),
+          let res = stubRes(),
               eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
 
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
@@ -522,7 +604,7 @@ describe('Games Resource', () => {
     afterEach(() => helper.cleanDatabase());
 
     it('rejects if no user', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.destroy({ params: { gameId: game.id } }, res)
         .then(() => {
@@ -532,7 +614,7 @@ describe('Games Resource', () => {
     });
 
     it('rejects if no game ID', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.destroy({ user }, res)
         .then(() => {
@@ -542,7 +624,7 @@ describe('Games Resource', () => {
     });
 
     it('marks the game as deleted', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.destroy({ user, params: { gameId: game.id } }, res)
         .then(() => {
@@ -555,7 +637,7 @@ describe('Games Resource', () => {
     });
 
     it('marks the players as deleted', () => {
-      let res = requestHelper.stubRes();
+      let res = stubRes();
 
       return gamesResource.destroy({ user, params: { gameId: game.id } }, res)
         .then(() => {

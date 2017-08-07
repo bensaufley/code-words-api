@@ -94,9 +94,11 @@ class Game extends Sequelize.Model {
   }
 
   start() {
+    if (this.activePlayerId) return Promise.reject(new Error('Game has already been started'));
     return this.getPlayers()
       .then((players) => {
         if (players.length < 4) return Promise.reject(new Error('Not enough players'));
+        if (players.some((p) => !p.role || !p.team)) return Promise.reject(new Error('All players must have roles and teams'));
 
         let activePlayer = players.find((player) => {
           return player.team === this.board.startingTeam() &&

@@ -3,6 +3,7 @@
 const { ErrorHandler } = require('../lib/error-handler'),
       { notifyPlayersAndRespond, requireGame } = require('../lib/response-helpers'),
       Game = require('../models/game'),
+      Player = require('../models/player'),
       GameSerializer = require('../lib/game-serializer');
 
 const _playTurn = (role, turnFunc) => {
@@ -11,7 +12,7 @@ const _playTurn = (role, turnFunc) => {
 
     if (!req.body) return new ErrorHandler(req, res).promise(new Error('No data passed'));
 
-    return Game.findOne({ where: { id: gameId }, include: [Game.Players] })
+    return Game.findOne({ where: { id: gameId }, include: [{ association: Game.Players, include: [Player.User] }] })
       .then((game) => {
         let player = game.players.find((p) => p.userId === user.id && p.role === role);
         if (!player) throw new Error(`User is not ${role} in this game`);
@@ -55,6 +56,24 @@ const show = requireGame((req, res) => {
     .catch(new ErrorHandler(req, res).process);
 });
 
+const start = requireGame((req, res) => {
+  let { user, params: { gameId } } = req;
+
+  return Player.findOne({
+    where: { gameId, userId: user.id },
+    include: [{
+      association: Player.Game,
+      include: [{
+        association: Game.Players,
+        include: [Player.User]
+      }]
+    }]
+  })
+    .then((player) => player.game.start())
+    .then(notifyPlayersAndRespond(res, user))
+    .catch(new ErrorHandler(req, res).process);
+});
+
 const transmit = _playTurn('transmitter', (req) => {
   return (game) => {
     let { word, number } = req.body;
@@ -93,6 +112,7 @@ module.exports = {
   index,
   create,
   show,
+  start,
   transmit,
   decode,
   destroy

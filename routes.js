@@ -15,6 +15,7 @@ router.post('/signup', (req, res) => { new Auth(req, res).signup(); });
 router.get('/api/v1/games', Games.index);
 router.post('/api/v1/games', Games.create);
 router.get('/api/v1/game/:gameId', Games.show);
+router.post('/api/v1/game/:gameId/start', Games.start);
 router.put('/api/v1/game/:gameId/transmit', Games.transmit);
 router.put('/api/v1/game/:gameId/decode', Games.decode);
 router.delete('/api/v1/game/:gameId', Games.destroy);
