@@ -222,6 +222,20 @@
             <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
           </li>
           <li>
+            <a href="#models" class="toc-h1 toc-link" data-title="Models">Models</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#game" class="toc-h2 toc-link" data-title="Models">Game</a>
+                  </li>
+                  <li>
+                    <a href="#user" class="toc-h2 toc-link" data-title="Models">User</a>
+                  </li>
+                  <li>
+                    <a href="#player" class="toc-h2 toc-link" data-title="Models">Player</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
             <a href="#authentication" class="toc-h1 toc-link" data-title="Authentication">Authentication</a>
               <ul class="toc-list-h2">
                   <li>
@@ -236,25 +250,25 @@
             <a href="#games" class="toc-h1 toc-link" data-title="Games">Games</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-code-api-v1-games-code-index" class="toc-h2 toc-link" data-title="Games">get <code>/api/v1/games</code>: index</a>
+                    <a href="#get-code-api-v1-games-code-index" class="toc-h2 toc-link" data-title="Games">GET <code>/api/v1/games</code>: index</a>
                   </li>
                   <li>
-                    <a href="#post-code-api-v1-games-code-create" class="toc-h2 toc-link" data-title="Games">post <code>/api/v1/games</code>: create</a>
+                    <a href="#post-code-api-v1-games-code-create" class="toc-h2 toc-link" data-title="Games">POST <code>/api/v1/games</code>: create</a>
                   </li>
                   <li>
-                    <a href="#get-code-api-v1-game-gameid-code-show" class="toc-h2 toc-link" data-title="Games">get <code>/api/v1/game/:gameId</code>: show</a>
+                    <a href="#get-code-api-v1-game-gameid-code-show" class="toc-h2 toc-link" data-title="Games">GET <code>/api/v1/game/:gameId</code>: show</a>
                   </li>
                   <li>
-                    <a href="#post-code-api-v1-game-gameid-start-code-start" class="toc-h2 toc-link" data-title="Games">post <code>/api/v1/game/:gameId/start</code>: start</a>
+                    <a href="#post-code-api-v1-game-gameid-start-code-start" class="toc-h2 toc-link" data-title="Games">POST <code>/api/v1/game/:gameId/start</code>: start</a>
                   </li>
                   <li>
-                    <a href="#put-code-api-v1-game-gameid-transmit-code-transmit" class="toc-h2 toc-link" data-title="Games">put <code>/api/v1/game/:gameId/transmit</code>: transmit</a>
+                    <a href="#put-code-api-v1-game-gameid-transmit-code-transmit" class="toc-h2 toc-link" data-title="Games">PUT <code>/api/v1/game/:gameId/transmit</code>: transmit</a>
                   </li>
                   <li>
-                    <a href="#put-code-api-v1-game-gameid-decode-code-decode" class="toc-h2 toc-link" data-title="Games">put <code>/api/v1/game/:gameId/decode</code>: decode</a>
+                    <a href="#put-code-api-v1-game-gameid-decode-code-decode" class="toc-h2 toc-link" data-title="Games">PUT <code>/api/v1/game/:gameId/decode</code>: decode</a>
                   </li>
                   <li>
-                    <a href="#delete-code-api-v1-game-gameid-code-destroy" class="toc-h2 toc-link" data-title="Games">delete <code>/api/v1/game/:gameId</code>: destroy</a>
+                    <a href="#delete-code-api-v1-game-gameid-code-destroy" class="toc-h2 toc-link" data-title="Games">DELETE <code>/api/v1/game/:gameId</code>: destroy</a>
                   </li>
               </ul>
           </li>
@@ -262,13 +276,24 @@
             <a href="#players" class="toc-h1 toc-link" data-title="Players">Players</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#post-code-api-v1-game-gameid-players-code-create" class="toc-h2 toc-link" data-title="Players">post <code>/api/v1/game/:gameId/players</code>: create</a>
+                    <a href="#post-code-api-v1-game-gameid-players-code-create" class="toc-h2 toc-link" data-title="Players">POST <code>/api/v1/game/:gameId/players</code>: create</a>
                   </li>
                   <li>
-                    <a href="#put-code-api-v1-game-gameid-player-playerid-code-update" class="toc-h2 toc-link" data-title="Players">put <code>/api/v1/game/:gameId/player/:playerId</code>: update</a>
+                    <a href="#put-code-api-v1-game-gameid-player-playerid-code-update" class="toc-h2 toc-link" data-title="Players">PUT <code>/api/v1/game/:gameId/player/:playerId</code>: update</a>
                   </li>
                   <li>
-                    <a href="#delete-code-api-v1-game-gameid-player-playerid-code-destroy" class="toc-h2 toc-link" data-title="Players">delete <code>/api/v1/game/:gameId/player/:playerId</code>: destroy</a>
+                    <a href="#delete-code-api-v1-game-gameid-player-playerid-code-destroy" class="toc-h2 toc-link" data-title="Players">DELETE <code>/api/v1/game/:gameId/player/:playerId</code>: destroy</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#websockets-messages" class="toc-h1 toc-link" data-title="WebSockets Messages">WebSockets Messages</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#code-games_indexed-code" class="toc-h2 toc-link" data-title="WebSockets Messages"><code>GAMES_INDEXED</code></a>
+                  </li>
+                  <li>
+                    <a href="#code-game_updated-code" class="toc-h2 toc-link" data-title="WebSockets Messages"><code>GAME_UPDATED</code></a>
                   </li>
               </ul>
           </li>
@@ -283,9 +308,81 @@
       <div class="content">
         <h1 id='introduction'>Introduction</h1>
 <p>The <a href="https://github.com/bensaufley/code-words-api">Code Words API</a> is an API for playing the game Code Words. It is built as a compliment to <a href="https://github.com/bensaufley/code-words-api">Code Words Web</a>, a web client-based React project, with the aim of potentially creating something in React-Native or Swift to consume this same API at some future date.</p>
+<h1 id='models'>Models</h1>
+<aside class="notice">All model <code>id</code>s are strings in UUIDv4 format.</aside>
 
-<p>All <code>id</code>s are UUIDv4 format.</p>
-<h1 id='authentication'>Authentication</h1><h2 id='post-code-signup-code'>POST <code>/signup</code></h2>
+<p>Database models should be consistently serialized regardless of the endpoint.</p>
+<h2 id='game'>Game</h2><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"game"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"activePlayerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"board"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"waffle"</span><span class="p">,</span><span class="w"> </span><span class="s2">"revealed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="w"> </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w"> </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pancake"</span><span class="p">,</span><span class="w"> </span><span class="s2">"revealed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redacted"</span><span class="w"> </span><span class="p">}</span><span class="w">
+      </span><span class="c1">// ⨉ 25</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"completed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"started"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="s2">"players"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="c1">// See Player</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The Game model is the major model in Code Words. It contains all sorts of stuff, including
+<code>tiles</code>, which is a list of 25 Objects describing the 5 ⨉ 5 grid of tiles (in a simple list,
+no grid in serialization) with their words, whether they&#39;ve been revealed, and what their
+type is. If the User is playing a <code>&#39;transmitter&#39;</code>, <code>type</code> will never be <code>&#39;redacted&#39;</code> even if
+<code>revealed</code> is <code>true</code>. If the User is playing a <code>&#39;decoder&#39;</code>, <code>type</code> will be <code>&#39;redacted&#39;</code> if
+the tile is not yet <code>revealed</code>.</p>
+
+<p>Enumerated values:</p>
+
+<ul>
+<li><code>board</code>:
+
+<ul>
+<li><code>type</code>: <code>null</code>, <code>&#39;a&#39;</code>, <code>&#39;b&#39;</code>, <code>&#39;x&#39;</code>, <code>&#39;redacted&#39;</code></li>
+</ul></li>
+</ul>
+<h2 id='user'>User</h2><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-username"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The User model is currently very simple. When serialized, it just had an <code>id</code> and
+a <code>username</code>, both strings.</p>
+<h2 id='player'>Player</h2><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"gameId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"transmitter"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"team"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="c1">// See User</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The Player model joins Users and Games. It also contains information about how the
+player relates to the game. Both the <code>role</code> and <code>team</code> attributes begin as <code>null</code>,
+and are assigned before a game is started.</p>
+
+<p>Enumerated values:</p>
+
+<ul>
+<li><code>role</code>: <code>null</code>, <code>&#39;transmitter&#39;</code>, <code>&#39;decoder&#39;</code></li>
+<li><code>team</code>: <code>null</code>, <code>&#39;a&#39;</code>, <code>&#39;b&#39;</code></li>
+</ul>
+<h1 id='authentication'>Authentication</h1>
+<p>Authentication is managed with a signed <a href="https://github.com/auth0/node-jsonwebtoken">JSONWebToken</a> received during Signup or Login.
+To access authenticated routes, this token must be passed along in one of the following
+ways:</p>
+
+<ul>
+<li><a href="http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html">Bearer authorization</a>: pass the <code>Authorization</code> HTTP header in the format
+&quot;Bearer xxxxxxxxxx…&quot;</li>
+<li>GET or POST parameters: pass the token as <code>access_token</code></li>
+</ul>
+<h2 id='post-code-signup-code'>POST <code>/signup</code></h2>
 <blockquote>
 <p>Example JSON body for <code>/signup</code>:</p>
 </blockquote>
@@ -314,9 +411,9 @@
 <p>Responds with JSON:</p>
 </blockquote>
 <pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxx"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…"</span><span class="p">,</span><span class="w">
   </span><span class="s2">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxx"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"username"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
@@ -326,7 +423,156 @@
 </blockquote>
 
 <p>The Log In endpoint expects the same type of JSON body as Sign Up, and returns the same type of response (since both log a user in).</p>
-<h1 id='games'>Games</h1><h2 id='get-code-api-v1-games-code-index'>get <code>/api/v1/games</code>: index</h2><h2 id='post-code-api-v1-games-code-create'>post <code>/api/v1/games</code>: create</h2><h2 id='get-code-api-v1-game-gameid-code-show'>get <code>/api/v1/game/:gameId</code>: show</h2><h2 id='post-code-api-v1-game-gameid-start-code-start'>post <code>/api/v1/game/:gameId/start</code>: start</h2><h2 id='put-code-api-v1-game-gameid-transmit-code-transmit'>put <code>/api/v1/game/:gameId/transmit</code>: transmit</h2><h2 id='put-code-api-v1-game-gameid-decode-code-decode'>put <code>/api/v1/game/:gameId/decode</code>: decode</h2><h2 id='delete-code-api-v1-game-gameid-code-destroy'>delete <code>/api/v1/game/:gameId</code>: destroy</h2><h1 id='players'>Players</h1><h2 id='post-code-api-v1-game-gameid-players-code-create'>post <code>/api/v1/game/:gameId/players</code>: create</h2><h2 id='put-code-api-v1-game-gameid-player-playerid-code-update'>put <code>/api/v1/game/:gameId/player/:playerId</code>: update</h2><h2 id='delete-code-api-v1-game-gameid-player-playerid-code-destroy'>delete <code>/api/v1/game/:gameId/player/:playerId</code>: destroy</h2>
+<h1 id='games'>Games</h1>
+<p>All Games routes are <a href="#authentication">authenticated</a>.</p>
+<h2 id='get-code-api-v1-games-code-index'>GET <code>/api/v1/games</code>: index</h2>
+<blockquote>
+<p>Expects no params.</p>
+
+<p>Returns list of <a href="#game">serialized Games</a>.</p>
+</blockquote>
+
+<p>Returns a list of <a href="#game">Game</a>s.</p>
+<h2 id='post-code-api-v1-games-code-create'>POST <code>/api/v1/games</code>: create</h2>
+<blockquote>
+<p>Expects no params.</p>
+
+<p>Returns <a href="#game">serialized Game</a>.</p>
+</blockquote>
+
+<p>Creates a new <a href="#game">Game</a> for the credentialed User. Returns the Game, serialized.</p>
+<h2 id='get-code-api-v1-game-gameid-code-show'>GET <code>/api/v1/game/:gameId</code>: show</h2>
+<blockquote>
+<p>Expects no params besides URL param.</p>
+
+<p>Returns <a href="#game">serialized Game</a>.</p>
+</blockquote>
+
+<p>Returns a serialized <a href="#game">Game</a> record based on the id in the URL.</p>
+<h2 id='post-code-api-v1-game-gameid-start-code-start'>POST <code>/api/v1/game/:gameId/start</code>: start</h2>
+<blockquote>
+<p>Expects no params besides URL param.</p>
+
+<p>Returns <a href="#game">serialized Game</a>.</p>
+</blockquote>
+
+<p>Attempts to start a <a href="#game">Game</a>. This assigns the <code>activePlayerId</code> which will have previously
+been <code>null</code>. With an <code>activePlayerId</code>, the associated Player is now eligible to take her
+turn. Returns the serialized Game.</p>
+<h2 id='put-code-api-v1-game-gameid-transmit-code-transmit'>PUT <code>/api/v1/game/:gameId/transmit</code>: transmit</h2>
+<blockquote>
+<p>Expects JSON body:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"clue"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Returns <a href="#game">serialized Game</a>.</p>
+</blockquote>
+
+<p>Endpoint to take turn for Player of <code>role</code> <code>&#39;transmitter&#39;</code>. Updates the <code>activePlayerId</code> and
+returns the serialized <a href="#game">Game</a>.</p>
+
+<p><code>word</code> must be a single word. <code>number</code> must be between <code>1</code> and the number of remaining tiles
+un-revealed for the team.</p>
+<h2 id='put-code-api-v1-game-gameid-decode-code-decode'>PUT <code>/api/v1/game/:gameId/decode</code>: decode</h2>
+<blockquote>
+<p>Expects JSON body:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"tile"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Returns <a href="#game">serialized Game</a>.</p>
+</blockquote>
+
+<p>Endpoint to take turn for Player of <code>role</code> <code>&#39;decoder&#39;</code>. Updates the <code>activePlayerId</code> <em>if
+tile is incorrect</em> and returns the serialized <a href="#game">Game</a>.</p>
+
+<p><code>tile</code> is the index of the chosen tile on the Game&#39;s <code>board</code>, and thus must be a number
+between 0 and 24. It also cannot be the index of a tile that&#39;s already revealed.</p>
+<h2 id='delete-code-api-v1-game-gameid-code-destroy'>DELETE <code>/api/v1/game/:gameId</code>: destroy</h2>
+<blockquote>
+<p>Expects no params besides URL params.</p>
+
+<p>Returns 200 status, no body.</p>
+</blockquote>
+
+<p>Endpoint to delete a Game. Game cannot be deleted if it is already started. Does not
+return a body because if it&#39;s successful there&#39;s nothing to serialize.</p>
+<h1 id='players'>Players</h1>
+<p>All Players routes are <a href="#authentication">authenticated</a>.</p>
+<h2 id='post-code-api-v1-game-gameid-players-code-create'>POST <code>/api/v1/game/:gameId/players</code>: create</h2>
+<blockquote>
+<p>Expects no params besides URL params.</p>
+
+<p>Returns <a href="#game">serialized Game</a></p>
+</blockquote>
+
+<p>Creates a new <a href="#player">Player</a> associating the authenticated User with
+the specified Game, and returns that Game, serialized.</p>
+<h2 id='put-code-api-v1-game-gameid-player-playerid-code-update'>PUT <code>/api/v1/game/:gameId/player/:playerId</code>: update</h2>
+<blockquote>
+<p>Expects JSON body with at least one of the following keys:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"team"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"decoder"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Returns <a href="#game">serialized Game</a></p>
+</blockquote>
+
+<p>Updates the specified Player to assign him to a team and/or role. Returns
+updated Game, serialized.</p>
+<h2 id='delete-code-api-v1-game-gameid-player-playerid-code-destroy'>DELETE <code>/api/v1/game/:gameId/player/:playerId</code>: destroy</h2>
+<blockquote>
+<p>Expects no params besides URL params.</p>
+
+<p>Returns 200 status if authenticated User&#39;s Player was destroyed;
+returns <a href="#game">serialized Game</a> if it was another User&#39;s Player.</p>
+</blockquote>
+
+<p>Deletes association between User and Game. Can only be done if Game is not
+yet started. If the User removed her own Player, a 200 status is returned.
+If the User removed another Player, the updated, serialized Game is returned.</p>
+<h1 id='websockets-messages'>WebSockets Messages</h1>
+<p>WebSockets are authenticated using <code>access_token</code> in the query string, and
+connected at <code>/api/v1</code> through the <code>ws://</code> protocol.</p>
+
+<p>On successful connection, <a href="#code-games-indexed-code"><code>GAMES_INDEXED</code></a> is emitted.</p>
+<h2 id='code-games_indexed-code'><code>GAMES_INDEXED</code></h2>
+<blockquote>
+<p>Emits JSON:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="err">event</span><span class="p">:</span><span class="w"> </span><span class="err">'GAMES_INDEXED'</span><span class="p">,</span><span class="w">
+  </span><span class="err">payload</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="err">games</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="c1">// list of Games for authenticated User</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Emitted on successful connection.</p>
+<h2 id='code-game_updated-code'><code>GAME_UPDATED</code></h2>
+<blockquote>
+<p>Emits JSON:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="err">event</span><span class="p">:</span><span class="w"> </span><span class="err">'GAME_UPDATED'</span><span class="p">,</span><span class="w">
+  </span><span class="err">payload</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="c1">// serialized Game object</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>Emitted to all connected WebSockets for a Game except the initiating User
+when a Game is updated in any way.</p>
+
       </div>
       <div class="dark-box">
           <div class="lang-selector">
