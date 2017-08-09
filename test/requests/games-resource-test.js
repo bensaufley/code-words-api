@@ -409,16 +409,14 @@ describe('Games Resource', () => {
         it('adds the turn to the game', () => {
           let res = stubRes();
 
-          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'transmission', number: 5 } }, res)
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'erudition', number: 5 } }, res)
             .then(() => game.reload())
             .then(() => {
               expect(game.turns[game.turns.length - 1]).to.eql({
                 event: 'transmission',
+                number: 5,
                 playerId: aTransmitterPlayer.id,
-                transmission: {
-                  number: 5,
-                  word: 'transmission'
-                }
+                word: 'erudition'
               });
             });
         });

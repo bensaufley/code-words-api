@@ -15,26 +15,31 @@ class Game extends Sequelize.Model {
   decode(i) {
     if (i < 0 || i > 24) return Promise.reject(new Error('No such tile'));
     let turn,
-        board = this.getDataValue('board'),
-        tile = board[i];
-    if (tile.revealed) return Promise.reject(new Error('Tile already revealed'));
+        board = this.getDataValue('board');
+    if (board[i].revealed) return Promise.reject(new Error('Tile already revealed'));
 
     if (!this.activePlayerId) return Promise.reject(new Error('Game has not begun'));
 
     return this.getActivePlayer()
       .then((activePlayer) => {
-        if (activePlayer.role !== 'decoder') return Promise.reject(new Error('Active Player cannot make guesses'));
+        if (activePlayer.role !== 'decoder') throw new Error('Active Player cannot make guesses');
 
         this.activePlayer = activePlayer;
 
-        turn = { event: 'decoding', playerId: activePlayer.id, tile: i, correct: tile.type === activePlayer.team };
+        turn = {
+          event: 'decoding',
+          playerId: activePlayer.id,
+          tile: i,
+          correct: board[i].type === activePlayer.team
+        };
+
         let turns = [...this.turns, turn];
 
-        tile.revealed = true;
+        board[i].revealed = true;
 
         return this.update({ board, turns });
       }).then(() => {
-        if (tile.type === 'x' || this.board.won()) return this.end(turn, this.activePlayer);
+        if (board[i].type === 'x' || this.board.won()) return this.end(turn, this.activePlayer);
         else if (!turn.correct) return this.nextTurn();
         return this;
       });
@@ -89,7 +94,8 @@ class Game extends Sequelize.Model {
       activePlayerId: this.activePlayerId,
       board: this.board.serialize(!this.activePlayerId || player.role !== 'transmitter'),
       completed: this.completed(),
-      started: !!this.activePlayerId
+      started: !!this.activePlayerId,
+      turns: this.turns
     };
   }
 
@@ -121,11 +127,9 @@ class Game extends Sequelize.Model {
         this.activePlayer = activePlayer;
         const turn = {
           event: 'transmission',
+          number: number,
           playerId: activePlayer.id,
-          transmission: {
-            number: number,
-            word: word
-          }
+          word: word
         };
         return this.update({ turns: [...this.turns, turn] });
       })

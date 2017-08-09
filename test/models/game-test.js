@@ -67,6 +67,19 @@ describe('Game', () => {
       expect(serialized.board).not.to.eq(game.getDataValue('board'));
       expect(serialized.board.map((t) => t.type)).to.eql(new Array(25).fill('redacted'));
     });
+
+    it('returns an array of turns in order', () => {
+      let turn1 = { event: 'transmission', playerId: transmitter, word: 'sunlight', number: 3 },
+          turn2 = { event: 'decoding', playerId: decoder, tile: 12 };
+      return game.start()
+        .then(() => game.update({ turns: [turn1, turn2] }))
+        .then(() => {
+          let serialized = game.serializeFor(transmitter);
+
+          expect(serialized.turns[0]).to.eql(turn1);
+          expect(serialized.turns[1]).to.eql(turn2);
+        });
+    });
   });
 
   context('gameplay', () => {
@@ -186,14 +199,15 @@ describe('Game', () => {
           let activePlayer = [aTransmitterPlayer, bTransmitterPlayer].find((p) => p.id === game.activePlayerId);
           sinon.stub(game, 'nextTurn');
 
-          return game.transmit('transmission', 2)
+          return game.transmit('encoded', 2)
             .then(() => {
               let turn = game.turns[0];
 
               expect(game.turns).to.have.lengthOf(1);
               expect(turn.event).to.eq('transmission');
               expect(turn.playerId).to.eq(activePlayer.id);
-              expect(turn.transmission).to.eql({ number: 2, word: 'transmission' });
+              expect(turn.number).to.eq(2);
+              expect(turn.word).to.eq('encoded');
               expect(game.nextTurn).to.have.been.called;
 
               game.nextTurn.restore();

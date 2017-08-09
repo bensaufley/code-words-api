@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>API Reference</title>
+    <title>Code Words API Reference</title>
 
     <style>
       .highlight table td { padding: 5px; }
@@ -317,33 +317,92 @@
     </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"activePlayerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"</span><span class="p">,</span><span class="w">
     </span><span class="s2">"board"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="p">{</span><span class="w"> </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"waffle"</span><span class="p">,</span><span class="w"> </span><span class="s2">"revealed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="w"> </span><span class="p">},</span><span class="w">
-      </span><span class="p">{</span><span class="w"> </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pancake"</span><span class="p">,</span><span class="w"> </span><span class="s2">"revealed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redacted"</span><span class="w"> </span><span class="p">}</span><span class="w">
-      </span><span class="c1">// ⨉ 25</span><span class="w">
+      </span><span class="c1">// see Game.board</span><span class="w">
     </span><span class="p">],</span><span class="w">
     </span><span class="s2">"completed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"started"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="s2">"started"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"turns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="c1">// see Game.turns</span><span class="w">
+    </span><span class="p">]</span><span class="w">
   </span><span class="p">},</span><span class="w">
   </span><span class="s2">"players"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="c1">// See Player</span><span class="w">
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>The Game model is the major model in Code Words. It contains all sorts of stuff, including
-<code>tiles</code>, which is a list of 25 Objects describing the 5 ⨉ 5 grid of tiles (in a simple list,
+<p>The Game model is the major model in Code Words. It contains all sorts of stuff, including most importantly, <a href="#code-game-board-code"><code>board</code></a> and <a href="#code-game-turns-code"><code>turns</code></a>.</p>
+
+<p>Enumerated values:</p>
+<h3 id='code-game-board-code'><code>Game.board</code></h3>
+<blockquote>
+<p>Example turns:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w"> </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"waffle"</span><span class="p">,</span><span class="w"> </span><span class="s2">"revealed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="w"> </span><span class="p">},</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pancake"</span><span class="p">,</span><span class="w"> </span><span class="s2">"revealed"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redacted"</span><span class="w"> </span><span class="p">},</span><span class="w">
+</span><span class="p">{</span><span class="w"> </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"chowder"</span><span class="p">,</span><span class="w"> </span><span class="s2">"revealed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The Game&#39;s <code>board</code> is an array of 25 Objects describing the 5 ⨉ 5 grid of tiles (in a simple list,
 no grid in serialization) with their words, whether they&#39;ve been revealed, and what their
-type is. If the User is playing a <code>&#39;transmitter&#39;</code>, <code>type</code> will never be <code>&#39;redacted&#39;</code> even if
-<code>revealed</code> is <code>true</code>. If the User is playing a <code>&#39;decoder&#39;</code>, <code>type</code> will be <code>&#39;redacted&#39;</code> if
-the tile is not yet <code>revealed</code>.</p>
+type is.</p>
+
+<ul>
+<li><strong>If the User is playing a <code>&#39;transmitter&#39;</code></strong>, <code>type</code> will never be <code>&#39;redacted&#39;</code> even if
+<code>revealed</code> is <code>true</code>.</li>
+<li><strong>If the User is playing a <code>&#39;decoder&#39;</code></strong>, <code>type</code> will be <code>&#39;redacted&#39;</code> if
+the tile is not yet <code>revealed</code>.</li>
+</ul>
 
 <p>Enumerated values:</p>
 
 <ul>
-<li><code>board</code>:
+<li><code>type</code>: <code>null</code>, <code>&#39;a&#39;</code>, <code>&#39;b&#39;</code>, <code>&#39;x&#39;</code>, <code>&#39;redacted&#39;</code></li>
+</ul>
+<h3 id='code-game-turns-code'><code>Game.turns</code></h3>
+<blockquote>
+<p><code>transmission</code> turn:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"transmission"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"playerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"word"</span><span class="p">:</span><span class="w"> </span><span class="s2">"breakfast"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p><code>decoding</code> turn:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"correct"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"event"</span><span class="w"> </span><span class="s2">"decoding"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"playerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tile"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p><code>end</code> turn:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"end"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"winner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The Game&#39;s <code>turns</code> are an array of the turns taken thus far in the game. There are three possible
+types of turns, indicated by the turn Object&#39;s <code>event</code> attribute. The other attributes will change
+based on the <code>event</code> being described.</p>
 
 <ul>
-<li><code>type</code>: <code>null</code>, <code>&#39;a&#39;</code>, <code>&#39;b&#39;</code>, <code>&#39;x&#39;</code>, <code>&#39;redacted&#39;</code></li>
-</ul></li>
+<li>The <code>transmission</code> event contains the word and number submitted from the Transmitter.</li>
+<li>The <code>decoding</code> event contains the tile chosen to decode, and whether or not the tile
+belonged to the team of the Decoder indicated in <code>correct</code>.</li>
+<li>The <code>end</code> turn signifies that a game has ended, either by all of one team&#39;s tiles being
+revealed, or the <code>&#39;x&#39;</code> tile being selected. It indicates the winning team.</li>
+</ul>
+
+<p>Enumerated values:</p>
+
+<ul>
+<li><code>event</code>: <code>&#39;transmission&#39;</code>, <code>&#39;decoding&#39;</code>, <code>&#39;end&#39;</code></li>
+<li><code>winner</code> (for <code>&#39;end&#39;</code> event): <code>&#39;a&#39;</code>, <code>&#39;b&#39;</code></li>
 </ul>
 <h2 id='user'>User</h2><pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span><span class="p">,</span><span class="w">
