@@ -5,6 +5,8 @@
     "test{,-*}.js",
     "**/*-test.js",
     "**/node_modules/**",
+    "docs-source",
+    "docs",
     "coverage"
   ],
   "all": true,
