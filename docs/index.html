@@ -566,13 +566,18 @@ return a body because if it&#39;s successful there&#39;s nothing to serialize.</
 <p>All Players routes are <a href="#authentication">authenticated</a>.</p>
 <h2 id='post-code-api-v1-game-gameid-players-code-create'>POST <code>/api/v1/game/:gameId/players</code>: create</h2>
 <blockquote>
-<p>Expects no params besides URL params.</p>
-
+<p>Expects JSON body:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-username"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
 <p>Returns <a href="#game">serialized Game</a></p>
 </blockquote>
 
-<p>Creates a new <a href="#player">Player</a> associating the authenticated User with
-the specified Game, and returns that Game, serialized.</p>
+<p>Creates a new <a href="#player">Player</a> for the User with the requested <code>username</code>
+on the specified Game, and returns that Game, serialized.</p>
 <h2 id='put-code-api-v1-game-gameid-player-playerid-code-update'>PUT <code>/api/v1/game/:gameId/player/:playerId</code>: update</h2>
 <blockquote>
 <p>Expects JSON body with at least one of the following keys:</p>

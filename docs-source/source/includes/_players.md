@@ -4,12 +4,18 @@ All Players routes are [authenticated](#authentication).
 
 ## POST `/api/v1/game/:gameId/players`: create
 
-> Expects no params besides URL params.
->
+> Expects JSON body:
+
+```json-doc
+{
+  "username": "my-username"
+}
+```
+
 > Returns [serialized Game](#game)
 
-Creates a new [Player](#player) associating the authenticated User with
-the specified Game, and returns that Game, serialized.
+Creates a new [Player](#player) for the User with the requested `username`
+on the specified Game, and returns that Game, serialized.
 
 ## PUT `/api/v1/game/:gameId/player/:playerId`: update
 
