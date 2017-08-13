@@ -106,7 +106,7 @@ describe('GameBoard', () => {
 
     it('returns a redacted grid when redacted is true', () => {
       let board = new GameBoard(),
-          types = board.serialize(true).map((tile) => tile.type);
+          types = board.serialize().map((tile) => tile.type);
 
       expect(types).to.eql(new Array(25).fill('redacted'));
     });

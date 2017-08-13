@@ -6,16 +6,18 @@ const Sequelize = require('sequelize'),
       sequelizeInstance = config.sequelize;
 
 const setSecurePassword = (user, options) => {
+  if (!user.password) return Promise.resolve(options);
+
   return new Promise((resolve, reject) => {
-    user.username = user.username.toLowerCase().trim();
-    if (!user.password) return Promise.resolve(options);
     bcrypt.genSalt(10, (err, salt) => {
+      // istanbul ignore if
       if (err) reject(err);
       else resolve(salt);
     });
   }).then((salt) => {
     return new Promise((resolve, reject) => {
       bcrypt.hash(user.get('password'), salt, null, (err, hash) => {
+        // istanbul ignore if
         if (err) reject(err);
         else resolve(hash);
       });
@@ -30,6 +32,7 @@ class User extends Sequelize.Model {
   authenticate (password) {
     return new Promise((resolve, reject) => {
       bcrypt.compare(password, this.passwordDigest, (err, result) => {
+        // istanbul ignore if
         if (err) return reject(err);
         else resolve(result);
       });
@@ -60,6 +63,9 @@ User.init({
   username: {
     type: Sequelize.STRING(50),
     allowNull: false,
+    set: function (val) {
+      this.setDataValue('username', val.toLowerCase().trim());
+    },
     validate: {
       is: ['^[a-z\\d\\-\\.]{6,24}$', 'i'],
       len: [6, 24],

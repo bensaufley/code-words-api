@@ -3,6 +3,7 @@
 const helper = require('../test-helper'),
       expect = helper.expect,
       User = require('../../models/user'),
+      Auth = require('../../lib/auth'),
       request = require('supertest'),
       { app } = require('../../server');
 
@@ -41,6 +42,24 @@ describe('Root Paths', () => {
         .get('/blarg-and-flargle')
         .then((response) => {
           expect(response.status).to.eq(404);
+          expect(response.body).to.eql({ error: 'NotFoundError: No route matches path /blarg-and-flargle' });
+        });
+    });
+  });
+
+  describe('uncaught exception', () => {
+    let sandbox;
+
+    beforeEach(() => { sandbox = helper.sinon.sandbox.create(); });
+    afterEach(() => { sandbox.restore(); });
+
+    it('returns JSON with the error', () => {
+      sandbox.stub(Auth.prototype, 'login').throws(new Error('Somethin broke!'));
+      return request(app)
+        .post('/login')
+        .then((response) => {
+          expect(response.status).to.eq(500);
+          expect(response.body).to.eql({ error: 'Error: Somethin broke!' });
         });
     });
   });
@@ -53,6 +72,17 @@ describe('Root Paths', () => {
         .then((response) => {
           expect(response.status).to.eq(400);
           expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' });
+        });
+    });
+
+    it('strips whitespace in username', () => {
+      return request(app)
+        .post('/signup')
+        .send({ username: ' name-with-spaces  ', password: 'asdf-bsdf' })
+        .then((response) => {
+          expect(response.body.user.username).to.eq('name-with-spaces');
+
+          return User.findOne({ where: { username: 'name-with-spaces' } });
         });
     });
 

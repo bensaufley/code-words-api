@@ -5,6 +5,7 @@ const config = require('./config'),
       http = require('http'),
       logger = require('morgan'),
       bodyParser = require('body-parser'),
+      { ErrorHandler, NotFoundError } = require('./lib/error-handler'),
       createWebSocketsServer = require('./lib/web-sockets-server'),
       validateRequest = require('./middleware/validate-request');
 
@@ -45,10 +46,9 @@ app.all('/api/v1/*', [validateRequest]);
 app.use('/', require('./routes'));
 
 // If no route is matched by now, it must be a 404
-app.use(function(req, res, next) {
-  let err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.use(function(req, res) {
+  const err = new NotFoundError(`No route matches path ${req.path}`);
+  new ErrorHandler(req, res).process(err);
 });
 
 app.set('port', process.env.PORT || 3000);

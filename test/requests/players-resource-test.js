@@ -9,7 +9,7 @@ const helper = require('../test-helper'),
       Game = require('../../models/game'),
       Player = require('../../models/player'),
       GameSerializer = require('../../lib/game-serializer'),
-      { SocketNotifier, GAME_UPDATED } = require('../../lib/sockets/socket-notifier'),
+      { SocketNotifier, GAME_UPDATED, GAME_REMOVED } = require('../../lib/sockets/socket-notifier'),
       { prepareGame } = require('../support/game-helpers'),
       playersResource = require('../../resources/players');
 
@@ -44,7 +44,7 @@ describe('playersResource', () => {
       return playersResource.create({ user, params: { gameId: game.id }, body: { username: 'flarg-blarp' } }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(404);
-          expect(res.json).to.have.been.calledWith({ error: 'Not Found Error: No user found for that username' });
+          expect(res.json).to.have.been.calledWith({ error: 'NotFoundError: No user found for that username' });
         });
     });
 
@@ -54,7 +54,7 @@ describe('playersResource', () => {
       return playersResource.create({ user, params: { gameId: UUIDv4() }, body: { username: 'second-user'} }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(404);
-          expect(res.json).to.have.been.calledWith({ error: 'Not Found Error: No game found for that id' });
+          expect(res.json).to.have.been.calledWith({ error: 'NotFoundError: No game found for that id' });
         });
     });
 
@@ -149,7 +149,7 @@ describe('playersResource', () => {
       return playersResource.update({ user: userOne, params: { gameId: game.id, playerId: UUIDv4() } }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(404);
-          expect(res.json).to.have.been.calledWith({ error: 'Not Found Error: No player found for that id' });
+          expect(res.json).to.have.been.calledWith({ error: 'NotFoundError: No player found for that id' });
         });
     });
 
@@ -250,7 +250,7 @@ describe('playersResource', () => {
       return playersResource.destroy({ user: userOne, params: { gameId: game.id, playerId: UUIDv4() } }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(404);
-          expect(res.json).to.have.been.calledWith({ error: 'Not Found Error: No player found for that id' });
+          expect(res.json).to.have.been.calledWith({ error: 'NotFoundError: No player found for that id' });
         });
     });
 
@@ -290,7 +290,7 @@ describe('playersResource', () => {
         });
     });
 
-    it('returns 200 with no body if the user has removed herself from the game', () => {
+    it('returns GAME_REMOVED and gameId if the user has removed herself from the game', () => {
       let res = stubRes();
       sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
@@ -298,18 +298,25 @@ describe('playersResource', () => {
         .then(() => {
           expect(res.status).to.have.been.calledWith(200);
           expect(GameSerializer.serializeGameForPlayer).not.to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', playerOne.id)));
-          expect(res.json).not.to.have.been.called;
+          expect(res.json).to.have.been.calledWith({ event: GAME_REMOVED, payload: { gameId: game.id } });
         });
     });
 
-    it('attempts to notify other players via WebSockets', () => {
+    it('attempts to notify other players via WebSockets, including the removed user', () => {
       let res = stubRes(),
           eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
 
-      return playersResource.destroy({ user: userOne, params: { gameId: game.id, playerId: playerOne.id } }, res)
+      return playersResource.destroy({ user: userOne, params: { gameId: game.id, playerId: playerTwo.id } }, res)
         .then(() => {
-          expect(eventStub).to.have.callCount(3);
-          expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);
+          const calls = eventStub.getCalls();
+
+          expect(calls).to.have.lengthOf(3);
+
+          expect(calls[0].thisValue.userId).to.eq(playerTwo.userId);
+          expect(calls[0].args).to.eql([GAME_REMOVED, { gameId: game.id }]);
+
+          expect(calls[1].args[0]).to.eq(GAME_UPDATED);
+          expect(calls[2].args[0]).to.eq(GAME_UPDATED);
         });
     });
   });

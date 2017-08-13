@@ -73,10 +73,24 @@ describe('Auth', () => {
       });
     });
 
+    it('returns 401 if something goes wrong generating the token', () => {
+      let auth = new Auth({}, res);
+      sandbox.spy(User.prototype, 'authenticate');
+      sandbox.stub(jwt, 'sign').callsFake((_payload, _key, _options, callback) => {
+        callback(new Error());
+      });
+
+      return auth.login(user).then(() => {
+        expect(jwt.sign).to.have.beenCalled;
+        expect(res.status).to.have.been.calledWith(401);
+        expect(res.json).to.have.been.calledWith({ status: 401, message: 'Invalid Credentials' });
+      });
+    });
+
     it('returns a token for a valid logged-in user', () => {
       let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
 
-      return auth.login().then(() => {
+      return auth.login(user).then(() => {
         const json = res.json.getCall(0).args[0],
               decoded = jwt.verify(json.token, helper.config.secret);
 
@@ -155,12 +169,25 @@ describe('Auth', () => {
   });
 
   describe('signup', () => {
-    it('rejects 400 Invalid User Information if User creation fails', () => {
+    it('rejects 400 Invalid User Information if User creation fails validation', () => {
       let auth = new Auth({ body: { username: 'my-user', password: '' } }, res);
 
       return auth.signup().then(() => {
         expect(res.status).to.have.been.calledWith(400);
         expect(res.json).to.have.been.calledWith({ status: 400, message: 'Invalid User Information' });
+      });
+    });
+
+    it('rejects 500 for other errors', () => {
+      let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
+      sandbox.stub(User, 'create').callsFake(() => {
+        const err = new Error('Something else broke');
+        return Promise.reject(err);
+      });
+
+      return auth.signup().then(() => {
+        expect(res.status).to.have.been.calledWith(500);
+        expect(res.json).to.have.been.calledWith({ status: 500, message: 'Something else broke' });
       });
     });
 

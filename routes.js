@@ -17,8 +17,8 @@ const errorFallback = (func) => (req, res) => {
 };
 
 /* Unauthenticated routes */
-router.post('/login', (req, res) => { new Auth(req, res).login(); });
-router.post('/signup', (req, res) => { new Auth(req, res).signup(); });
+router.post('/login', errorFallback((req, res) => { new Auth(req, res).login(); }));
+router.post('/signup', errorFallback((req, res) => { new Auth(req, res).signup(); }));
 
 /* Authenticated routes */
 router.get('/api/v1/games', errorFallback(Games.index));

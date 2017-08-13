@@ -2,17 +2,10 @@
 
 const { ErrorHandler, NotFoundError } = require('../lib/error-handler'),
       { notifyPlayersAndRespond, requireGame, strongParams} = require('../lib/response-helpers'),
+      { SocketNotifier, GAME_REMOVED } = require('../lib/sockets/socket-notifier'),
       Game = require('../models/game'),
       User = require('../models/user'),
       Player = require('../models/player');
-
-const _requirePlayer = (func) => {
-  return requireGame((req, res) => {
-    if (!req.params.playerId) return Promise.reject(new NotFoundError('No playerId provided'));
-
-    return func(req, res);
-  });
-};
 
 const create = requireGame((req, res) => {
   let game, newPlayerUser,
@@ -36,7 +29,7 @@ const create = requireGame((req, res) => {
     .catch(new ErrorHandler(req, res).process);
 });
 
-const update = _requirePlayer((req, res) => {
+const update = (req, res) => {
   let game,
       { user, params: { gameId, playerId } } = req;
 
@@ -54,10 +47,10 @@ const update = _requirePlayer((req, res) => {
     .then(() => game.reload({ include: [Game.Players] }))
     .then(() => notifyPlayersAndRespond(res, user)(game))
     .catch(new ErrorHandler(req, res).process);
-});
+};
 
-const destroy = _requirePlayer((req, res) => {
-  let game,
+const destroy = (req, res) => {
+  let game, userId,
       { user, params: { gameId, playerId } } = req;
 
   return Player.findOne({ where: { id: playerId, gameId }, include: [Player.Game] })
@@ -65,14 +58,18 @@ const destroy = _requirePlayer((req, res) => {
       if (!player) throw new NotFoundError('No player found for that id');
       game = player.game;
       if (game.activePlayerId) throw new Error('A Player cannot be removed after the game has started');
+      userId = player.userId;
 
       return player.destroy();
     })
     .then(() => game.reload({ include: [Game.Players] }))
+    .then(() => {
+      if (userId !== user.id) new SocketNotifier(userId).event(GAME_REMOVED, { gameId: gameId });
+    })
     .then(() => notifyPlayersAndRespond(res, user)(game))
     .catch(new ErrorHandler(req, res).process);
 
-});
+};
 
 module.exports = {
   create,
