@@ -21,9 +21,10 @@ describe('ErrorHandler', () => {
       new ErrorHandler(req, res).process(error);
 
       expect(config.log).to.have.been.calledWith(
-        'path:', '/test/path',
-        'query:', { query_param: 'test' },
-        'params:', undefined,
+        'path:', '/test/path', '\n',
+        'query:', { query_param: 'test' }, '\n',
+        'body:', undefined, '\n',
+        'params:', undefined, '\n',
         'Error Details:',
         'Test Error',
         'This is just a test',

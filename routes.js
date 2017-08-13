@@ -5,23 +5,32 @@ const express = require('express'),
 
 const Auth = require('./lib/auth'),
       Games = require('./resources/games'),
-      Players = require('./resources/players');
+      Players = require('./resources/players'),
+      { ErrorHandler } = require('./lib/error-handler');
+
+const errorFallback = (func) => (req, res) => {
+  try {
+    return func(req, res);
+  } catch (err) {
+    return new ErrorHandler(req, res).process(err);
+  }
+};
 
 /* Unauthenticated routes */
 router.post('/login', (req, res) => { new Auth(req, res).login(); });
 router.post('/signup', (req, res) => { new Auth(req, res).signup(); });
 
 /* Authenticated routes */
-router.get('/api/v1/games', Games.index);
-router.post('/api/v1/games', Games.create);
-router.get('/api/v1/game/:gameId', Games.show);
-router.post('/api/v1/game/:gameId/start', Games.start);
-router.put('/api/v1/game/:gameId/transmit', Games.transmit);
-router.put('/api/v1/game/:gameId/decode', Games.decode);
-router.delete('/api/v1/game/:gameId', Games.destroy);
+router.get('/api/v1/games', errorFallback(Games.index));
+router.post('/api/v1/games', errorFallback(Games.create));
+router.get('/api/v1/game/:gameId', errorFallback(Games.show));
+router.post('/api/v1/game/:gameId/start', errorFallback(Games.start));
+router.put('/api/v1/game/:gameId/transmit', errorFallback(Games.transmit));
+router.put('/api/v1/game/:gameId/decode', errorFallback(Games.decode));
+router.delete('/api/v1/game/:gameId', errorFallback(Games.destroy));
 
-router.post('/api/v1/game/:gameId/players', Players.create);
-router.put('/api/v1/game/:gameId/player/:playerId', Players.update);
-router.delete('/api/v1/game/:gameId/player/:playerId', Players.destroy);
+router.post('/api/v1/game/:gameId/players', errorFallback(Players.create));
+router.put('/api/v1/game/:gameId/player/:playerId', errorFallback(Players.update));
+router.delete('/api/v1/game/:gameId/player/:playerId', errorFallback(Players.destroy));
 
 module.exports = router;

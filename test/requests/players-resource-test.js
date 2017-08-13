@@ -41,7 +41,7 @@ describe('playersResource', () => {
     it('rejects for unknown username', () => {
       let res = stubRes();
 
-      return playersResource.create({ user, params: { gameId: game.id }, post: { username: 'flarg-blarp' } }, res)
+      return playersResource.create({ user, params: { gameId: game.id }, body: { username: 'flarg-blarp' } }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(404);
           expect(res.json).to.have.been.calledWith({ error: 'Not Found Error: No user found for that username' });
@@ -51,7 +51,7 @@ describe('playersResource', () => {
     it('rejects for invalid game id', () => {
       let res = stubRes();
 
-      return playersResource.create({ user, params: { gameId: UUIDv4() }, post: { username: 'second-user'} }, res)
+      return playersResource.create({ user, params: { gameId: UUIDv4() }, body: { username: 'second-user'} }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(404);
           expect(res.json).to.have.been.calledWith({ error: 'Not Found Error: No game found for that id' });
@@ -61,7 +61,7 @@ describe('playersResource', () => {
     it('rejects an unrelated user', () => {
       let res = stubRes();
 
-      return playersResource.create({ user: secondUser, params: { gameId: game.id }, post: { username: 'my-user'} }, res)
+      return playersResource.create({ user: secondUser, params: { gameId: game.id }, body: { username: 'my-user'} }, res)
         .then(() => {
           expect(res.status).to.have.been.calledWith(500);
           expect(res.json).to.have.been.calledWith({ error: 'Error: User cannot add players to this game' });
@@ -84,7 +84,7 @@ describe('playersResource', () => {
             Player.create({ userId: user5.id, gameId: game.id })
           ]);
         })
-        .then(() => playersResource.create({ user, params: { gameId: game.id }, post: { username: 'second-user' } }, res))
+        .then(() => playersResource.create({ user, params: { gameId: game.id }, body: { username: 'second-user' } }, res))
         .then(() => {
           expect(res.status).to.have.been.calledWith(500);
           expect(res.json).to.have.been.calledWith({ error: 'Error: The game is full' });
@@ -94,7 +94,7 @@ describe('playersResource', () => {
     it('creates a new player', () => {
       let res = stubRes();
 
-      return playersResource.create({ user, params: { gameId: game.id }, post: { username: 'second-user' } }, res)
+      return playersResource.create({ user, params: { gameId: game.id }, body: { username: 'second-user' } }, res)
         .then(() => game.reload({ include: [Game.Players] }))
         .then(() => {
           expect(game.players.length).to.eq(2);
@@ -106,7 +106,7 @@ describe('playersResource', () => {
       let res = stubRes();
       sandbox.spy(GameSerializer, 'serializeGameForPlayer');
 
-      return playersResource.create({ user, params: { gameId: game.id }, post: { username: 'second-user' } }, res)
+      return playersResource.create({ user, params: { gameId: game.id }, body: { username: 'second-user' } }, res)
         .then(() => {
           expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', player.id)));
           expect(res.status).to.have.been.calledWith(200);
@@ -118,7 +118,7 @@ describe('playersResource', () => {
       let res = stubRes(),
           eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
 
-      return playersResource.create({ user, params: { gameId: game.id }, post: { username: 'second-user' } }, res)
+      return playersResource.create({ user, params: { gameId: game.id }, body: { username: 'second-user' } }, res)
         .then(() => {
           expect(eventStub).to.have.callCount(1);
           expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);

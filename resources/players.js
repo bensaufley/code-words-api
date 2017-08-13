@@ -16,7 +16,7 @@ const _requirePlayer = (func) => {
 
 const create = requireGame((req, res) => {
   let game, newPlayerUser,
-      { user, params: { gameId }, post: { username} } = req;
+      { user, params: { gameId }, body: { username } } = req;
 
   return Promise.all([
     Game.findOne({ where: { id: gameId }, include: [Game.Players] }),
