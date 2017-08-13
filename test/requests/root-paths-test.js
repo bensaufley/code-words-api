@@ -95,6 +95,15 @@ describe('Root Paths', () => {
         });
     });
 
+    it('rejects nonexistent username', () => {
+      return request(app)
+        .post('/login')
+        .send({ username: 'flarger', password: 'awerouwpe' })
+        .then((response) => {
+          expect(response.status).to.eq(401);
+        });
+    });
+
     it('rejects invalid password', () => {
       return request(app)
         .post('/login')
