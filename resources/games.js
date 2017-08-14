@@ -104,7 +104,7 @@ const destroy = (req, res) => {
     }).then(resolve).catch(reject);
   })
     .then((game) => { return game.delete(); })
-    .then(() => { res.status(200); })
+    .then(() => { res.status(200).json({}); })
     .catch(new ErrorHandler(req, res).process);
 };
 

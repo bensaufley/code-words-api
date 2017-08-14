@@ -77,7 +77,7 @@ between 0 and 24. It also cannot be the index of a tile that's already revealed.
 
 > Expects no params besides URL params.
 >
-> Returns 200 status, no body.
+> Returns 200 status, empty JSON body.
 
 Endpoint to delete a Game. Game cannot be deleted if it is already started. Does not
 return a body because if it's successful there's nothing to serialize.
