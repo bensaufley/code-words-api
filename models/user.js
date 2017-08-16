@@ -76,15 +76,14 @@ User.init({
     field: 'password_digest',
     type: Sequelize.STRING,
     validate: {
-      len: [6,24],
       notEmpty: true
     }
   },
   password: {
     type: Sequelize.VIRTUAL,
-    allowNull: false,
+    allowNull: true,
     validate: {
-      notEmpty: true
+      len: [6, 24]
     }
   }
 }, {

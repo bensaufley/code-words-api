@@ -6,11 +6,20 @@ const { ErrorHandler } = require('../lib/error-handler'),
       Player = require('../models/player'),
       GameSerializer = require('../lib/game-serializer');
 
-const _playTurn = (role, turnFunc) => {
+const _playTurn = (role, requiredBodyParams = [], turnFunc) => {
   return requireGame((req, res) => {
     let { user, params: { gameId } } = req;
 
-    if (!req.body) return new ErrorHandler(req, res).promise(new Error('No data passed'));
+    const turnFuncParams = requiredBodyParams.reduce((obj, key) => {
+            obj[key] = req.body && req.body[key];
+            return obj;
+          }, {}),
+          missingValues = Object.keys(turnFuncParams).filter((k) => turnFuncParams[k] === undefined);
+
+    if (missingValues.length) {
+      const err = new Error(`Missing param${missingValues.length > 1 ? 's' : ''}: ${missingValues.join(', ')}`);
+      return new ErrorHandler(req, res).promise(err);
+    }
 
     return Game.findOne({ where: { id: gameId }, include: [{ association: Game.Players, include: [Player.User] }] })
       .then((game) => {
@@ -19,7 +28,7 @@ const _playTurn = (role, turnFunc) => {
         if (game.activePlayerId && player.id !== game.activePlayerId) throw new Error(`It is not ${user.username}'s turn`);
         else return game;
       })
-      .then(turnFunc(req))
+      .then(turnFunc(turnFuncParams))
       .then(notifyPlayersAndRespond(res, user))
       .catch(new ErrorHandler(req, res).process);
   });
@@ -74,21 +83,11 @@ const start = requireGame((req, res) => {
     .catch(new ErrorHandler(req, res).process);
 });
 
-const transmit = _playTurn('transmitter', (req) => {
-  return (game) => {
-    let { word, number } = req.body;
+const transmit = _playTurn('transmitter', ['word', 'number'], ({ word, number }) => (game) => game.transmit(word, number));
 
-    return game.transmit(word, number);
-  };
-});
+const decode = _playTurn('decoder', ['tile'], ({ tile }) => (game) => game.decode(tile));
 
-const decode = _playTurn('decoder', (req) => {
-  return (game) => {
-    let { tile } = req.body;
-
-    return game.decode(tile);
-  };
-});
+const endTurn = _playTurn('decoder', undefined, () => (game) => game.nextTurn());
 
 const destroy = (req, res) => {
   let user = req.user,
@@ -115,5 +114,6 @@ module.exports = {
   start,
   transmit,
   decode,
+  endTurn,
   destroy
 };

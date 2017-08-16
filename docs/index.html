@@ -268,6 +268,9 @@
                     <a href="#put-code-api-v1-game-gameid-decode-code-decode" class="toc-h2 toc-link" data-title="Games">PUT <code>/api/v1/game/:gameId/decode</code>: decode</a>
                   </li>
                   <li>
+                    <a href="#put-code-api-v1-game-gameid-end-turn-code-endturn" class="toc-h2 toc-link" data-title="Games">PUT <code>/api/v1/game/:gameId/end-turn</code>: endTurn</a>
+                  </li>
+                  <li>
                     <a href="#delete-code-api-v1-game-gameid-code-destroy" class="toc-h2 toc-link" data-title="Games">DELETE <code>/api/v1/game/:gameId</code>: destroy</a>
                   </li>
               </ul>
@@ -553,6 +556,15 @@ tile is incorrect</em> and returns the serialized <a href="#game">Game</a>.</p>
 
 <p><code>tile</code> is the index of the chosen tile on the Game&#39;s <code>board</code>, and thus must be a number
 between 0 and 24. It also cannot be the index of a tile that&#39;s already revealed.</p>
+<h2 id='put-code-api-v1-game-gameid-end-turn-code-endturn'>PUT <code>/api/v1/game/:gameId/end-turn</code>: endTurn</h2>
+<blockquote>
+<p>Expects no params besides URL params.</p>
+
+<p>Returns <a href="#game">serialized Game</a></p>
+</blockquote>
+
+<p>If a <code>decoder</code> Player does not wish to make any more <code>decoding</code> turns, she may
+end her turn at this endpoint, advancing the <code>activePlayerId</code> to the next player.</p>
 <h2 id='delete-code-api-v1-game-gameid-code-destroy'>DELETE <code>/api/v1/game/:gameId</code>: destroy</h2>
 <blockquote>
 <p>Expects no params besides URL params.</p>

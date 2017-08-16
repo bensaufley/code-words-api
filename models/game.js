@@ -70,21 +70,18 @@ class Game extends Sequelize.Model {
 
   nextTurn() {
     if (!this.activePlayerId) return Promise.reject(new Error('Game is not started'));
-    return (this.activePlayer ? Promise.resolve(this.activePlayer) : this.getActivePlayer())
-      .then((activePlayer) => {
-        let isTransmitting = activePlayer.role === 'transmitter',
-            otherTeam = activePlayer.team === 'a' ? 'b' : 'a',
-            nextTeam = isTransmitting ? activePlayer.team : otherTeam;
+    if (this.completed()) return Promise.reject(new Error('Game is over'));
 
-        return this.getPlayers({
-          where: {
-            team: nextTeam,
-            role: isTransmitting ? 'decoder' : 'transmitter'
-          },
-          limit: 1
-        });
-      }).then(([player]) => {
-        return this.update({ activePlayerId: player.id });
+    return (this.players ? Promise.resolve(this.players) : this.getPlayers())
+      .then((players) => {
+        const activePlayer = players.find((p) => p.id === this.activePlayerId);
+
+        const otherTeam = activePlayer.team === 'a' ? 'b' : 'a',
+              otherRole = activePlayer.role === 'transmitter' ? 'decoder' : 'transmitter',
+              newTeam = otherRole === 'transmitter' ? otherTeam : activePlayer.team,
+              nextPlayer = players.find((p) => p.team === newTeam && p.role === otherRole);
+
+        return this.update({ activePlayerId: nextPlayer.id });
       });
   }
 

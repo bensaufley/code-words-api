@@ -353,7 +353,17 @@ describe('Games Resource', () => {
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id } }, res)
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
-              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No data passed' }));
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Missing params: word, number' }));
+            });
+        });
+
+        it('rejects a missing param', () => {
+          let res = stubRes();
+
+          return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { number: 2 } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Missing param: word' }));
             });
         });
 
@@ -464,7 +474,17 @@ describe('Games Resource', () => {
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id } }, res)
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
-              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No data passed' }));
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Missing param: tile' }));
+            });
+        });
+
+        it('rejects a missing param', () => {
+          let res = stubRes();
+
+          return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Missing param: tile' }));
             });
         });
 
@@ -581,7 +601,93 @@ describe('Games Resource', () => {
         });
       });
     });
+
+    describe('endTurn', () => {
+      context('invalid', () => {
+        it('rejects an unstarted game', () => {
+          let res = stubRes();
+
+          return gamesResource.endTurn({ user: bDecoderUser, params: { gameId: game.id } }, res)
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith({ error: 'Error: Game is not started' });
+            });
+        });
+
+        it('rejects a transmitter', () => {
+          let res = stubRes();
+
+          return game.update({ activePlayerId: aTransmitterPlayer.id })
+            .then(() => gamesResource.endTurn({ user: aTransmitterUser, params: { gameId: game.id } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith({ error: 'Error: User is not decoder in this game' });
+            });
+        });
+        it('rejects a decoder whose turn it is not', () => {
+          let res = stubRes();
+
+          return game.update({ activePlayerId: aDecoderPlayer.id })
+            .then(() => gamesResource.endTurn({ user: bDecoderUser, params: { gameId: game.id } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith({ error: 'Error: It is not user-4\'s turn' });
+            });
+        });
+
+        it('rejects a finished game', () => {
+          let res = stubRes();
+
+          return game.update({ activePlayerId: bDecoderPlayer.id, turns: [{ event: 'end' }] })
+            .then(() => gamesResource.endTurn({ user: bDecoderUser, params: { gameId: game.id } }, res))
+            .then(() => {
+              expect(res.status).to.have.been.calledWith(500);
+              expect(res.json).to.have.been.calledWith({ error: 'Error: Game is over' });
+            });
+        });
+      });
+
+      context('valid', () => {
+        beforeEach(() => {
+          return game.update({ activePlayerId: bDecoderPlayer.id });
+        });
+
+        it('changes the activePlayerId', () => {
+          let res = stubRes();
+
+          return gamesResource.endTurn({ user: bDecoderUser, params: { gameId: game.id } }, res)
+            .then(() => game.reload())
+            .then(() => {
+              expect(game.activePlayerId).to.eq(aTransmitterPlayer.id);
+            });
+        });
+
+        it('returns the serialized game', () => {
+          let res = stubRes();
+          sandbox.spy(GameSerializer, 'serializeGameForPlayer');
+
+          return gamesResource.endTurn({ user: bDecoderUser, params: { gameId: game.id } }, res)
+            .then(() => {
+              expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', bDecoderPlayer.id)));
+              expect(res.status).to.have.been.calledWith(200);
+              expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+            });
+        });
+
+        it('attempts to notify other players via WebSockets', () => {
+          let res = stubRes(),
+              eventStub = sandbox.stub(SocketNotifier.prototype, 'event');
+
+          return gamesResource.endTurn({ user: bDecoderUser, params: { gameId: game.id } }, res)
+            .then(() => {
+              expect(eventStub).to.have.callCount(3);
+              expect(eventStub).to.have.been.always.calledWith(GAME_UPDATED);
+            });
+        });
+      });
+    });
   });
+
 
   describe('destroy', () => {
     let user, player, game;

@@ -65,10 +65,39 @@ describe('Root Paths', () => {
   });
 
   describe('/signup', () => {
-    it('rejects invalid user signup info', () => {
+    it('rejects missing user signup info', () => {
       return request(app)
         .post('/signup')
-        .send({ username: 'blah-user', password: '' })
+        .send({ username: 'blah-user' })
+        .then((response) => {
+          expect(response.status).to.eq(400);
+          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' });
+        });
+    });
+
+    it('rejects invalid password', () => {
+      return request(app)
+        .post('/signup')
+        .send({ username: 'blah-user', password: 'asdf' })
+        .then((response) => {
+          expect(response.status).to.eq(400);
+          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' });
+        });
+    });
+
+    it('rejects invalid username', () => {
+      return request(app)
+        .post('/signup')
+        .send({ username: 'fff', password: 'asdfawerouer' })
+        .then((response) => {
+          expect(response.status).to.eq(400);
+          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' })
+        })
+        .then(() => {
+          return request(app)
+            .post('/signup')
+            .send({ username: 'f a s d!', password: 'asdfawerouer' });
+        })
         .then((response) => {
           expect(response.status).to.eq(400);
           expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' });

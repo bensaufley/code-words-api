@@ -73,6 +73,15 @@ tile is incorrect_ and returns the serialized [Game](#game).
 `tile` is the index of the chosen tile on the Game's `board`, and thus must be a number
 between 0 and 24. It also cannot be the index of a tile that's already revealed.
 
+## PUT `/api/v1/game/:gameId/end-turn`: endTurn
+
+> Expects no params besides URL params.
+>
+> Returns [serialized Game](#game)
+
+If a `decoder` Player does not wish to make any more `decoding` turns, she may
+end her turn at this endpoint, advancing the `activePlayerId` to the next player.
+
 ## DELETE `/api/v1/game/:gameId`: destroy
 
 > Expects no params besides URL params.

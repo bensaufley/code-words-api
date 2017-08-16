@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken'),
       User = require('../models/user');
 
 const getToken = (req) => {
+  // istanbul ignore if
   if (!req) return null;
 
   return (req.body && req.body.access_token) ||

@@ -6,6 +6,7 @@ const helper = require('../test-helper'),
       jwt = require('jsonwebtoken'),
       sinon = require('sinon'),
       User = require('../../models/user'),
+      { ErrorHandler } = require('../../lib/error-handler'),
       GameSerializer = require('../../lib/game-serializer'),
       { server } = require('../../server'),
       { GAMES_INDEXED } = require('../../lib/sockets/socket-notifier');
@@ -108,9 +109,6 @@ describe('WebSockets Server', () => {
 
       beforeEach(() => {
         sandbox = sinon.sandbox.create();
-        sandbox.stub(GameSerializer.prototype, 'serializeGames').callsFake(() => {
-          return Promise.resolve([ { id: '5432' }]);
-        });
       });
 
       afterEach(() => {
@@ -118,6 +116,10 @@ describe('WebSockets Server', () => {
       });
 
       it('sends games', () => {
+        sandbox.stub(GameSerializer.prototype, 'serializeGames').callsFake(() => {
+          return Promise.resolve([ { id: '5432' }]);
+        });
+
         return new Promise((resolve, reject) => {
           let token = jwt.sign({ userId: user.id }, helper.config.secret);
           ws = new WebSocket(`${wssUrl}?access_token=${token}`);
@@ -125,6 +127,20 @@ describe('WebSockets Server', () => {
           ws.on('message', resolve);
         }).then((data) => {
           expect(data).to.have.eq(JSON.stringify({ event: GAMES_INDEXED, payload: { games: [ { id: '5432' } ] } }));
+        });
+      });
+
+      it('logs an error when sending games', () => {
+        const err = new Error('Some error');
+        sandbox.stub(ErrorHandler.prototype, 'process');
+        sandbox.stub(GameSerializer.prototype, 'serializeGames').rejects(err);
+
+        return new Promise((resolve) => {
+          let token = jwt.sign({ userId: user.id }, helper.config.secret);
+          ws = new WebSocket(`${wssUrl}?access_token=${token}`);
+          setTimeout(resolve, 50);
+        }).then(() => {
+          expect(ErrorHandler.prototype.process).to.have.been.calledWith(err);
         });
       });
     });
