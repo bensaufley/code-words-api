@@ -21,7 +21,7 @@ ways:
 
 > Responds with [login](#post-code-login-code) JSON
 
-The Sign Up endpoint expects a JSON body with `username` and `password` keys. The `username` must be between six and 24 characters, and consist of letters, numbers, dashes, and periods. The `password` must be between six and 24 characters and has no character restrictions.
+The Sign Up endpoint expects a JSON body with `username` and `password` keys. The `username` must be between six and 24 characters, and consist of letters, numbers, dashes, and periods. The `password` must be between seven and 50 characters and has no character restrictions.
 
 Upon successful signup, the user is logged in and granted a token. See [POST `/login`](#post-code-login-code) for return value.
 

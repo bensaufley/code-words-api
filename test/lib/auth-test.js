@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken'),
       helper = require('../test-helper'),
       Auth = require('../../lib/auth'),
       User = require('../../models/user'),
+      { stubRes } = require('../support/request-helper'),
       expect = helper.expect,
       sinon = helper.sinon;
 
@@ -12,11 +13,7 @@ describe('Auth', () => {
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
-    res = {};
-    res.status = () => res;
-    res.json = () => res;
-    sandbox.spy(res, 'json');
-    sandbox.spy(res, 'status');
+    res = stubRes();
   });
 
   afterEach(() => {
@@ -170,12 +167,27 @@ describe('Auth', () => {
 
   describe('signup', () => {
     it('rejects 400 Invalid User Information if User creation fails validation', () => {
-      let auth = new Auth({ body: { username: 'my-user', password: '' } }, res);
+      const res1 = stubRes(),
+            res2 = stubRes(),
+            auth = new Auth({ body: { username: 'as', password: 'a' } }, res1);
 
-      return auth.signup().then(() => {
-        expect(res.status).to.have.been.calledWith(400);
-        expect(res.json).to.have.been.calledWith({ status: 400, message: 'Invalid User Information' });
-      });
+      return auth.signup()
+        .then(() => {
+          expect(res1.status).to.have.been.calledWith(400);
+          expect(res1.json).to.have.been.calledWith({
+            status: 400,
+            message: 'Invalid User Information: username must be six to twenty-four characters in length; password must be seven to fifty characters in length'
+          });
+
+          return new Auth({ body: { username: 'my user', password: 'asdfasdf' } }, res2).signup();
+        })
+        .then(() => {
+          expect(res2.status).to.have.been.calledWith(400);
+          expect(res2.json).to.have.been.calledWith({
+            status: 400,
+            message: 'Invalid User Information: username must be composed of letters, numbers, dashes, and periods, begin with a letter, and end with a letter or number'
+          });
+        });
     });
 
     it('rejects 500 for other errors', () => {

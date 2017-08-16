@@ -20,15 +20,6 @@
     "sequelize": "4.0.0-2",
     "ws": "^3.0.0"
   },
-  "scripts": {
-    "start": "nf start",
-    "test": "nf run mocha",
-    "test:watch": "npm test -- -- -w",
-    "cov": "nyc npm test",
-    "migrate-up": "db-migrate up",
-    "migrate-down": "db-migrate down",
-    "lint": "eslint ."
-  },
   "devDependencies": {
     "chai": "^3.5.0",
     "codeclimate-test-reporter": "^0.4.1",
@@ -40,5 +31,17 @@
     "sinon": "^2.2.0",
     "sinon-chai": "^2.10.0",
     "supertest": "^3.0.0"
+  },
+  "engines": {
+    "node": "8.2.1"
+  },
+  "scripts": {
+    "start": "nf start",
+    "test": "nf run mocha",
+    "test:watch": "npm test -- -- -w",
+    "cov": "nyc npm test",
+    "migrate-up": "db-migrate up",
+    "migrate-down": "db-migrate down",
+    "lint": "eslint ."
   }
 }

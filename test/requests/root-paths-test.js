@@ -81,7 +81,7 @@ describe('Root Paths', () => {
         .send({ username: 'blah-user', password: 'asdf' })
         .then((response) => {
           expect(response.status).to.eq(400);
-          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' });
+          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information: password must be seven to fifty characters in length' });
         });
     });
 
@@ -91,7 +91,7 @@ describe('Root Paths', () => {
         .send({ username: 'fff', password: 'asdfawerouer' })
         .then((response) => {
           expect(response.status).to.eq(400);
-          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' })
+          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information: username must be six to twenty-four characters in length' });
         })
         .then(() => {
           return request(app)
@@ -100,7 +100,7 @@ describe('Root Paths', () => {
         })
         .then((response) => {
           expect(response.status).to.eq(400);
-          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information' });
+          expect(response.body).to.deep.equal({ status: 400, message: 'Invalid User Information: username must be composed of letters, numbers, dashes, and periods, begin with a letter, and end with a letter or number' });
         });
     });
 

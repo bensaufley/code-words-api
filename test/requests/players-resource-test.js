@@ -72,9 +72,9 @@ describe('playersResource', () => {
       let res = stubRes();
 
       return Promise.all([
-        User.create({ username: 'user-3', password: 'pass-3' }),
-        User.create({ username: 'user-4', password: 'pass-4' }),
-        User.create({ username: 'user-5', password: 'pass-5' })
+        User.create({ username: 'my-user-3', password: 'password-3' }),
+        User.create({ username: 'my-user-4', password: 'password-4' }),
+        User.create({ username: 'my-user-5', password: 'password-5' })
       ])
         .then((us) => {
           let [user3, user4, user5] = us;

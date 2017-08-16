@@ -21,10 +21,9 @@ app.use(bodyParser.json());
 app.all('/*', function(req, res, next) {
   // CORS headers
   /* istanbul ignore else */
-  if (config.corsDomains) {
-    let origin = req.get('origin');
-    origin = origin && origin.replace(/^.*\/\//, '');
-    if (config.corsDomains.length && origin && config.corsDomains.includes(origin)) {
+  if (config.corsDomains && config.corsDomains.length) {
+    const origin = req.get('origin');
+    if (origin && config.corsDomains.includes(origin.replace(/^.*\/\//, ''))) {
       res.header('Access-Control-Allow-Origin', origin);
     }
   } else {

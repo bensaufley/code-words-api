@@ -27,9 +27,9 @@ describe('Games Resource', () => {
           return Promise.all([
             Player.create({ gameId: game1.id, userId: user.id, role: 'transmitter', team: 'b' }),
             Player.create({ gameId: game3.id, userId: user.id, role: 'decoder' }),
-            User.create({ username: 'user-2', password: 'password2' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'b' })),
-            User.create({ username: 'user-3', password: 'password3' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'transmitter', team: 'a' })),
-            User.create({ username: 'user-4', password: 'password4' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'a' }))
+            User.create({ username: 'my-user-2', password: 'password2' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'b' })),
+            User.create({ username: 'my-user-3', password: 'password3' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'transmitter', team: 'a' })),
+            User.create({ username: 'my-user-4', password: 'password4' }).then((u) => Player.create({ gameId: game1.id, userId: u.id, role: 'decoder', team: 'a' }))
           ]);
         })
         .then((players) => {
@@ -219,8 +219,8 @@ describe('Games Resource', () => {
       let res = stubRes();
 
       return Promise.all([
-        User.create({ username: 'user-7', password: 'password7' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'decoder', team: 'a' })),
-        User.create({ username: 'user-8', password: 'password8' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'transmitter', team: 'b' }))
+        User.create({ username: 'my-user-7', password: 'password7' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'decoder', team: 'a' })),
+        User.create({ username: 'my-user-8', password: 'password8' }).then((u) => Player.create({ gameId: game.id, userId: u.id, role: 'transmitter', team: 'b' }))
       ]).then(() => game.start())
         .then(() => gamesResource.show({ user: user, params: { gameId: game.id } }, res))
         .then(() => {
@@ -321,10 +321,10 @@ describe('Games Resource', () => {
       sandbox = sinon.sandbox.create();
       return Promise.all([
         Game.create(),
-        User.create({ username: 'user-1', password: 'pass-1' }),
-        User.create({ username: 'user-2', password: 'pass-2' }),
-        User.create({ username: 'user-3', password: 'pass-3' }),
-        User.create({ username: 'user-4', password: 'pass-4' })
+        User.create({ username: 'my-user-1', password: 'password-1' }),
+        User.create({ username: 'my-user-2', password: 'password-2' }),
+        User.create({ username: 'my-user-3', password: 'password-3' }),
+        User.create({ username: 'my-user-4', password: 'password-4' })
       ])
         .then((results) => {
           [game, aTransmitterUser, aDecoderUser, bTransmitterUser, bDecoderUser] = results;
@@ -631,7 +631,7 @@ describe('Games Resource', () => {
             .then(() => gamesResource.endTurn({ user: bDecoderUser, params: { gameId: game.id } }, res))
             .then(() => {
               expect(res.status).to.have.been.calledWith(500);
-              expect(res.json).to.have.been.calledWith({ error: 'Error: It is not user-4\'s turn' });
+              expect(res.json).to.have.been.calledWith({ error: 'Error: It is not my-user-4\'s turn' });
             });
         });
 

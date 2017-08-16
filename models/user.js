@@ -61,15 +61,21 @@ User.init({
     primaryKey: true
   },
   username: {
-    type: Sequelize.STRING(50),
+    type: Sequelize.STRING(24),
     allowNull: false,
     set: function (val) {
       this.setDataValue('username', val.toLowerCase().trim());
     },
     validate: {
-      is: ['^[a-z\\d\\-\\.]{6,24}$', 'i'],
-      len: [6, 24],
-      notEmpty: true
+      is: {
+        args: [/^[a-z][a-z\d\-.]*[a-z\d]$/i],
+        msg: 'must be composed of letters, numbers, dashes, and periods, begin with a letter, and end with a letter or number'
+      },
+      len: {
+        args: [6, 24],
+        msg: 'must be six to twenty-four characters in length'
+      },
+      notEmpty: { msg: 'is required' }
     }
   },
   passwordDigest: {
@@ -83,7 +89,10 @@ User.init({
     type: Sequelize.VIRTUAL,
     allowNull: true,
     validate: {
-      len: [6, 24]
+      len: {
+        args: [7, 50],
+        msg: 'must be seven to fifty characters in length'
+      }
     }
   }
 }, {
