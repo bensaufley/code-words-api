@@ -546,12 +546,14 @@ describe('Games Resource', () => {
           return gamesResource.decode({ user: bDecoderUser, params: { gameId: game.id }, body: { tile: safeTile } }, res)
             .then(() => game.reload())
             .then(() => {
-              expect(game.turns[game.turns.length - 1]).to.eql({
-                correct: true,
-                event: 'decoding',
-                playerId: bDecoderPlayer.id,
-                tile: safeTile
-              });
+              const lastTurn = game.turns[game.turns.length - 1];
+
+              expect(lastTurn).to.have.all.keys(['correct', 'event', 'playerId', 'tile', 'timestamp']);
+              expect(lastTurn.correct).to.eq(true);
+              expect(lastTurn.event).to.eq('decoding');
+              expect(lastTurn.playerId).to.eq(bDecoderPlayer.id);
+              expect(lastTurn.tile).to.eq(safeTile);
+              expect(lastTurn.timestamp).to.be.closeTo(new Date().getTime(), 500);
             });
         });
 
