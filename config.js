@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize'),
-      databaseJson = require('./database.json');
+      databaseJson = require('./database.json'),
+      pg = require('pg');
 
 let dbUrl = process.env.DATABASE_URL;
 
@@ -26,7 +27,9 @@ const logger = (...messages) => {
   else console.log(...messages);
 };
 
-let sequelize = new Sequelize(dbUrl, { logging: logger });
+pg.types.setTypeParser(1114, (stringValue) => new Date(stringValue + ` +0000`));
+
+let sequelize = new Sequelize(dbUrl, { logging: logger, timezone: `-0${new Date().getTimezoneOffset() / 60}:00` });
 
 const CORS_DOMAINS = {
   development: null,

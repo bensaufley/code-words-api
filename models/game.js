@@ -27,6 +27,7 @@ class Game extends Sequelize.Model {
         this.activePlayer = activePlayer;
 
         turn = {
+          timestamp: new Date().getTime(),
           event: 'decoding',
           playerId: activePlayer.id,
           tile: i,
@@ -59,7 +60,10 @@ class Game extends Sequelize.Model {
   }
 
   end(turn, activePlayer) {
-    let finalTurn = { event: 'end' };
+    let finalTurn = {
+      timestamp: new Date().getTime(),
+      event: 'end'
+    };
     if (turn.correct) {
       finalTurn.winner = activePlayer.team;
     } else {
@@ -88,6 +92,7 @@ class Game extends Sequelize.Model {
   serializeFor(player) {
     return {
       id: this.id,
+      updatedAt: this.updated_at,
       activePlayerId: this.activePlayerId,
       board: this.board.serialize(!this.activePlayerId || player.role !== 'transmitter'),
       completed: this.completed(),
@@ -123,6 +128,7 @@ class Game extends Sequelize.Model {
       .then((activePlayer) => {
         this.activePlayer = activePlayer;
         const turn = {
+          timestamp: new Date().getTime(),
           event: 'transmission',
           number: number,
           playerId: activePlayer.id,
