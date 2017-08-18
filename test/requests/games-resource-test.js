@@ -422,12 +422,14 @@ describe('Games Resource', () => {
           return gamesResource.transmit({ user: aTransmitterUser, params: { gameId: game.id }, body: { word: 'erudition', number: 5 } }, res)
             .then(() => game.reload())
             .then(() => {
-              expect(game.turns[game.turns.length - 1]).to.eql({
-                event: 'transmission',
-                number: 5,
-                playerId: aTransmitterPlayer.id,
-                word: 'erudition'
-              });
+              const lastTurn = game.turns[game.turns.length - 1];
+
+              expect(lastTurn).to.have.all.keys(['event', 'number', 'playerId', 'word', 'timestamp']);
+              expect(lastTurn.event).to.eq('transmission');
+              expect(lastTurn.number).to.eq(5);
+              expect(lastTurn.playerId).to.eq(aTransmitterPlayer.id);
+              expect(lastTurn.word).to.eq('erudition');
+              expect(lastTurn.timestamp).to.be.closeTo(new Date().getTime(), 500);
             });
         });
 
