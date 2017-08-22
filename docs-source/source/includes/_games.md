@@ -82,6 +82,16 @@ between 0 and 24. It also cannot be the index of a tile that's already revealed.
 If a `decoder` Player does not wish to make any more `decoding` turns, she may
 end her turn at this endpoint, advancing the `activePlayerId` to the next player.
 
+## POST `/api/v1/game/:gameId/rematch`: rematch
+
+> Expects no params besides URL params
+>
+> Returns new [serialized Game](#game)
+
+Can take the `id` of a completed Game and create a new game with the same players. It
+swaps the players’ teams and roles, but does not automatically start the new game. Teams
+can still be reorganized (and players removed for different players).
+
 ## DELETE `/api/v1/game/:gameId`: destroy
 
 > Expects no params besides URL params.

@@ -4,7 +4,7 @@ const helper = require('../test-helper'),
       expect = helper.expect,
       sinon = helper.sinon,
       { stubRes } = require('../support/request-helper'),
-      { prepareGame } = require('../support/game-helpers'),
+      { completeGame, prepareGame } = require('../support/game-helpers'),
       User = require('../../models/user'),
       Game = require('../../models/game'),
       Player = require('../../models/player'),
@@ -692,6 +692,70 @@ describe('Games Resource', () => {
     });
   });
 
+  describe('rematch', () => {
+    let user, game;
+
+    beforeEach(() => {
+      return prepareGame()
+        .then((response) => {
+          ({ aTransmitterUser: user, game } = response);
+          return completeGame(game);
+        });
+    });
+
+    afterEach(() => helper.cleanDatabase());
+
+    it('rejects if no user', () => {
+      const res = stubRes();
+
+      return gamesResource.rematch({ params: { gameId: game.id } }, res)
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(500);
+          expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: No user defined' }));
+        });
+    });
+
+    it('rejects incomplete games', () => {
+      const res = stubRes(),
+            board = game.getDataValue('board').map((tile) => ({ ...tile, revealed: false })),
+            [turns, , ,] = game.turns;
+
+      return game.update({ board, turns })
+        .then(() => gamesResource.rematch({ user, params: { gameId: game.id } }, res))
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(500);
+          expect(res.json).to.have.been.calledWith(sinon.match({ error: 'Error: Cannot rematch incomplete game' }));
+        });
+    });
+
+    it('rejects deleted games', () => {
+      const res = stubRes();
+
+      return game.update({ deletedAt: new Date() })
+        .then(() => gamesResource.rematch({ user, params: { gameId: game.id } }, res))
+        .then(() => {
+          expect(res.status).to.have.been.calledWith(404);
+          expect(res.json).to.have.been.calledWith(sinon.match({ error: 'NotFoundError: No game found with that id' }));
+        });
+    });
+
+    it('creates a new game based on existing game', () => {
+      const res = stubRes();
+
+      return gamesResource.rematch({ user, params: { gameId: game.id } }, res)
+        .then(() => {
+          const gameResponse = res.json.getCalls()[0].args[0];
+
+          expect(res.status).to.have.been.calledWith(200);
+          expect(gameResponse.game.id).not.to.eq(game.id);
+          expect(gameResponse.game).to.include.keys({ activePlayerId: null, turns: [] });
+          expect(gameResponse.players.find((p) => p.user.username === 'transmitter-a')).to.include.keys({ team: 'b', role: 'decoder' });
+          expect(gameResponse.players.find((p) => p.user.username === 'decoder-a')).to.include.keys({ team: 'b', role: 'transmitter' });
+          expect(gameResponse.players.find((p) => p.user.username === 'transmitter-b')).to.include.keys({ team: 'a', role: 'decoder' });
+          expect(gameResponse.players.find((p) => p.user.username === 'decoder-b')).to.include.keys({ team: 'a', role: 'transmitter' });
+        });
+    });
+  });
 
   describe('destroy', () => {
     let user, player, game;

@@ -1,6 +1,6 @@
 'use strict';
 
-const { ErrorHandler } = require('../lib/error-handler'),
+const { ErrorHandler, NotFoundError } = require('../lib/error-handler'),
       { notifyPlayersAndRespond, requireGame } = require('../lib/response-helpers'),
       Game = require('../models/game'),
       Player = require('../models/player'),
@@ -89,6 +89,24 @@ const decode = _playTurn('decoder', ['tile'], ({ tile }) => (game) => game.decod
 
 const endTurn = _playTurn('decoder', undefined, () => (game) => game.nextTurn());
 
+const rematch = requireGame((req, res) => {
+  let { user, params: { gameId } } = req;
+
+  return Player.findOne({
+    where: { gameId, userId: user.id },
+    include: [{
+      association: Player.Game,
+      include: [Game.Players]
+    }]
+  })
+    .then((player) => {
+      if (!player || !player.game) throw new NotFoundError('No game found with that id');
+      return player.game.rematch();
+    })
+    .then(notifyPlayersAndRespond(res, user))
+    .catch(new ErrorHandler(req, res).process);
+});
+
 const destroy = (req, res) => {
   let user = req.user,
       gameId = req.params && req.params.gameId;
@@ -115,5 +133,6 @@ module.exports = {
   transmit,
   decode,
   endTurn,
+  rematch,
   destroy
 };

@@ -76,17 +76,14 @@ class Game extends Sequelize.Model {
     if (!this.activePlayerId) return Promise.reject(new Error('Game is not started'));
     if (this.completed()) return Promise.reject(new Error('Game is over'));
 
-    return (this.players ? Promise.resolve(this.players) : this.getPlayers())
-      .then((players) => {
-        const activePlayer = players.find((p) => p.id === this.activePlayerId);
+    const activePlayer = this.players.find((p) => p.id === this.activePlayerId);
 
-        const otherTeam = activePlayer.team === 'a' ? 'b' : 'a',
-              otherRole = activePlayer.role === 'transmitter' ? 'decoder' : 'transmitter',
-              newTeam = otherRole === 'transmitter' ? otherTeam : activePlayer.team,
-              nextPlayer = players.find((p) => p.team === newTeam && p.role === otherRole);
+    const otherTeam = activePlayer.team === 'a' ? 'b' : 'a',
+          otherRole = activePlayer.role === 'transmitter' ? 'decoder' : 'transmitter',
+          newTeam = otherRole === 'transmitter' ? otherTeam : activePlayer.team,
+          nextPlayer = this.players.find((p) => p.team === newTeam && p.role === otherRole);
 
-        return this.update({ activePlayerId: nextPlayer.id });
-      });
+    return this.update({ activePlayerId: nextPlayer.id });
   }
 
   serializeFor(player) {
@@ -99,6 +96,23 @@ class Game extends Sequelize.Model {
       started: !!this.activePlayerId,
       turns: this.turns
     };
+  }
+
+  rematch() {
+    if (!this.completed()) return Promise.reject(new Error('Cannot rematch incomplete game'));
+
+    return Game.create({
+      players: this.players.map((p) => ({
+        userId: p.userId,
+        team: p.team === 'a' ? 'b' : 'a',
+        role: p.role === 'transmitter' ? 'decoder' : 'transmitter'
+      }))
+    }, {
+      include: [{
+        association: Game.Players,
+        include: [Game.Players.User]
+      }]
+    });
   }
 
   start() {
@@ -140,19 +154,13 @@ class Game extends Sequelize.Model {
   }
 
   static createForUser(user) {
-    let game;
-
-    return sequelizeInstance.transaction((transaction) => {
-      return this.create({}, { transaction })
-        .then((g) => {
-          game = g;
-          return game.createPlayer({ gameId: game.id, userId: user.id }, { transaction });
-        })
-        .then((p) => {
-          p.user = user;
-          game.players = [p];
-          return game;
-        });
+    return this.create({
+      players: [{ userId: user.id }]
+    }, {
+      include: [{
+        association: Game.Players,
+        include: [Game.Players.User]
+      }]
     });
   }
 }

@@ -28,6 +28,7 @@ router.post('/api/v1/game/:gameId/start', errorFallback(Games.start));
 router.put('/api/v1/game/:gameId/transmit', errorFallback(Games.transmit));
 router.put('/api/v1/game/:gameId/decode', errorFallback(Games.decode));
 router.put('/api/v1/game/:gameId/end-turn', errorFallback(Games.endTurn));
+router.post('/api/v1/game/:gameId/rematch', errorFallback(Games.rematch));
 router.delete('/api/v1/game/:gameId', errorFallback(Games.destroy));
 
 router.post('/api/v1/game/:gameId/players', errorFallback(Players.create));

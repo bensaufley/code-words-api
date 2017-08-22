@@ -31,7 +31,55 @@ module.exports = {
       })
       .then((responses) => {
         [aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer] = responses;
+        game.players = responses;
+        aTransmitterPlayer.user = aTransmitterUser;
+        bTransmitterPlayer.user = bTransmitterUser;
+        aDecoderPlayer.user = aDecoderUser;
+        bDecoderPlayer.user = bDecoderUser;
         return { aTransmitterUser, aDecoderUser, bTransmitterUser, bDecoderUser, aTransmitterPlayer, aDecoderPlayer, bTransmitterPlayer, bDecoderPlayer, game };
       });
+  },
+  completeGame: (game) => {
+    const turns = [],
+          transmitters = game.players.filter((p) => p.role === 'transmitter').reduce((obj, p) => ({ ...obj, [p.team]: p }), {}),
+          decoders = game.players.filter((p) => p.role === 'decoder').reduce((obj, p) => ({ ...obj, [p.team]: p }), {}),
+          tiles = game.getDataValue('board'),
+          tilesLeft = () => (
+            tiles.some((t) => t.type === 'a' && !t.revealed) &&
+            tiles.some((t) => t.type === 'b' && !t.revealed) &&
+            tiles.some((t) => t.type === 'x' && !t.revealed)
+          ),
+          findTileIndex = (team) => tiles.findIndex((t) => t.type === team && !t.revealed),
+          findAnyOtherTileIndex = (team) => tiles.findIndex((t) => t.type !== team && !t.revealed);
+
+    let activePlayer,
+        activeTeam = game.board.startingTeam();
+
+    while (tilesLeft()) {
+      activePlayer = transmitters[activeTeam];
+      turns.push({ timestamp: new Date().getTime(), playerId: activePlayer.id, event: 'transmission' });
+
+      for (let i = Math.floor(Math.random() * 3); i--;) {
+        const tile = findTileIndex(activeTeam);
+        activePlayer = decoders[activeTeam];
+        tiles[tile].revealed = true;
+        turns.push({ timestamp: new Date().getTime(), playerId: activePlayer.id, tile, event: 'decoding' });
+        if (!tilesLeft()) break;
+      }
+      if (!tilesLeft()) break;
+
+      const tile = findAnyOtherTileIndex(activeTeam);
+      tiles[tile].revealed = true;
+      turns.push({ timestamp: new Date().getTime(), playerId: activePlayer.id, tile, event: 'decoding' });
+      activeTeam = activeTeam === 'a' ? 'b' : 'a';
+    }
+
+    const lastTurn = turns[turns.length - 1],
+          wonOrLost = tiles[lastTurn.tile].type === 'x' ? 'lost' : 'won',
+          otherTeam = activeTeam === 'a' ? 'b' : 'a',
+          winner = wonOrLost === 'lost' ? activeTeam : otherTeam;
+    turns.push({ timestamp: new Date().getTime(), event: 'end', winner });
+
+    return game.update({ turns, board: tiles, activePlayerId: activePlayer.id });
   }
 };

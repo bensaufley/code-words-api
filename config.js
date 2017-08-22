@@ -27,7 +27,7 @@ const logger = (...messages) => {
   else console.log(...messages);
 };
 
-pg.types.setTypeParser(1114, (stringValue) => new Date(stringValue + ` +0000`));
+pg.types.setTypeParser(1114, (stringValue) => new Date(`${stringValue} +0000`));
 
 let sequelize = new Sequelize(dbUrl, { logging: logger, timezone: `-0${new Date().getTimezoneOffset() / 60}:00` });
 

@@ -83,11 +83,11 @@ Player.init({
   underscored: true
 });
 
-Player.Game = Player.belongsTo(Game, { as: 'game' });
-Player.User = Player.belongsTo(User, { as: 'user' });
-Game.Players = Game.hasMany(Player, { as: 'players' });
+Game.Players = Game.hasMany(Player, { as: 'players', foreignKey: 'gameId' });
+Player.Game = Player.belongsTo(Game, { as: 'game', foreignKey: 'gameId' });
+Game.Players.User = Player.User = Player.belongsTo(User, { as: 'user', foreignKey: 'userId' });
 Game.Users = Game.belongsToMany(User, { through: Player, as: 'users' });
-User.Players = User.hasMany(Player, { as: 'players' });
+User.Players = User.hasMany(Player, { as: 'players', foreignKey: 'userId' });
 User.Games = User.belongsToMany(Game, { through: Player, as: 'games' });
 Game.ActivePlayer = Game.belongsTo(Player, { as: 'activePlayer', foreignKey: 'activePlayerId', constraints: false });
 
