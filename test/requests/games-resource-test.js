@@ -47,7 +47,7 @@ describe('Games Resource', () => {
           let json = res.json.getCall(0).args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect(json.games.map((g) => g.game.id).sort()).to.eql([game1.id, game3.id].sort());
+          expect(json.games.map((g) => g.id).sort()).to.eql([game1.id, game3.id].sort());
         });
     });
 
@@ -57,8 +57,8 @@ describe('Games Resource', () => {
       return gamesResource.index({ user }, res)
         .then(() => {
           let json = res.json.getCall(0).args[0],
-              game1json = json.games.find((g) => g.game.id === game1.id),
-              game3json = json.games.find((g) => g.game.id === game3.id);
+              game1json = json.games.find((g) => g.id === game1.id),
+              game3json = json.games.find((g) => g.id === game3.id);
 
           expect(game1json.players.map((p) => p.id).sort()).to.eql([player1.id, player3.id, player4.id, player5.id].sort());
           expect(game3json.players.map((p) => p.id)).to.eql([player2.id]);
@@ -74,9 +74,9 @@ describe('Games Resource', () => {
         .then(() => gamesResource.index({ user }, res))
         .then(() => {
           let json = res.json.getCall(0).args[0],
-              decoderGame = json.games.find((g) => g.game.id === game3.id).game,
+              decoderGame = json.games.find((g) => g.id === game3.id),
               decoderTileTypes = decoderGame.board.map((t) => t.type),
-              transmitterGame = json.games.find((g) => g.game.id === game1.id).game,
+              transmitterGame = json.games.find((g) => g.id === game1.id),
               transmitterBoard = transmitterGame.board;
 
           expect(decoderTileTypes).to.eql(new Array(25).fill('redacted'));
@@ -112,7 +112,13 @@ describe('Games Resource', () => {
         .then(() => {
           expect(res.status).to.have.been.calledWith(200);
           expect(res.json).to.have.been.calledWith(sinon.match({
-            game: sinon.match.object,
+            id: sinon.match.string,
+            board: sinon.match.array,
+            turns: sinon.match.array,
+            updatedAt: sinon.match.date,
+            activePlayerId: null,
+            completed: false,
+            started: false,
             players: [sinon.match.has('user', sinon.match(user.serialize()))]
           }));
         });
@@ -199,7 +205,7 @@ describe('Games Resource', () => {
           let resJson = res.json.getCall(0).args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect(resJson.game.board.map((tile) => tile.type)).to.eql(new Array(25).fill('redacted'));
+          expect(resJson.board.map((tile) => tile.type)).to.eql(new Array(25).fill('redacted'));
         });
     });
 
@@ -211,7 +217,7 @@ describe('Games Resource', () => {
           let resJson = res.json.getCall(0).args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect(resJson.game.board.map((tile) => tile.type)).to.eql(new Array(25).fill('redacted'));
+          expect(resJson.board.map((tile) => tile.type)).to.eql(new Array(25).fill('redacted'));
         });
     });
 
@@ -227,8 +233,8 @@ describe('Games Resource', () => {
           let resJson = res.json.getCall(0).args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect(resJson.game.board.map((tile) => tile.type)).to.have.members(['a', 'b', null, 'x']);
-          expect(resJson.game.board.map((tile) => tile.type)).not.to.have.members(['redacted']);
+          expect(resJson.board.map((tile) => tile.type)).to.have.members(['a', 'b', null, 'x']);
+          expect(resJson.board.map((tile) => tile.type)).not.to.have.members(['redacted']);
         });
     });
   });
@@ -298,7 +304,7 @@ describe('Games Resource', () => {
         .then(() => {
           expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', aTransmitterPlayer.id)));
           expect(res.status).to.have.been.calledWith(200);
-          expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+          expect(res.json).to.have.been.calledWith(sinon.match.has('id', game.id));
         });
     });
 
@@ -451,7 +457,7 @@ describe('Games Resource', () => {
             .then(() => {
               expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', aTransmitterPlayer.id)));
               expect(res.status).to.have.been.calledWith(200);
-              expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+              expect(res.json).to.have.been.calledWith(sinon.match.has('id', game.id));
             });
         });
 
@@ -577,7 +583,7 @@ describe('Games Resource', () => {
             .then(() => {
               expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', bDecoderPlayer.id)));
               expect(res.status).to.have.been.calledWith(200);
-              expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+              expect(res.json).to.have.been.calledWith(sinon.match.has('id', game.id));
             });
         });
 
@@ -674,7 +680,7 @@ describe('Games Resource', () => {
             .then(() => {
               expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', bDecoderPlayer.id)));
               expect(res.status).to.have.been.calledWith(200);
-              expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+              expect(res.json).to.have.been.calledWith(sinon.match.has('id', game.id));
             });
         });
 
@@ -747,8 +753,8 @@ describe('Games Resource', () => {
           const gameResponse = res.json.getCalls()[0].args[0];
 
           expect(res.status).to.have.been.calledWith(200);
-          expect(gameResponse.game.id).not.to.eq(game.id);
-          expect(gameResponse.game).to.include.keys({ activePlayerId: null, turns: [] });
+          expect(gameResponse.id).not.to.eq(game.id);
+          expect(gameResponse).to.include.keys({ activePlayerId: null, turns: [] });
           expect(gameResponse.players.find((p) => p.user.username === 'transmitter-a')).to.include.keys({ team: 'b', role: 'decoder' });
           expect(gameResponse.players.find((p) => p.user.username === 'decoder-a')).to.include.keys({ team: 'b', role: 'transmitter' });
           expect(gameResponse.players.find((p) => p.user.username === 'transmitter-b')).to.include.keys({ team: 'a', role: 'decoder' });
