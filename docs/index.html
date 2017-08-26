@@ -271,6 +271,9 @@
                     <a href="#put-code-api-v1-game-gameid-end-turn-code-endturn" class="toc-h2 toc-link" data-title="Games">PUT <code>/api/v1/game/:gameId/end-turn</code>: endTurn</a>
                   </li>
                   <li>
+                    <a href="#post-code-api-v1-game-gameid-rematch-code-rematch" class="toc-h2 toc-link" data-title="Games">POST <code>/api/v1/game/:gameId/rematch</code>: rematch</a>
+                  </li>
+                  <li>
                     <a href="#delete-code-api-v1-game-gameid-code-destroy" class="toc-h2 toc-link" data-title="Games">DELETE <code>/api/v1/game/:gameId</code>: destroy</a>
                   </li>
               </ul>
@@ -565,6 +568,16 @@ between 0 and 24. It also cannot be the index of a tile that&#39;s already revea
 
 <p>If a <code>decoder</code> Player does not wish to make any more <code>decoding</code> turns, she may
 end her turn at this endpoint, advancing the <code>activePlayerId</code> to the next player.</p>
+<h2 id='post-code-api-v1-game-gameid-rematch-code-rematch'>POST <code>/api/v1/game/:gameId/rematch</code>: rematch</h2>
+<blockquote>
+<p>Expects no params besides URL params</p>
+
+<p>Returns new <a href="#game">serialized Game</a></p>
+</blockquote>
+
+<p>Can take the <code>id</code> of a completed Game and create a new game with the same players. It
+swaps the players’ teams and roles, but does not automatically start the new game. Teams
+can still be reorganized (and players removed for different players).</p>
 <h2 id='delete-code-api-v1-game-gameid-code-destroy'>DELETE <code>/api/v1/game/:gameId</code>: destroy</h2>
 <blockquote>
 <p>Expects no params besides URL params.</p>
