@@ -110,7 +110,7 @@ describe('playersResource', () => {
         .then(() => {
           expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', player.id)));
           expect(res.status).to.have.been.calledWith(200);
-          expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+          expect(res.json).to.have.been.calledWith(sinon.match.has('id', game.id));
         });
     });
 
@@ -210,7 +210,7 @@ describe('playersResource', () => {
         .then(() => {
           expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', playerOne.id)));
           expect(res.status).to.have.been.calledWith(200);
-          expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+          expect(res.json).to.have.been.calledWith(sinon.match.has('id', game.id));
         });
     });
 
@@ -286,7 +286,7 @@ describe('playersResource', () => {
         .then(() => {
           expect(res.status).to.have.been.calledWith(200);
           expect(GameSerializer.serializeGameForPlayer).to.have.been.calledWith(sinon.match.instanceOf(Player).and(sinon.match.has('id', playerOne.id)));
-          expect(res.json).to.have.been.calledWith(sinon.match.has('game', sinon.match.has('id', game.id)));
+          expect(res.json).to.have.been.calledWith(sinon.match.has('id', game.id));
         });
     });
 

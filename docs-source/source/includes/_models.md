@@ -8,18 +8,16 @@ Database models should be consistently serialized regardless of the endpoint.
 
 ```json-doc
 {
-  "game": {
-    "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "activePlayerId": "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy",
-    "board": [
-      // see Game.board
-    ],
-    "completed": false,
-    "started": true,
-    "turns": [
-      // see Game.turns
-    ]
-  },
+  "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "activePlayerId": "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy",
+  "board": [
+    // see Game.board
+  ],
+  "completed": false,
+  "started": true,
+  "turns": [
+    // see Game.turns
+  ],
   "players": [
     // See Player
   ]
