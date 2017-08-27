@@ -1,5 +1,7 @@
 'use strict';
 
+require('dotenv').config();
+
 const config = require('./config'),
       express = require('express'),
       http = require('http'),
@@ -50,7 +52,7 @@ app.use(function(req, res) {
   new ErrorHandler(req, res).process(err);
 });
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 5000);
 
 let server = http.createServer(app),
     wss = createWebSocketsServer.v1(server);
