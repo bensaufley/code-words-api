@@ -26,6 +26,7 @@
     "database-cleaner": "^1.2.0",
     "eslint": "^4.3.0",
     "mocha": "^3.4.1",
+    "nodemon": "^1.11.0",
     "nyc": "^11.0.3",
     "pryjs": "^1.0.3",
     "sinon": "^2.2.0",
@@ -36,12 +37,13 @@
     "node": "8.4.0"
   },
   "scripts": {
-    "start": "nf start",
-    "test": "nf run mocha",
-    "test:watch": "npm test -- -- -w",
     "cov": "nyc npm test",
+    "dev": "nf start -j Procfile.dev",
+    "lint": "eslint .",
     "migrate-up": "db-migrate up",
     "migrate-down": "db-migrate down",
-    "lint": "eslint ."
+    "start": "nf start",
+    "test": "nf run mocha",
+    "test:watch": "npm test -- -- -w"
   }
 }
