@@ -4,12 +4,12 @@ require('dotenv').config();
 
 const config = require('./config'),
       express = require('express'),
+      passport = require('./middleware/passport'),
       http = require('http'),
       logger = require('morgan'),
       bodyParser = require('body-parser'),
       { ErrorHandler, NotFoundError } = require('./lib/error-handler'),
-      createWebSocketsServer = require('./lib/web-sockets-server'),
-      validateRequest = require('./middleware/validate-request');
+      createWebSocketsServer = require('./lib/web-sockets-server');
 
 const app = express();
 
@@ -42,7 +42,7 @@ app.all('/*', function(req, res, next) {
 });
 
 // Auth Middleware for api/v1 only
-app.all('/api/v1/*', [validateRequest]);
+app.all('/api/v1/*', [passport.authenticate('jwt', { session: false })]);
 
 app.use('/', require('./routes'));
 

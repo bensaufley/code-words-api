@@ -28,7 +28,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('login', () => {
+  describe('generateToken', () => {
     let user;
 
     beforeEach(() => {
@@ -36,70 +36,32 @@ describe('Auth', () => {
         .then((u) => { user = u; });
     });
 
-    afterEach(() => {
-      return helper.cleanDatabase();
-    });
+    afterEach(helper.cleanDatabase);
 
-    it('rejects 401 if no username provided', () => {
+    it('rejects 401 if no user', () => {
       sandbox.stub(User, 'findOne');
-      let auth = new Auth({ body: { username: '', password: 'password' } }, res);
+      let auth = new Auth({}, res);
 
-      return auth.login().then(() => {
+      return auth.generateToken().then(() => {
         expect(User.findOne).to.have.beenCalled;
         expect(res.status).to.have.been.calledWith(401);
       });
     });
 
-    it('rejects 401 if no password provided', () => {
+    it('rejects 401 if jwt.sign fails', () => {
       sandbox.spy(User.prototype, 'authenticate');
-      let auth = new Auth({ body: { username: 'my-user', password: '' } }, res);
+      sandbox.stub(jwt, 'sign').callsArgWith(3, new Error('It broke!'));
+      let auth = new Auth({ user }, res);
 
-      return auth.login().then(() => {
-        expect(User.prototype.authenticate).to.have.been.calledWith('');
+      return auth.generateToken().then(() => {
         expect(res.status).to.have.been.calledWith(401);
-      });
-    });
-
-    it('returns 401 if username and password are not valid', () => {
-      sandbox.spy(User.prototype, 'authenticate');
-      let auth = new Auth({ body: { username: 'my-user', password: 'not-my-password' } }, res);
-
-      return auth.login().then(() => {
-        expect(User.prototype.authenticate).to.have.been.calledWith('not-my-password');
-        expect(res.status).to.have.been.calledWith(401);
-      });
-    });
-
-    it('returns 401 if something goes wrong generating the token', () => {
-      let auth = new Auth({}, res);
-      sandbox.spy(User.prototype, 'authenticate');
-      sandbox.stub(jwt, 'sign').callsFake((_payload, _key, _options, callback) => {
-        callback(new Error());
-      });
-
-      return auth.login(user).then(() => {
-        expect(jwt.sign).to.have.beenCalled;
-        expect(res.status).to.have.been.calledWith(401);
-        expect(res.json).to.have.been.calledWith({ status: 401, message: 'Invalid Credentials' });
       });
     });
 
     it('returns a token for a valid logged-in user', () => {
-      let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
+      let auth = new Auth({ user }, res);
 
-      return auth.login(user).then(() => {
-        const json = res.json.getCall(0).args[0],
-              decoded = jwt.verify(json.token, helper.config.secret);
-
-        expect(res.status).to.have.been.calledWith(200);
-        expect(decoded.userId).to.eq(user.id);
-      });
-    });
-
-    it('accepts a User object to log in from internal retrieval', () => {
-      let auth = new Auth({}, res);
-
-      return auth.login(user).then(() => {
+      return auth.generateToken(user).then(() => {
         const json = res.json.getCall(0).args[0],
               decoded = jwt.verify(json.token, helper.config.secret);
 
@@ -109,9 +71,9 @@ describe('Auth', () => {
     });
 
     it('sets the token\'s expiration for 7 days out', () => {
-      let auth = new Auth({ body: { username: 'my-user', password: 'my-password' } }, res);
+      let auth = new Auth({ user }, res);
 
-      return auth.login().then(() => {
+      return auth.generateToken().then(() => {
         const json = res.json.getCall(0).args[0],
               decoded = jwt.verify(json.token, helper.config.secret),
               nextWeek = Math.floor((new Date().getTime() + 7 * 60 * 60 * 24 * 1000) / 1000);
@@ -166,6 +128,8 @@ describe('Auth', () => {
   });
 
   describe('signup', () => {
+    afterEach(helper.cleanDatabase);
+
     it('rejects 400 Invalid User Information if User creation fails validation', () => {
       const res1 = stubRes(),
             res2 = stubRes(),

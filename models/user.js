@@ -48,7 +48,6 @@ class User extends Sequelize.Model {
   }
 
   static login(username, password) {
-    if (!username) return Promise.resolve(null);
     return User.findOne({ where: { username: username } })
       .then((user) => user ? user.authenticate(password) : null);
   }

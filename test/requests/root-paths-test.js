@@ -50,13 +50,20 @@ describe('Root Paths', () => {
   describe('uncaught exception', () => {
     let sandbox;
 
-    beforeEach(() => { sandbox = helper.sinon.sandbox.create(); });
-    afterEach(() => { sandbox.restore(); });
+    beforeEach(() => {
+      sandbox = helper.sinon.sandbox.create();
+      return User.create({ username: 'my-user', password: 'my-password' });
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
 
     it('returns JSON with the error', () => {
-      sandbox.stub(Auth.prototype, 'login').throws(new Error('Somethin broke!'));
+      sandbox.stub(Auth.prototype, 'generateToken').throws(new Error('Somethin broke!'));
       return request(app)
         .post('/login')
+        .send({ username: 'my-user', password: 'my-password' })
         .then((response) => {
           expect(response.status).to.eq(500);
           expect(response.body).to.eql({ error: 'Error: Somethin broke!' });
@@ -141,7 +148,7 @@ describe('Root Paths', () => {
         .post('/login')
         .send({ username: '', password: 'my-password' })
         .then((response) => {
-          expect(response.status).to.eq(401);
+          expect(response.status).to.eq(400);
         });
     });
 
@@ -150,7 +157,7 @@ describe('Root Paths', () => {
         .post('/login')
         .send({ username: 'my-user', password: '' })
         .then((response) => {
-          expect(response.status).to.eq(401);
+          expect(response.status).to.eq(400);
         });
     });
 

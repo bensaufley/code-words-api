@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express'),
+      passport = require('./middleware/passport'),
       router = express.Router();
 
 const Auth = require('./lib/auth'),
@@ -16,9 +17,12 @@ const errorFallback = (func) => (req, res) => {
   }
 };
 
+const login = errorFallback((req, res) => { new Auth(req, res).generateToken(); }),
+      signup = errorFallback((req, res) => { new Auth(req, res).signup(); });
+
 /* Unauthenticated routes */
-router.post('/login', errorFallback((req, res) => { new Auth(req, res).login(); }));
-router.post('/signup', errorFallback((req, res) => { new Auth(req, res).signup(); }));
+router.post('/login', passport.authenticate('local', { session: false }), login);
+router.post('/signup', signup);
 
 /* Authenticated routes */
 router.get('/api/v1/games', errorFallback(Games.index));

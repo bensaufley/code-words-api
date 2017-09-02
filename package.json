@@ -15,6 +15,9 @@
     "express": "^4.15.2",
     "jsonwebtoken": "^7.4.0",
     "morgan": "^1.8.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^3.0.0",
+    "passport-local": "^1.0.0",
     "pg": "^6.1.5",
     "pg-hstore": "^2.3.2",
     "sequelize": "4.0.0-2",
@@ -22,6 +25,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "chai-passport-strategy": "^1.0.0",
     "codeclimate-test-reporter": "^0.4.1",
     "database-cleaner": "^1.2.0",
     "eslint": "^4.3.0",
@@ -37,7 +41,8 @@
     "node": "8.4.0"
   },
   "scripts": {
-    "cov": "nyc mocha",
+    "cov": "nyc mocha -b",
+    "cov:show": "open ./coverage/lcov-report/index.html",
     "dev": "nodemon server.js",
     "lint": "eslint .",
     "migrate-up": "db-migrate up",

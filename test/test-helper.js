@@ -8,6 +8,7 @@ const chai = require('chai'),
       { expect } = chai,
       sinon = require('sinon'),
       sinonChai = require('sinon-chai'),
+      chaiPassportStrategy = require('chai-passport-strategy'),
       DatabaseCleaner = require('database-cleaner'),
       pg = require('pg'),
       config = require('../config'),
@@ -39,6 +40,7 @@ const cleanDatabase = () => {
 };
 
 chai.use(sinonChai);
+chai.use(chaiPassportStrategy);
 
 // Unhandled Promise Rejections are a sign of a misconfigured test
 process.on('unhandledRejection', (reason, p) => {
@@ -46,8 +48,8 @@ process.on('unhandledRejection', (reason, p) => {
   expect.fail();
 });
 
-before(() => cleanDatabase());
-after(() => cleanDatabase());
+before(cleanDatabase);
+after(cleanDatabase);
 
 module.exports = {
   cleanDatabase,
