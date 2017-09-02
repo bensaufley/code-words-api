@@ -10,5 +10,5 @@
     "coverage"
   ],
   "all": true,
-  "reporter": ["lcov", "text"]
+  "reporter": ["lcov", "text", "text-summary"]
 }
