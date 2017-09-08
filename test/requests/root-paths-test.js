@@ -1,16 +1,15 @@
 'use strict';
 
-const helper = require('../test-helper'),
-      expect = helper.expect,
+const request = require('supertest'),
+      { cleanDatabase, expect, matchers, sinon } = require('../test-helper'),
       User = require('../../models/user'),
       Auth = require('../../lib/auth'),
-      request = require('supertest'),
+      facebookTokenStrategy = require('../../middleware/strategies/facebook-token-strategy'),
+      facebookUserJson = require('../fixtures/facebook-user.json'),
       { app } = require('../../server');
 
 describe('Root Paths', () => {
-  afterEach(() => {
-    return helper.cleanDatabase();
-  });
+  afterEach(cleanDatabase);
 
   describe('OPTIONS /login', () => {
     it('returns 200 with Headers', () => {
@@ -51,7 +50,7 @@ describe('Root Paths', () => {
     let sandbox;
 
     beforeEach(() => {
-      sandbox = helper.sinon.sandbox.create();
+      sandbox = sinon.sandbox.create();
       return User.create({ username: 'my-user', password: 'my-password' });
     });
 
@@ -128,9 +127,9 @@ describe('Root Paths', () => {
         .send({ username: 'my-user', password: 'my-password' })
         .then((response) => {
           expect(response.status).to.eq(200);
-          expect(response.body.token).to.satisfy(helper.matchers.jwt.test);
+          expect(response.body.token).to.satisfy(matchers.jwt.test);
           expect(response.body.user.username).to.eq('my-user');
-          expect(response.body.user.id).to.satisfy(helper.matchers.uuid.test);
+          expect(response.body.user.id).to.satisfy(matchers.uuid.test);
         });
     });
   });
@@ -187,6 +186,90 @@ describe('Root Paths', () => {
           expect(response.status).to.eq(200);
           expect(response.body).to.have.keys('token', 'user');
         });
+    });
+  });
+
+  describe('facebook', () => {
+    // TODO: Failure tests
+    let sandbox;
+
+    beforeEach(() => {
+      sandbox = sinon.sandbox.create();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    describe('signup', () => {
+      it('returns a new user at /signup', () => {
+        sandbox.stub(facebookTokenStrategy._oauth2, 'get')
+          .callsFake((url, accessToken, next) => {
+            next(null, JSON.stringify(facebookUserJson), null);
+          });
+
+        return request(app)
+          .post('/signup/facebook')
+          .send({ facebook_token: 'fake-token' })
+          .then((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body.user.username).to.eq(`fbu.${facebookUserJson.id}`);
+          });
+      });
+
+      it('returns a new user at /login', () => {
+        sandbox.stub(facebookTokenStrategy._oauth2, 'get')
+          .callsFake((url, accessToken, next) => {
+            next(null, JSON.stringify(facebookUserJson), null);
+          });
+
+        return request(app)
+          .post('/login/facebook')
+          .send({ facebook_token: 'fake-token' })
+          .then((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body.user.username).to.eq(`fbu.${facebookUserJson.id}`);
+          });
+      });
+    });
+
+    describe('login', () => {
+      let user;
+
+      beforeEach(() => {
+        return User.create({ username: 'my-user', password: 'my-password', facebookId: facebookUserJson.id })
+          .then((u) => { user = u; });
+      });
+
+      it('returns existing user at /login', () => {
+        sandbox.stub(facebookTokenStrategy._oauth2, 'get')
+          .callsFake((url, accessToken, next) => {
+            next(null, JSON.stringify(facebookUserJson), null);
+          });
+
+        return request(app)
+          .post('/login/facebook')
+          .send({ facebook_token: 'fake-token' })
+          .then((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body.user).to.eql(user.serialize());
+          });
+      });
+
+      it('returns existing user at /signup', () => {
+        sandbox.stub(facebookTokenStrategy._oauth2, 'get')
+          .callsFake((url, accessToken, next) => {
+            next(null, JSON.stringify(facebookUserJson), null);
+          });
+
+        return request(app)
+          .post('/signup/facebook')
+          .send({ facebook_token: 'fake-token' })
+          .then((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body.user).to.eql(user.serialize());
+          });
+      });
     });
   });
 });

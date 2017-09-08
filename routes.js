@@ -21,10 +21,15 @@ const login = errorFallback((req, res) => { new Auth(req, res).generateToken(); 
       signup = errorFallback((req, res) => { new Auth(req, res).signup(); });
 
 /* Unauthenticated routes */
-router.post('/login', passport.authenticate('local', { session: false }), login);
 router.post('/signup', signup);
+router.post('/login', passport.authenticate('local', { session: false }), login);
+
+// FB signup and login behave the same
+router.post(['/signup/facebook', '/login/facebook'], passport.authenticate('facebook-token', { session: false }), login);
 
 /* Authenticated routes */
+router.post('/api/v1/user/facebook', passport.authenticate('facebook-token', { session: false }), (req, res) => { res.status(200).json({}); });
+
 router.get('/api/v1/games', errorFallback(Games.index));
 router.post('/api/v1/games', errorFallback(Games.create));
 router.get('/api/v1/game/:gameId', errorFallback(Games.show));

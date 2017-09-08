@@ -54,3 +54,33 @@ The Log In endpoint expects the same type of JSON body as Sign Up, and returns t
 
 [JSONWebToken]: https://github.com/auth0/node-jsonwebtoken
 [Bearer authorization]: http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html
+
+## Facebook Auth
+
+> Example JSON body for Facebook auth:
+
+```json-doc
+{
+  "facebook_token": "some-facebook-token"
+}
+```
+
+> Responds with JSON:
+
+```json-doc
+{
+  "token": "…",
+  "user": {
+    "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "username": "username"
+  }
+}
+```
+
+The `/signup/facebook` and `/login/facebook` routes are synonymous: when given a
+Facebook token, the API will find or create a User for the given profile.
+
+If a user is created from a Facebook profile, the username will default to
+`fbu` followed by the `id` property of the Facebook profile (e.g.
+`fbu.12345678909876543`).
+

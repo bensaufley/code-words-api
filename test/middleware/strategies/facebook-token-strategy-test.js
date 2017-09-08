@@ -7,6 +7,8 @@ const { cleanDatabase, expect, sinon } = require('../../test-helper'),
       passportStrategyReq = require('../../support/passport-helper');
 
 describe('facebookTokenStrategy', () => {
+  // TODO: Failure tests
+
   let sandbox;
 
   beforeEach(() => {
