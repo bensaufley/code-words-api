@@ -59,6 +59,12 @@ User.init({
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true
   },
+  facebookId: {
+    field: 'facebook_id',
+    type: Sequelize.STRING,
+    defaultValue: null,
+    allowNull: true
+  },
   username: {
     type: Sequelize.STRING(24),
     allowNull: false,

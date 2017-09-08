@@ -3,11 +3,14 @@
 require('dotenv').config();
 
 process.env.NODE_ENV = 'test';
+process.env.FACEBOOK_APP_SECRET = 'fake-secret';
+process.env.FACEBOOK_APP_ID = 'my-app-id';
 
 const chai = require('chai'),
       { expect } = chai,
       sinon = require('sinon'),
       sinonChai = require('sinon-chai'),
+      chaiChange = require('chai-change'),
       chaiPassportStrategy = require('chai-passport-strategy'),
       DatabaseCleaner = require('database-cleaner'),
       pg = require('pg'),
@@ -40,6 +43,7 @@ const cleanDatabase = () => {
 };
 
 chai.use(sinonChai);
+chai.use(chaiChange);
 chai.use(chaiPassportStrategy);
 
 // Unhandled Promise Rejections are a sign of a misconfigured test
