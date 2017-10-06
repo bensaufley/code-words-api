@@ -24,20 +24,20 @@ Then run:
 
 ```sh
 $ yarn install
-$ npm run migrate-up
+$ yarn migrate-up
 ```
 
 ## Run the App
 
-`npm start`
+`yarn start`
 
 This app uses [foreman-node], so `start` wraps `node server.js` (in the
 Procfile) with `nf start`.
 
 ## Testing
 
-- `npm test` is just a shortcut for `nf run mocha`.
-- `npm run cov` runs the test suite inside [`nyc`] for coverage reporting.
+- `yarn test` is just a shortcut for `nf run mocha`.
+- `yarn cov` runs the test suite inside [`nyc`] for coverage reporting.
 
 [secret-key-gen]: https://github.com/dwyl/learn-json-web-tokens#how-to-generate-secret-key
 [`nyc`]: https://github.com/istanbuljs/nyc
