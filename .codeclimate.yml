@@ -13,6 +13,7 @@ engines:
       - "migrations/"
       - "test/**/*-test.js"
   eslint:
+    channel: eslint-4
     enabled: true
   fixme:
     enabled: true

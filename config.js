@@ -40,9 +40,12 @@ const CORS_DOMAINS = {
 /**
  * @typedef Config
  *
+ * @property {Array} corsDomains - domains (or null) to allow for CORS
+ * @property {String} dbUrl - database connection string
  * @property {Function} log - wraps console.log, suppresses it for test
  * @property {String} secret - app's secret token
  * @property {Object} sequelize - instance of sequelize connected to db
+ * @property {Object} sockets - key/value pairs of WebSocket instances, keys being user IDs
  */
 
 /**

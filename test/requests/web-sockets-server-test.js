@@ -41,7 +41,7 @@ describe('WebSockets Server', () => {
           ws.on('open', reject);
           ws.on('error', resolve);
         }).then((err) => {
-          expect(err.message).to.eq('unexpected server response (403)');
+          expect(err.message).to.eq('unexpected server response (401)');
         });
       });
 
@@ -51,7 +51,7 @@ describe('WebSockets Server', () => {
           ws.on('open', reject);
           ws.on('error', resolve);
         }).then((err) => {
-          expect(err.message).to.eq('unexpected server response (403)');
+          expect(err.message).to.eq('unexpected server response (401)');
         });
       });
 

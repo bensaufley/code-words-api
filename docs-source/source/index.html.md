@@ -11,6 +11,7 @@ toc_footers:
 includes:
   - models
   - authentication
+  - users
   - games
   - players
   - websockets

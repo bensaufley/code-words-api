@@ -244,6 +244,17 @@
                   <li>
                     <a href="#post-code-login-code" class="toc-h2 toc-link" data-title="Authentication">POST <code>/login</code></a>
                   </li>
+                  <li>
+                    <a href="#facebook-auth" class="toc-h2 toc-link" data-title="Authentication">Facebook Auth</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#users" class="toc-h1 toc-link" data-title="Users">Users</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#post-code-api-v1-user-facebook-code-connect-facebook" class="toc-h2 toc-link" data-title="Users">POST <code>/api/v1/user/facebook</code>: connect Facebook</a>
+                  </li>
               </ul>
           </li>
           <li>
@@ -486,6 +497,48 @@ ways:</p>
 </blockquote>
 
 <p>The Log In endpoint expects the same type of JSON body as Sign Up, and returns the same type of response (since both log a user in).</p>
+<h2 id='facebook-auth'>Facebook Auth</h2>
+<blockquote>
+<p>Example JSON body for Facebook auth:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"facebook_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"some-facebook-token"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Responds with JSON:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"user"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"username"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>The <code>/signup/facebook</code> and <code>/login/facebook</code> routes are synonymous: when given a
+Facebook token, the API will find or create a User for the given profile.</p>
+
+<p>If a user is created from a Facebook profile, the username will default to
+<code>fbu</code> followed by the <code>id</code> property of the Facebook profile (e.g.
+<code>fbu.12345678909876543</code>).</p>
+<h1 id='users'>Users</h1>
+<p>All User routes are <a href="#authentication">authenticated</a>.</p>
+<h2 id='post-code-api-v1-user-facebook-code-connect-facebook'>POST <code>/api/v1/user/facebook</code>: connect Facebook</h2>
+<blockquote>
+<p>Expects JSON body:</p>
+</blockquote>
+<pre class="highlight json-doc tab-json-doc"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"facebook_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"some-facebook-token"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>Returns HTTP Status Code and empty JSON body.</p>
+</blockquote>
+
+<p>This endpoint can be used to connect an existing User account to a Facebook
+profile, allowing &quot;Login with Facebook&quot; functionality and, eventually, the
+ability to find Facebook friends in the app.</p>
 <h1 id='games'>Games</h1>
 <p>All Games routes are <a href="#authentication">authenticated</a>.</p>
 <h2 id='get-code-api-v1-games-code-index'>GET <code>/api/v1/games</code>: index</h2>
